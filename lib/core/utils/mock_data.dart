@@ -58,4 +58,43 @@ class MockData {
       ]
     },
   ];
+
+  static final mySchedule = [
+    {
+      'date': 'Nov 25, 2025',
+      'matches': [
+        {
+          'time': '10:00 AM',
+          'opponent': 'Rafael Nadal',
+          'court': 'Court 1',
+          'tournament': 'Summer Open 2025',
+          'status': 'Scheduled'
+        }
+      ]
+    },
+    {
+      'date': 'Dec 02, 2025',
+      'matches': [
+        {
+          'time': '02:00 PM',
+          'opponent': 'Andy Murray',
+          'court': 'Court 3',
+          'tournament': 'Weekend Warrior Cup',
+          'status': 'Pending'
+        }
+      ]
+    },
+  ];
+
+  static final userProfile = {
+    'name': 'Hugo Matsumoto',
+    'title': 'Weekend Warrior',
+    'category': 'Men\'s B',
+    'playingSince': '2020',
+    'wins': 12,
+    'losses': 5,
+    'rank': 42,
+    'bio': 'Love playing on weekends. Looking for a doubles partner for the next tournament!',
+    'avatar': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+  };
 }
