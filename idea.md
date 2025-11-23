@@ -22,7 +22,7 @@ Scheduling tennis matches for a local tournament is difficult due to:
 - **My Schedule**: View specific match days and times to plan ahead.
 - **Brackets**: View the tournament bracket to see current standing and potential opponents.
 - **Share**: Share tournament details with friends to encourage participation.
-- **Join**: Register for a tournament.
+- **Join**: Register for a specific category in a tournament.
 - **Availability**: Mark unavailable days/times to influence the scheduling algorithm.
 - **Cheer**: "Cheer" for a pair or player to show support.
 - **Notifications**: Receive alerts when match times are set.
@@ -51,7 +51,7 @@ Scheduling tennis matches for a local tournament is difficult due to:
 - **Output**: Proposed Schedule.
 
 ### 2. Tournament Management
-- Classifications (A, B, C, D, Mixed).
+- Categories (e.g., Men's A, Women's B, Mixed Doubles).
 - Rule engine (Default vs Custom rules).
 - Bracket generation.
 

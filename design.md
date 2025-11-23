@@ -25,7 +25,8 @@ We will use a **Shell-based Navigation** (likely using `go_router` in Flutter) t
 -   **List View**: Filterable list (Open, In Progress).
 -   **Tournament Detail (Stack Push)**:
     -   Info & Rules.
-    -   **Bracket View**: Interactive tree diagram.
+    -   **Category Selection**: Choose division (e.g., "Men's A").
+    -   **Bracket View**: Interactive tree diagram for selected category.
     -   **Standings**: Group stage tables.
     -   **Register Button**: If open.
 

@@ -45,8 +45,9 @@
 
 ### Collections
 - `users`: Profiles, stats, availability.
-- `tournaments`: Rules, dates, configurations.
-- `matches`: Players, scores, time, court.
+- `tournaments`: Event metadata, dates, courts.
+- `categories`: Divisions within a tournament (e.g., "Men's A").
+- `matches`: Players, scores, time, linked to a category.
 - `courts`: Locations, availability rules.
 
 ## Development Tools
