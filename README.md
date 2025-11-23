@@ -1,16 +1,39 @@
-# tennis_tournament
+# Tennis Tournament Manager
 
-A new Flutter project.
+A Flutter application to manage tennis tournaments, schedule matches, and track player stats.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter SDK
+- Dart SDK
 
-A few resources to get you started if this is your first Flutter project:
+### Installation
+1.  Clone the repository.
+2.  Install dependencies:
+    ```bash
+    flutter pub get
+    ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Running the App
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+To run the app on Chrome (Web):
+```bash
+flutter run -d chrome
+```
+
+## Testing
+
+This project uses the standard Flutter testing framework.
+
+### Running Unit & Widget Tests
+To run all tests in the `test/` directory:
+```bash
+flutter test
+```
+
+### Static Analysis
+To check for code quality and linting issues:
+```bash
+flutter analyze
+```
