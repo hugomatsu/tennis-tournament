@@ -242,6 +242,12 @@
       "languageVersion": "3.8"
     },
     {
+      "name": "flutter_dotenv",
+      "rootUri": "file:///Users/hugomatsumoto/.pub-cache/hosted/pub.dev/flutter_dotenv-6.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_lints",
       "rootUri": "file:///Users/hugomatsumoto/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
@@ -408,6 +414,12 @@
       "rootUri": "file:///Users/hugomatsumoto/.pub-cache/hosted/pub.dev/mockito-5.6.1",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "network_image_mock",
+      "rootUri": "file:///Users/hugomatsumoto/.pub-cache/hosted/pub.dev/network_image_mock-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "node_preamble",

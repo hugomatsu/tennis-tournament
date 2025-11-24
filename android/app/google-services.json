@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "751059311860",
+    "project_id": "tennis-tournment",
+    "storage_bucket": "tennis-tournment.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751059311860:android:e3c80454d4b5746f0c12a1",
+        "android_client_info": {
+          "package_name": "com.hmlabs.tennis_tournament.tennis_tournament"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDynoUSo8Nnm2KAkvjEO0ORWauVuSl-_vM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

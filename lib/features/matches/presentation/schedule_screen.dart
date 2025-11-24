@@ -1,45 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:tennis_tournament/core/utils/mock_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:tennis_tournament/features/matches/data/match_repository.dart';
+import 'package:tennis_tournament/features/matches/domain/match.dart';
 
-class ScheduleScreen extends StatelessWidget {
+final myScheduleProvider = FutureProvider<List<TennisMatch>>((ref) {
+  return ref.watch(matchRepositoryProvider).getMySchedule();
+});
+
+class ScheduleScreen extends ConsumerWidget {
   const ScheduleScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheduleAsync = ref.watch(myScheduleProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('My Schedule')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: MockData.mySchedule.length,
-        itemBuilder: (context, index) {
-          final daySchedule = MockData.mySchedule[index];
-          final matches = daySchedule['matches'] as List;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  daySchedule['date'] as String,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+      body: scheduleAsync.when(
+        data: (matches) {
+          // Group matches by date
+          // Simplified grouping for display
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: matches.length,
+            itemBuilder: (context, index) {
+              final match = matches[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Show date header if it's the first item or different from previous
+                  if (index == 0 || !_isSameDay(matches[index - 1].time, match.time))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        DateFormat('MMM d, yyyy').format(match.time),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
-                ),
-              ),
-              ...matches.map((match) => _MatchCard(match: match)),
-              const SizedBox(height: 8),
-            ],
+                    ),
+                  _MatchCard(match: match),
+                  const SizedBox(height: 8),
+                ],
+              );
+            },
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
+  }
+
+  bool _isSameDay(DateTime d1, DateTime d2) {
+    return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
   }
 }
 
 class _MatchCard extends StatelessWidget {
-  final Map<String, dynamic> match;
+  final TennisMatch match;
 
   const _MatchCard({required this.match});
 
@@ -54,15 +75,15 @@ class _MatchCard extends StatelessWidget {
             Column(
               children: [
                 Text(
-                  match['time'],
+                  DateFormat('h:mm a').format(match.time),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  match['status'],
+                  match.status,
                   style: TextStyle(
                     fontSize: 12,
-                    color: match['status'] == 'Scheduled' ? Colors.green : Colors.orange,
+                    color: match.status == 'Scheduled' ? Colors.green : Colors.orange,
                   ),
                 ),
               ],
@@ -79,7 +100,7 @@ class _MatchCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'vs ${match['opponent']}',
+                    'vs ${match.opponentName}',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
@@ -89,7 +110,7 @@ class _MatchCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          match['tournament'],
+                          match.tournamentName,
                           style: Theme.of(context).textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -102,7 +123,7 @@ class _MatchCard extends StatelessWidget {
                       Icon(Icons.location_on_outlined, size: 14, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        match['court'],
+                        match.court,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

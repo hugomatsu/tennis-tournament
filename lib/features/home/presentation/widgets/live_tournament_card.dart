@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
 class LiveTournamentCard extends StatelessWidget {
-  final Map<String, dynamic> tournament;
+  final Tournament tournament;
 
   const LiveTournamentCard({super.key, required this.tournament});
 
@@ -19,7 +20,7 @@ class LiveTournamentCard extends StatelessWidget {
               height: 120,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(tournament['image']),
+                  image: NetworkImage(tournament.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -37,7 +38,7 @@ class LiveTournamentCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  tournament['status'],
+                  tournament.status,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -51,7 +52,7 @@ class LiveTournamentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    tournament['name'],
+                    tournament.name,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -64,15 +65,18 @@ class LiveTournamentCard extends StatelessWidget {
                       Icon(Icons.people_outline, size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        '${tournament['players']} Players',
+                        '${tournament.playersCount} Players',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(width: 16),
                       Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
-                      Text(
-                        tournament['location'],
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Expanded(
+                        child: Text(
+                          tournament.location,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

@@ -1,67 +1,79 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/core/utils/mock_data.dart';
+import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
-class TournamentDetailScreen extends StatelessWidget {
+final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
+  return ref.watch(tournamentRepositoryProvider).getTournament(id);
+});
+
+class TournamentDetailScreen extends ConsumerWidget {
   final String id;
 
   const TournamentDetailScreen({super.key, required this.id});
 
   @override
-  Widget build(BuildContext context) {
-    final tournament = MockData.liveTournaments.firstWhere(
-      (t) => t['id'] == id,
-      orElse: () => MockData.liveTournaments[0],
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tournamentAsync = ref.watch(tournamentDetailProvider(id));
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Text(tournament['name'] as String),
-                  background: Image.network(
-                    tournament['image'] as String,
-                    fit: BoxFit.cover,
-                    color: Colors.black.withValues(alpha: 0.4),
-                    colorBlendMode: BlendMode.darken,
+    return tournamentAsync.when(
+      data: (tournament) {
+        if (tournament == null) {
+          return const Scaffold(body: Center(child: Text('Tournament not found')));
+        }
+        return DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverAppBar(
+                    expandedHeight: 200,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(tournament.name),
+                      background: Image.network(
+                        tournament.imageUrl,
+                        fit: BoxFit.cover,
+                        color: Colors.black.withValues(alpha: 0.4),
+                        colorBlendMode: BlendMode.darken,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              SliverPersistentHeader(
-                delegate: _SliverAppBarDelegate(
-                  const TabBar(
-                    tabs: [
-                      Tab(text: 'Info'),
-                      Tab(text: 'Bracket'),
-                      Tab(text: 'Standings'),
-                    ],
+                  SliverPersistentHeader(
+                    delegate: _SliverAppBarDelegate(
+                      const TabBar(
+                        tabs: [
+                          Tab(text: 'Info'),
+                          Tab(text: 'Bracket'),
+                          Tab(text: 'Standings'),
+                        ],
+                      ),
+                    ),
+                    pinned: true,
                   ),
-                ),
-                pinned: true,
+                ];
+              },
+              body: TabBarView(
+                children: [
+                  _InfoTab(tournament: tournament),
+                  const _BracketTab(),
+                  const Center(child: Text('Standings Placeholder')),
+                ],
               ),
-            ];
-          },
-          body: TabBarView(
-            children: [
-              _InfoTab(tournament: tournament),
-              const _BracketTab(),
-              const Center(child: Text('Standings Placeholder')),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
     );
   }
 }
 
 class _InfoTab extends StatelessWidget {
-  final Map<String, dynamic> tournament;
+  final Tournament tournament;
 
   const _InfoTab({required this.tournament});
 
@@ -76,15 +88,15 @@ class _InfoTab extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          tournament['description'] as String,
+          tournament.description,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 24),
-        _InfoRow(icon: Icons.calendar_today, text: tournament['dates'] as String),
+        _InfoRow(icon: Icons.calendar_today, text: tournament.dateRange),
         const SizedBox(height: 12),
-        _InfoRow(icon: Icons.location_on, text: tournament['location'] as String),
+        _InfoRow(icon: Icons.location_on, text: tournament.location),
         const SizedBox(height: 12),
-        _InfoRow(icon: Icons.people, text: '${tournament['players']} Players'),
+        _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 32),
         SizedBox(
           width: double.infinity,
@@ -121,6 +133,7 @@ class _BracketTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Note: Bracket data fetching needs similar refactoring, but keeping mock for now as per scope
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: MockData.bracket.length,

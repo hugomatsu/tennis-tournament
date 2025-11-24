@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tennis_tournament/app.dart';
+import 'package:tennis_tournament/features/matches/data/match_repository.dart';
+import 'package:tennis_tournament/features/matches/data/mock_match_repository.dart';
+import 'package:tennis_tournament/features/tournaments/data/mock_tournament_repository.dart';
+import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+
+import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProviderScope(child: TennisApp()));
+  testWidgets('App smoke test', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await mockNetworkImagesFor(() async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            matchRepositoryProvider.overrideWithValue(MockMatchRepository()),
+            tournamentRepositoryProvider.overrideWithValue(MockTournamentRepository()),
+          ],
+          child: const TennisApp(),
+        ),
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      // Verify that the dashboard is shown.
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
+    });
   });
 }
