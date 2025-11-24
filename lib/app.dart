@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/core/theme/app_theme.dart';
 import 'package:tennis_tournament/core/widgets/scaffold_with_nav_bar.dart';
+import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
+import 'package:tennis_tournament/features/auth/presentation/login_screen.dart';
+import 'package:tennis_tournament/features/auth/presentation/register_screen.dart';
 import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
+import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
@@ -13,10 +17,40 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authStateChangesProvider);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
+    redirect: (context, state) {
+      final isLoading = authState.isLoading;
+      final hasError = authState.hasError;
+      final isAuthenticated = authState.asData?.value != null;
+
+      final isLogin = state.uri.toString() == '/login';
+      final isRegister = state.uri.toString() == '/register';
+
+      if (isLoading || hasError) return null;
+
+      if (!isAuthenticated && !isLogin && !isRegister) {
+        return '/login';
+      }
+
+      if (isAuthenticated && (isLogin || isRegister)) {
+        return '/';
+      }
+
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return ScaffoldWithNavBar(navigationShell: navigationShell);
@@ -60,6 +94,12 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/profile',
                 builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                ],
               ),
             ],
           ),

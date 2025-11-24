@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/domain/player.dart';
 
 final currentUserProvider = FutureProvider<Player?>((ref) {
+  // Invalidate provider when auth state changes to force refresh
+  ref.watch(authStateChangesProvider);
   return ref.watch(playerRepositoryProvider).getCurrentUser();
 });
 
@@ -19,15 +23,29 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Profile'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {},
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await ref.read(authRepositoryProvider).signOut();
+            },
           ),
         ],
       ),
       body: userAsync.when(
         data: (user) {
           if (user == null) {
-            return const Center(child: Text('User not found'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Profile not found'),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: () => context.push('/profile/edit'),
+                    child: const Text('Create Profile'),
+                  ),
+                ],
+              ),
+            );
           }
           return SingleChildScrollView(
             child: Column(
@@ -102,7 +120,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () => context.push('/profile/edit'),
                       child: const Text('Edit Profile'),
                     ),
                   ),

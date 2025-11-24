@@ -20,4 +20,9 @@ class MockPlayerRepository implements PlayerRepository {
       avatarUrl: data['avatar'] as String,
     );
   }
+  @override
+  Future<void> updateUser(Player player) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock update logic (no-op)
+  }
 }
