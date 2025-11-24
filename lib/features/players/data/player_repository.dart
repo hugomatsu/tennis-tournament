@@ -15,4 +15,5 @@ final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
 abstract class PlayerRepository {
   Future<Player?> getCurrentUser();
   Future<void> updateUser(Player player);
+  Future<List<Player>> getPlayersForTournament(String tournamentId);
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/core/utils/mock_data.dart';
+import 'package:tennis_tournament/features/matches/data/match_repository.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
+import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
@@ -31,6 +34,44 @@ class TournamentDetailScreen extends ConsumerWidget {
                   SliverAppBar(
                     expandedHeight: 200,
                     pinned: true,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.shuffle),
+                        tooltip: 'Generate Bracket',
+                        onPressed: () async {
+                          final scaffoldMessenger = ScaffoldMessenger.of(context);
+                          try {
+                            // 1. Fetch players
+                            final players = await ref
+                                .read(playerRepositoryProvider)
+                                .getPlayersForTournament(tournament.id);
+
+                            if (players.length < 2) {
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(content: Text('Not enough players to generate bracket')),
+                              );
+                              return;
+                            }
+
+                            // 2. Generate matches
+                            final matches = await ref
+                                .read(schedulingServiceProvider)
+                                .generateBracket(tournament, players);
+
+                            // 3. Save matches
+                            await ref.read(matchRepositoryProvider).createMatches(matches);
+
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text('Generated ${matches.length} matches!')),
+                            );
+                          } catch (e) {
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(tournament.name),
                       background: Image.network(

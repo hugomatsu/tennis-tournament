@@ -52,4 +52,30 @@ class FirestorePlayerRepository implements PlayerRepository {
       'rank': player.rank,
     }, SetOptions(merge: true));
   }
+  @override
+  Future<List<Player>> getPlayersForTournament(String tournamentId) async {
+    // For MVP, we'll assume all users are in the tournament or fetch from a subcollection
+    // A better schema would be a 'registrations' collection.
+    // For now, let's just fetch ALL users to simulate.
+    try {
+      final snapshot = await _firestore.collection('users').limit(16).get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Player(
+          id: doc.id,
+          name: data['name'] as String? ?? 'Player',
+          title: data['title'] as String? ?? '',
+          category: data['category'] as String? ?? '',
+          playingSince: data['playingSince'] as String? ?? '',
+          wins: data['wins'] as int? ?? 0,
+          losses: data['losses'] as int? ?? 0,
+          rank: data['rank'] as int? ?? 0,
+          bio: data['bio'] as String? ?? '',
+          avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

@@ -37,10 +37,17 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   @override
-  Future<List<TennisMatch>> getMySchedule() async {
+  Future<List<TennisMatch>> getLiveTournamentsMatches() async {
+    // Placeholder: Fetch matches from live tournaments
+    return [];
+  }
+
+  @override
+  Future<List<TennisMatch>> getMatchesForTournament(String tournamentId) async {
     try {
       final snapshot = await _firestore
           .collection('matches')
+          .where('tournamentId', isEqualTo: tournamentId)
           .orderBy('time')
           .get();
 
@@ -51,10 +58,12 @@ class FirestoreMatchRepository implements MatchRepository {
           tournamentId: data['tournamentId'] as String,
           tournamentName: data['tournamentName'] as String,
           opponentName: data['opponentName'] as String,
-          time: (data['time'] as Timestamp).toDate(),
+          time: DateTime.parse(data['time'] as String),
           court: data['court'] as String,
           round: data['round'] as String,
           status: data['status'] as String,
+          score: data['score'] as String?,
+          winner: data['winner'] as String?,
         );
       }).toList();
     } catch (e) {
@@ -63,9 +72,28 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getBracket(String tournamentId) async {
-    // Bracket logic is complex in Firestore, typically stored as a JSON blob or subcollection
-    // Returning empty for now as placeholder
+  Future<List<TennisMatch>> getUpcomingMatches() async {
+    // Placeholder: Fetch upcoming matches
     return [];
+  }
+
+  @override
+  Future<void> createMatches(List<TennisMatch> matches) async {
+    final batch = _firestore.batch();
+    for (final match in matches) {
+      final docRef = _firestore.collection('matches').doc(match.id);
+      batch.set(docRef, {
+        'tournamentId': match.tournamentId,
+        'tournamentName': match.tournamentName,
+        'opponentName': match.opponentName,
+        'time': match.time.toIso8601String(),
+        'court': match.court,
+        'round': match.round,
+        'status': match.status,
+        'score': match.score,
+        'winner': match.winner,
+      });
+    }
+    await batch.commit();
   }
 }

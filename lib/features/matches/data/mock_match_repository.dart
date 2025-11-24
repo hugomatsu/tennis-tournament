@@ -20,31 +20,26 @@ class MockMatchRepository implements MatchRepository {
   }
 
   @override
-  Future<List<TennisMatch>> getMySchedule() async {
+  Future<List<TennisMatch>> getLiveTournamentsMatches() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    final List<TennisMatch> matches = [];
-    
-    for (var day in MockData.mySchedule) {
-      final dayMatches = day['matches'] as List;
-      for (var m in dayMatches) {
-        matches.add(TennisMatch(
-          id: 'mock_schedule_${matches.length}',
-          tournamentId: 'mock_t_${matches.length}',
-          tournamentName: m['tournament'],
-          opponentName: m['opponent'],
-          time: DateTime.now(), // Simplified for mock
-          court: m['court'],
-          round: 'Group Stage',
-          status: m['status'],
-        ));
-      }
-    }
-    return matches;
+    return [];
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getBracket(String tournamentId) async {
+  Future<List<TennisMatch>> getMatchesForTournament(String tournamentId) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    return MockData.bracket;
+    return [];
+  }
+
+  @override
+  Future<List<TennisMatch>> getUpcomingMatches() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return [];
+  }
+
+  @override
+  Future<void> createMatches(List<TennisMatch> matches) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock implementation: do nothing
   }
 }

@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 
-final myScheduleProvider = FutureProvider<List<TennisMatch>>((ref) {
-  return ref.watch(matchRepositoryProvider).getMySchedule();
+final scheduleProvider = FutureProvider<List<TennisMatch>>((ref) {
+  return ref.watch(matchRepositoryProvider).getUpcomingMatches();
 });
 
 class ScheduleScreen extends ConsumerWidget {
@@ -13,7 +13,7 @@ class ScheduleScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheduleAsync = ref.watch(myScheduleProvider);
+    final scheduleAsync = ref.watch(scheduleProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Schedule')),

@@ -25,4 +25,24 @@ class MockPlayerRepository implements PlayerRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     // Mock update logic (no-op)
   }
+  @override
+  Future<List<Player>> getPlayersForTournament(String tournamentId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Return some mock players
+    return List.generate(
+      8,
+      (index) => Player(
+        id: 'mock_p_$index',
+        name: 'Player ${index + 1}',
+        title: 'Pro',
+        category: 'A',
+        playingSince: '2020',
+        wins: 10,
+        losses: 2,
+        rank: index + 1,
+        bio: 'Bio',
+        avatarUrl: 'https://via.placeholder.com/150',
+      ),
+    );
+  }
 }

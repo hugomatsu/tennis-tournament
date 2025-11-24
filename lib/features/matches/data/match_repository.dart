@@ -14,6 +14,8 @@ final matchRepositoryProvider = Provider<MatchRepository>((ref) {
 
 abstract class MatchRepository {
   Future<TennisMatch?> getNextMatch();
-  Future<List<TennisMatch>> getMySchedule();
-  Future<List<Map<String, dynamic>>> getBracket(String tournamentId);
+  Future<List<TennisMatch>> getLiveTournamentsMatches();
+  Future<List<TennisMatch>> getMatchesForTournament(String tournamentId);
+  Future<List<TennisMatch>> getUpcomingMatches();
+  Future<void> createMatches(List<TennisMatch> matches);
 }
