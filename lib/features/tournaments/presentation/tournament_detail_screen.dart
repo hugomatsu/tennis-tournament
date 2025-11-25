@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
-import 'package:tennis_tournament/features/players/data/player_repository.dart';
+
 import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
@@ -46,14 +47,19 @@ class TournamentDetailScreen extends ConsumerWidget {
                           onPressed: () async {
                             final scaffoldMessenger = ScaffoldMessenger.of(context);
                             try {
-                              // 1. Fetch players
-                              final players = await ref
-                                  .read(playerRepositoryProvider)
-                                  .getPlayersForTournament(tournament.id);
+                              // 1. Fetch participants
+                              final participants = await ref
+                                  .read(tournamentRepositoryProvider)
+                                  .getParticipants(tournament.id);
 
-                              if (players.length < 2) {
+                              // Filter only approved participants
+                              final approvedParticipants = participants
+                                  .where((p) => p.status == 'approved')
+                                  .toList();
+
+                              if (approvedParticipants.length < 2) {
                                 scaffoldMessenger.showSnackBar(
-                                  const SnackBar(content: Text('Not enough players to generate bracket')),
+                                  const SnackBar(content: Text('Not enough approved participants to generate bracket')),
                                 );
                                 return;
                               }
@@ -61,7 +67,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                               // 2. Generate matches
                               final matches = await ref
                                   .read(schedulingServiceProvider)
-                                  .generateBracket(tournament, players);
+                                  .generateBracket(tournament, approvedParticipants);
 
                               // 3. Save matches
                               await ref.read(matchRepositoryProvider).createMatches(matches);
@@ -74,6 +80,14 @@ class TournamentDetailScreen extends ConsumerWidget {
                                 SnackBar(content: Text('Error: $e')),
                               );
                             }
+                          },
+                        ),
+                      if (userAsync.asData?.value?.userType == 'admin')
+                        IconButton(
+                          icon: const Icon(Icons.people),
+                          tooltip: 'Manage Players',
+                          onPressed: () {
+                            context.go('/tournaments/${tournament.id}/participants');
                           },
                         ),
                     ],
@@ -173,7 +187,7 @@ class _JoinTournamentButton extends ConsumerStatefulWidget {
 
 class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
   bool _isLoading = false;
-  bool _isRegistered = false;
+  String? _status; // null, 'pending', 'approved', 'rejected'
 
   @override
   void initState() {
@@ -191,16 +205,16 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   Future<void> _checkRegistration() async {
     if (widget.currentUser == null) {
-      if (mounted) setState(() => _isRegistered = false);
+      if (mounted) setState(() => _status = null);
       return;
     }
 
-    final isRegistered = await ref
+    final participant = await ref
         .read(tournamentRepositoryProvider)
-        .isPlayerRegistered(widget.tournament.id, widget.currentUser!.id);
+        .getParticipant(widget.tournament.id, widget.currentUser!.id);
     
     if (mounted) {
-      setState(() => _isRegistered = isRegistered);
+      setState(() => _status = participant?.status);
     }
   }
 
@@ -220,9 +234,9 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
           .joinTournament(widget.tournament.id, widget.currentUser!.id);
       
       if (mounted) {
-        setState(() => _isRegistered = true);
+        setState(() => _status = 'pending');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Successfully joined tournament!')),
+          const SnackBar(content: Text('Request sent! Waiting for approval.')),
         );
         ref.invalidate(tournamentDetailProvider(widget.tournament.id));
       }
@@ -239,7 +253,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isRegistered) {
+    if (_status == 'approved') {
       return SizedBox(
         width: double.infinity,
         child: FilledButton.tonal(
@@ -250,6 +264,23 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
               Icon(Icons.check),
               SizedBox(width: 8),
               Text('Registered'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_status == 'pending') {
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton.tonal(
+          onPressed: null,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.hourglass_empty),
+              SizedBox(width: 8),
+              Text('Requested'),
             ],
           ),
         ),

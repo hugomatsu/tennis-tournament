@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
-import 'package:tennis_tournament/features/players/domain/player.dart';
+import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/scheduling_service.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:uuid/uuid.dart';
@@ -15,12 +15,12 @@ class SingleEliminationService implements SchedulingService {
   @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
-    List<Player> players,
+    List<Participant> participants,
   ) async {
-    if (players.length < 2) return [];
+    if (participants.length < 2) return [];
 
     // 1. Shuffle players (random seeding for now)
-    final shuffledPlayers = List<Player>.from(players)..shuffle();
+    final shuffledPlayers = List<Participant>.from(participants)..shuffle();
 
     // 2. Calculate bracket size and byes
     final n = shuffledPlayers.length;

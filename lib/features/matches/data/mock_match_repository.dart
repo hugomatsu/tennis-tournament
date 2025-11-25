@@ -51,4 +51,14 @@ class MockMatchRepository implements MatchRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     // Mock implementation: do nothing
   }
+
+  @override
+  Future<void> updateMatch(TennisMatch match) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<void> updateMatchScore(String matchId, String score, String winnerName) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 }

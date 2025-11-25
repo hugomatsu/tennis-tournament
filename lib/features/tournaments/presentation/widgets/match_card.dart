@@ -3,110 +3,106 @@ import 'package:tennis_tournament/features/matches/domain/match.dart';
 
 class MatchCard extends StatelessWidget {
   final TennisMatch match;
+  final double width;
+  final double height;
   final VoidCallback? onTap;
 
   const MatchCard({
     super.key,
     required this.match,
+    this.width = 220,
+    this.height = 100,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = match.status == 'completed';
-    final winner = match.winner;
+    final isCompleted = match.status == 'Completed';
+    final winnerName = match.winner;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+    return SizedBox(
+      width: width,
+      height: height,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _PlayerRow(
-                name: match.player1Name,
-                avatarUrl: match.player1AvatarUrl,
-                score: match.score?.isNotEmpty == true ? match.score!.split('-')[0] : '',
-                isWinner: isCompleted && winner == match.player1Name,
-              ),
-              const Divider(height: 16),
-              _PlayerRow(
-                name: match.player2Name ?? 'Bye',
-                avatarUrl: match.player2AvatarUrl,
-                score: match.score?.isNotEmpty == true && match.score!.contains('-') 
-                    ? match.score!.split('-')[1] 
-                    : '',
-                isWinner: isCompleted && winner == match.player2Name,
-              ),
-              if (match.status == 'Scheduled') ...[
-                const SizedBox(height: 8),
-                Text(
-                  '${match.time.month}/${match.time.day} ${match.time.hour}:${match.time.minute.toString().padLeft(2, '0')}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ),
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildPlayerRow(
+              context,
+              name: match.player1Name,
+              avatarUrl: match.player1AvatarUrl,
+              isWinner: isCompleted && winnerName == match.player1Name,
+              isTop: true,
+            ),
+            const SizedBox(height: 2), // Small gap between players
+            _buildPlayerRow(
+              context,
+              name: match.player2Name ?? 'Bye',
+              avatarUrl: match.player2AvatarUrl,
+              isWinner: isCompleted && winnerName == match.player2Name,
+              isTop: false,
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class _PlayerRow extends StatelessWidget {
-  final String name;
-  final String? avatarUrl;
-  final String score;
-  final bool isWinner;
+  Widget _buildPlayerRow(
+    BuildContext context, {
+    required String name,
+    required String? avatarUrl,
+    required bool isWinner,
+    required bool isTop,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-  const _PlayerRow({
-    required this.name,
-    this.avatarUrl,
-    required this.score,
-    required this.isWinner,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: isWinner
-          ? BoxDecoration(
-              border: Border(left: BorderSide(color: Colors.green, width: 4)),
-            )
-          : null,
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: Row(
-        children: [
-          if (avatarUrl != null) ...[
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          color: isWinner
+              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.vertical(
+            top: isTop ? const Radius.circular(8) : Radius.zero,
+            bottom: !isTop ? const Radius.circular(8) : Radius.zero,
+          ),
+          border: isWinner
+              ? Border.all(color: Colors.green, width: 2)
+              : Border.all(color: Colors.transparent, width: 2),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
             CircleAvatar(
               radius: 12,
-              backgroundImage: NetworkImage(avatarUrl!),
+              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              backgroundColor: colorScheme.primary,
+              child: avatarUrl == null
+                  ? Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                    )
+                  : null,
             ),
             const SizedBox(width: 8),
-          ] else
-            const SizedBox(width: 32), // Placeholder spacing
-            
-          Expanded(
-            child: Text(
-              name,
-              style: TextStyle(
-                fontWeight: isWinner ? FontWeight.bold : FontWeight.normal,
-                color: isWinner ? Colors.green : null,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (score.isNotEmpty)
-            Text(
-              score,
-              style: TextStyle(
-                fontWeight: isWinner ? FontWeight.bold : FontWeight.normal,
+            Expanded(
+              child: Text(
+                name,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: isWinner ? FontWeight.bold : FontWeight.normal,
+                  color: isWinner ? Colors.green : null,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-        ],
+            if (isWinner)
+              const Icon(Icons.check, size: 16, color: Colors.green),
+          ],
+        ),
       ),
     );
   }

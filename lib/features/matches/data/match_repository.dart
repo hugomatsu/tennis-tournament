@@ -22,4 +22,6 @@ abstract class MatchRepository {
   Future<List<TennisMatch>> getMatchesForTournament(String tournamentId);
   Future<List<TennisMatch>> getUpcomingMatches();
   Future<void> createMatches(List<TennisMatch> matches);
+  Future<void> updateMatch(TennisMatch match);
+  Future<void> updateMatchScore(String matchId, String score, String winnerName);
 }

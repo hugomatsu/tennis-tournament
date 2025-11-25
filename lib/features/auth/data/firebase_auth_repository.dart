@@ -5,11 +5,17 @@ import 'package:tennis_tournament/features/auth/domain/auth_user.dart';
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
 
-  FirebaseAuthRepository(this._firebaseAuth);
+  FirebaseAuthRepository(this._firebaseAuth) {
+    // Ensure persistence is enabled
+    _firebaseAuth.setPersistence(Persistence.LOCAL);
+  }
 
   @override
   Stream<AuthUser?> authStateChanges() {
-    return _firebaseAuth.authStateChanges().map(_mapFirebaseUser);
+    return _firebaseAuth.authStateChanges().map((user) {
+      print('Auth State Changed: ${user?.uid}');
+      return _mapFirebaseUser(user);
+    });
   }
 
   @override

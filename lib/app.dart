@@ -12,6 +12,7 @@ import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/participant_management_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
 
@@ -78,6 +79,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                       final id = state.pathParameters['id']!;
                       return TournamentDetailScreen(id: id);
                     },
+                    routes: [
+                      GoRoute(
+                        path: 'participants',
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          return ParticipantManagementScreen(tournamentId: id);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
