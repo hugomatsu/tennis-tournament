@@ -16,6 +16,8 @@ class BracketView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final matchesAsync = ref.watch(matchesForTournamentProvider(tournament.id));
+    final currentUserAsync = ref.watch(currentUserProvider);
+    final currentUserId = currentUserAsync.asData?.value?.id;
 
     return matchesAsync.when(
       data: (matches) {
@@ -47,11 +49,6 @@ class BracketView extends ConsumerWidget {
         const margin = 20.0; // Vertical margin between slots in Round 1
 
         // Calculate total size
-
-        // If round 1 matches < max possible, we assume full tree size for layout
-        // Or we just use the number of matches in Round 1 * 2 (since each match has 2 slots)
-        // Actually, let's use the maxRound to determine height.
-        // Height = 2^(maxRound-1) * (cardHeight + margin)
         final totalSlots = 1 << (maxRound - 1);
         final totalHeight = totalSlots * (cardHeight + margin) + 100; // Extra padding
         final totalWidth = maxRound * (cardWidth + gap) + 100;
@@ -90,6 +87,8 @@ class BracketView extends ConsumerWidget {
                       child: Stack(
                         children: roundMatches.map((match) {
                           final yOffset = _calculateY(r, match.matchIndex, cardHeight, margin);
+                          final isFinal = r == maxRound && roundMatches.length == 1;
+
                           return Positioned(
                             top: yOffset,
                             left: 0,
@@ -97,9 +96,11 @@ class BracketView extends ConsumerWidget {
                               match: match,
                               width: cardWidth,
                               height: cardHeight,
+                              isFinal: isFinal,
+                              currentUserId: currentUserId,
                               onTap: () {
                                 // Check if admin
-                                final user = ref.read(currentUserProvider).asData?.value;
+                                final user = currentUserAsync.asData?.value;
                                 if (user?.userType == 'admin') {
                                   _showScoreDialog(context, ref, match);
                                 }
