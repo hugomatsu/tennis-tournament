@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Player {
 
- String get id; String get name; String get title; String get category; String get playingSince; int get wins; int get losses; int get rank; String get bio; String get avatarUrl;
+ String get id; String get name; String get title; String get category; String get playingSince; int get wins; int get losses; int get rank; String get bio; String get avatarUrl; String get userType;
 /// Create a copy of Player
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $PlayerCopyWith<Player> get copyWith => _$PlayerCopyWithImpl<Player>(this as Pla
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Player&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.category, category) || other.category == category)&&(identical(other.playingSince, playingSince) || other.playingSince == playingSince)&&(identical(other.wins, wins) || other.wins == wins)&&(identical(other.losses, losses) || other.losses == losses)&&(identical(other.rank, rank) || other.rank == rank)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Player&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.category, category) || other.category == category)&&(identical(other.playingSince, playingSince) || other.playingSince == playingSince)&&(identical(other.wins, wins) || other.wins == wins)&&(identical(other.losses, losses) || other.losses == losses)&&(identical(other.rank, rank) || other.rank == rank)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.userType, userType) || other.userType == userType));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,title,category,playingSince,wins,losses,rank,bio,avatarUrl);
+int get hashCode => Object.hash(runtimeType,id,name,title,category,playingSince,wins,losses,rank,bio,avatarUrl,userType);
 
 @override
 String toString() {
-  return 'Player(id: $id, name: $name, title: $title, category: $category, playingSince: $playingSince, wins: $wins, losses: $losses, rank: $rank, bio: $bio, avatarUrl: $avatarUrl)';
+  return 'Player(id: $id, name: $name, title: $title, category: $category, playingSince: $playingSince, wins: $wins, losses: $losses, rank: $rank, bio: $bio, avatarUrl: $avatarUrl, userType: $userType)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $PlayerCopyWith<$Res>  {
   factory $PlayerCopyWith(Player value, $Res Function(Player) _then) = _$PlayerCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String title, String category, String playingSince, int wins, int losses, int rank, String bio, String avatarUrl
+ String id, String name, String title, String category, String playingSince, int wins, int losses, int rank, String bio, String avatarUrl, String userType
 });
 
 
@@ -65,7 +65,7 @@ class _$PlayerCopyWithImpl<$Res>
 
 /// Create a copy of Player
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? title = null,Object? category = null,Object? playingSince = null,Object? wins = null,Object? losses = null,Object? rank = null,Object? bio = null,Object? avatarUrl = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? title = null,Object? category = null,Object? playingSince = null,Object? wins = null,Object? losses = null,Object? rank = null,Object? bio = null,Object? avatarUrl = null,Object? userType = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -77,6 +77,7 @@ as int,losses: null == losses ? _self.losses : losses // ignore: cast_nullable_t
 as int,rank: null == rank ? _self.rank : rank // ignore: cast_nullable_to_non_nullable
 as int,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: null == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String,userType: null == userType ? _self.userType : userType // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -162,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl,  String userType)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Player() when $default != null:
-return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl);case _:
+return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl,_that.userType);case _:
   return orElse();
 
 }
@@ -183,10 +184,10 @@ return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSinc
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl,  String userType)  $default,) {final _that = this;
 switch (_that) {
 case _Player():
-return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl);case _:
+return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl,_that.userType);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +204,10 @@ return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSinc
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String title,  String category,  String playingSince,  int wins,  int losses,  int rank,  String bio,  String avatarUrl,  String userType)?  $default,) {final _that = this;
 switch (_that) {
 case _Player() when $default != null:
-return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl);case _:
+return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSince,_that.wins,_that.losses,_that.rank,_that.bio,_that.avatarUrl,_that.userType);case _:
   return null;
 
 }
@@ -218,7 +219,7 @@ return $default(_that.id,_that.name,_that.title,_that.category,_that.playingSinc
 @JsonSerializable()
 
 class _Player implements Player {
-  const _Player({required this.id, required this.name, required this.title, required this.category, required this.playingSince, required this.wins, required this.losses, required this.rank, required this.bio, required this.avatarUrl});
+  const _Player({required this.id, required this.name, required this.title, required this.category, required this.playingSince, required this.wins, required this.losses, required this.rank, required this.bio, required this.avatarUrl, this.userType = 'player'});
   factory _Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
 
 @override final  String id;
@@ -231,6 +232,7 @@ class _Player implements Player {
 @override final  int rank;
 @override final  String bio;
 @override final  String avatarUrl;
+@override@JsonKey() final  String userType;
 
 /// Create a copy of Player
 /// with the given fields replaced by the non-null parameter values.
@@ -245,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Player&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.category, category) || other.category == category)&&(identical(other.playingSince, playingSince) || other.playingSince == playingSince)&&(identical(other.wins, wins) || other.wins == wins)&&(identical(other.losses, losses) || other.losses == losses)&&(identical(other.rank, rank) || other.rank == rank)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Player&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.category, category) || other.category == category)&&(identical(other.playingSince, playingSince) || other.playingSince == playingSince)&&(identical(other.wins, wins) || other.wins == wins)&&(identical(other.losses, losses) || other.losses == losses)&&(identical(other.rank, rank) || other.rank == rank)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.userType, userType) || other.userType == userType));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,title,category,playingSince,wins,losses,rank,bio,avatarUrl);
+int get hashCode => Object.hash(runtimeType,id,name,title,category,playingSince,wins,losses,rank,bio,avatarUrl,userType);
 
 @override
 String toString() {
-  return 'Player(id: $id, name: $name, title: $title, category: $category, playingSince: $playingSince, wins: $wins, losses: $losses, rank: $rank, bio: $bio, avatarUrl: $avatarUrl)';
+  return 'Player(id: $id, name: $name, title: $title, category: $category, playingSince: $playingSince, wins: $wins, losses: $losses, rank: $rank, bio: $bio, avatarUrl: $avatarUrl, userType: $userType)';
 }
 
 
@@ -265,7 +267,7 @@ abstract mixin class _$PlayerCopyWith<$Res> implements $PlayerCopyWith<$Res> {
   factory _$PlayerCopyWith(_Player value, $Res Function(_Player) _then) = __$PlayerCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String title, String category, String playingSince, int wins, int losses, int rank, String bio, String avatarUrl
+ String id, String name, String title, String category, String playingSince, int wins, int losses, int rank, String bio, String avatarUrl, String userType
 });
 
 
@@ -282,7 +284,7 @@ class __$PlayerCopyWithImpl<$Res>
 
 /// Create a copy of Player
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? title = null,Object? category = null,Object? playingSince = null,Object? wins = null,Object? losses = null,Object? rank = null,Object? bio = null,Object? avatarUrl = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? title = null,Object? category = null,Object? playingSince = null,Object? wins = null,Object? losses = null,Object? rank = null,Object? bio = null,Object? avatarUrl = null,Object? userType = null,}) {
   return _then(_Player(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -294,6 +296,7 @@ as int,losses: null == losses ? _self.losses : losses // ignore: cast_nullable_t
 as int,rank: null == rank ? _self.rank : rank // ignore: cast_nullable_to_non_nullable
 as int,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: null == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String,userType: null == userType ? _self.userType : userType // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

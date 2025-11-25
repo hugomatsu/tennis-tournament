@@ -89,40 +89,190 @@ class SingleEliminationService implements SchedulingService {
     // Since 'byesCount' < 'bracketSize / 2' (unless N < bracketSize/2 which is impossible as bracketSize is next power of 2),
     // we can just assign one bye to each of the first 'byesCount' matches.
     
-    final totalRound1Matches = bracketSize ~/ 2;
-    // We have 'byesCount' matches that will be Player vs Bye.
-    // The rest (totalRound1Matches - byesCount) will be Player vs Player.
+    // 3. Generate the full bracket tree
+    // We need to generate matches for all rounds.
+    // Round 1 has bracketSize / 2 matches.
+    // Round 2 has bracketSize / 4 matches.
+    // ...
+    // Final has 1 match.
     
-    int playerIndex = 0;
+    // We'll store matches in a map by (round, index) to link them easily.
+    // Key: "round_index"
+    final matchMap = <String, TennisMatch>{};
     
-    for (int i = 0; i < totalRound1Matches; i++) {
-      final isByeMatch = i < byesCount;
-      
-      final player1 = shuffledPlayers[playerIndex++];
-      Player? player2;
-      
-      if (!isByeMatch) {
-        player2 = shuffledPlayers[playerIndex++];
-      }
-      
-      // Create the match
-      matches.add(TennisMatch(
-        id: _uuid.v4(),
-        tournamentId: tournament.id,
-        tournamentName: tournament.name,
-        opponentName: isByeMatch ? 'BYE' : player2!.name,
-        time: DateTime.now().add(Duration(days: 1, hours: i)), // Placeholder time
-        court: 'Court ${i + 1}',
-        round: '1',
-        status: isByeMatch ? 'Completed' : 'Scheduled',
-        score: isByeMatch ? 'Bye' : null,
-        winner: isByeMatch ? player1.name : null,
-        // We might need to store player IDs to track progression properly
-        // For now, relying on names or we should add playerIds to TennisMatch model
-      ));
+    int totalRounds = 0;
+    int temp = bracketSize;
+    while (temp > 1) {
+      temp >>= 1;
+      totalRounds++;
     }
 
-    return matches;
+    // Generate matches from Final (Round N) down to Round 1?
+    // Or Round 1 up to Final?
+    // Let's go Round 1 to Final.
+    
+    int matchesInRound = bracketSize ~/ 2;
+    int playerIndex = 0;
+
+    for (int r = 1; r <= totalRounds; r++) {
+      for (int i = 0; i < matchesInRound; i++) {
+        final matchId = _uuid.v4();
+        
+        // Determine players for Round 1
+        String player1Id = '';
+        String player1Name = 'TBD';
+        String? player1Avatar;
+        String? player2Id;
+        String? player2Name;
+        String? player2Avatar;
+        String status = 'Pending';
+        String? winner;
+        String? score;
+
+        if (r == 1) {
+          final isByeMatch = i < byesCount;
+          
+          final p1 = shuffledPlayers[playerIndex++];
+          player1Id = p1.id;
+          player1Name = p1.name;
+          player1Avatar = p1.avatarUrl;
+
+          if (isByeMatch) {
+            status = 'Completed';
+            winner = p1.name;
+            score = 'Bye';
+            // Player 2 is null/Bye
+          } else {
+            final p2 = shuffledPlayers[playerIndex++];
+            player2Id = p2.id;
+            player2Name = p2.name;
+            player2Avatar = p2.avatarUrl;
+            status = 'Scheduled';
+          }
+        } else {
+          // For subsequent rounds, players are TBD initially
+          // Unless they are advanced from byes in previous round (logic handled by update match, 
+          // but for initial generation we can just set TBD or propagate Byes if we want to be fancy.
+          // For MVP, let's just create the structure. 
+          // Ideally, if R1 has a Bye, the winner should propagate to R2 immediately.
+          // But that requires knowing the next match ID.
+          // So maybe we should generate matches first, then link?
+        }
+
+        final match = TennisMatch(
+          id: matchId,
+          tournamentId: tournament.id,
+          tournamentName: tournament.name,
+          player1Id: player1Id,
+          player1Name: player1Name,
+          player1AvatarUrl: player1Avatar,
+          player2Id: player2Id,
+          player2Name: player2Name,
+          player2AvatarUrl: player2Avatar,
+          opponentName: player2Name ?? 'BYE',
+          time: DateTime.now().add(Duration(days: r, hours: i)), // Staggered times
+          court: 'Court ${i + 1}',
+          round: r.toString(),
+          status: status,
+          score: score,
+          winner: winner,
+          matchIndex: i,
+        );
+        
+        matchMap['${r}_$i'] = match;
+        matches.add(match);
+      }
+      matchesInRound ~/= 2;
+    }
+
+    // Link matches (Next Match ID) and propagate Byes
+    // We need to update the matches in the list with nextMatchId
+    // And potentially update players for Round 2 if Round 1 was a Bye.
+    
+
+    
+    // Sort matches by round to process in order
+    matches.sort((a, b) {
+      final rA = int.parse(a.round);
+      final rB = int.parse(b.round);
+      return rA.compareTo(rB);
+    });
+
+    // We need a mutable map to update matches as we propagate
+    final mutableMatchMap = {for (var m in matches) m.id: m};
+    // Also map by position for easy lookup
+    final positionMap = <String, String>{}; // "round_index" -> matchId
+    for (var m in matches) {
+      positionMap['${m.round}_${m.matchIndex}'] = m.id;
+    }
+
+    for (var match in matches) {
+      final r = int.parse(match.round);
+      final idx = match.matchIndex;
+      
+      // Find next match
+      if (r < totalRounds) {
+        final nextRound = r + 1;
+        final nextIndex = idx ~/ 2;
+        final nextMatchId = positionMap['${nextRound}_$nextIndex'];
+        
+        if (nextMatchId != null) {
+           // Update current match with nextMatchId
+           var updatedMatch = mutableMatchMap[match.id]!.copyWith(nextMatchId: nextMatchId);
+           mutableMatchMap[match.id] = updatedMatch;
+           
+           // Propagate winner if this match is already completed (Bye)
+           if (updatedMatch.status == 'Completed' && updatedMatch.winner != null) {
+             final nextMatch = mutableMatchMap[nextMatchId]!;
+             final isPlayer1Slot = (idx % 2) == 0;
+             
+             // We need to find the player object to get ID and Avatar. 
+             // Since we only stored name in winner, we might need to look up.
+             // But wait, if it's a Bye, player1 is the winner.
+             
+             String? winnerId;
+             String? winnerName;
+             String? winnerAvatar;
+             
+             if (updatedMatch.winner == updatedMatch.player1Name) {
+               winnerId = updatedMatch.player1Id;
+               winnerName = updatedMatch.player1Name;
+               winnerAvatar = updatedMatch.player1AvatarUrl;
+             } else {
+               winnerId = updatedMatch.player2Id;
+               winnerName = updatedMatch.player2Name;
+               winnerAvatar = updatedMatch.player2AvatarUrl;
+             }
+
+             if (winnerId != null) {
+                // Update next match
+                TennisMatch newNextMatch;
+                if (isPlayer1Slot) {
+                  newNextMatch = nextMatch.copyWith(
+                    player1Id: winnerId,
+                    player1Name: winnerName!,
+                    player1AvatarUrl: winnerAvatar,
+                  );
+                } else {
+                  newNextMatch = nextMatch.copyWith(
+                    player2Id: winnerId,
+                    player2Name: winnerName,
+                    player2AvatarUrl: winnerAvatar,
+                    opponentName: winnerName!, // Legacy
+                  );
+                }
+                
+                // If next match now has 2 players, set status to Scheduled? 
+                // Only if both slots are filled.
+                // For now, just update the player info.
+                mutableMatchMap[nextMatchId] = newNextMatch;
+             }
+           }
+        }
+      }
+    }
+
+    return mutableMatchMap.values.toList();
   }
 
   int _nextPowerOfTwo(int n) {

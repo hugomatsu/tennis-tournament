@@ -7,16 +7,25 @@ class MockMatchRepository implements MatchRepository {
   Future<TennisMatch?> getNextMatch() async {
     await Future.delayed(const Duration(milliseconds: 500));
     final data = MockData.nextMatch;
-    return TennisMatch(
-      id: 'mock_next_match',
-      tournamentId: 'mock_t_1',
-      tournamentName: data['tournament']!,
-      opponentName: data['opponent']!,
-      time: DateTime.now().add(const Duration(days: 1)), // Approximate "Tomorrow"
-      court: data['court']!,
-      round: data['round']!,
-      status: 'Scheduled',
-    );
+      return TennisMatch(
+        id: data['id'] as String,
+        tournamentId: data['tournamentId'] as String,
+        tournamentName: data['tournamentName'] as String,
+        player1Id: 'mock_p1',
+        player1Name: data['opponentName'] as String,
+        player1AvatarUrl: 'https://i.pravatar.cc/150?u=mock_p1',
+        player2Id: 'mock_p2',
+        player2Name: 'Opponent',
+        player2AvatarUrl: 'https://i.pravatar.cc/150?u=mock_p2',
+        opponentName: data['opponentName'] as String,
+        time: DateTime.parse(data['time'] as String),
+        court: data['court'] as String,
+        round: data['round'] as String,
+        status: data['status'] as String,
+        score: data['score'] as String?,
+        winner: data['winner'] as String?,
+        matchIndex: 0,
+      );
   }
 
   @override

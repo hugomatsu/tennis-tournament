@@ -21,6 +21,24 @@ class MockTournamentRepository implements TournamentRepository {
     return _mapToTournament(data);
   }
 
+  @override
+  Future<void> createTournament(Tournament tournament) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock implementation: do nothing
+  }
+
+  @override
+  Future<void> joinTournament(String tournamentId, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock implementation: do nothing
+  }
+
+  @override
+  Future<bool> isPlayerRegistered(String tournamentId, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return false; // Always return false for mock to allow joining
+  }
+
   Tournament _mapToTournament(Map<String, dynamic> data) {
     return Tournament(
       id: data['id'] as String,

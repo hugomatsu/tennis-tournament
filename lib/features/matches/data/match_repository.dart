@@ -12,6 +12,10 @@ final matchRepositoryProvider = Provider<MatchRepository>((ref) {
   }
 });
 
+final matchesForTournamentProvider = FutureProvider.family<List<TennisMatch>, String>((ref, tournamentId) {
+  return ref.watch(matchRepositoryProvider).getMatchesForTournament(tournamentId);
+});
+
 abstract class MatchRepository {
   Future<TennisMatch?> getNextMatch();
   Future<List<TennisMatch>> getLiveTournamentsMatches();

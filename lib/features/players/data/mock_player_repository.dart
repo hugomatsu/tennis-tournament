@@ -42,6 +42,7 @@ class MockPlayerRepository implements PlayerRepository {
         rank: index + 1,
         bio: 'Bio',
         avatarUrl: 'https://via.placeholder.com/150',
+        userType: 'player',
       ),
     );
   }

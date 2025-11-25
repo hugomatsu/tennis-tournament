@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tennis_tournament/core/utils/mock_data.dart';
+
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
+import 'package:tennis_tournament/features/players/domain/player.dart';
+import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -19,6 +22,7 @@ class TournamentDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tournamentAsync = ref.watch(tournamentDetailProvider(id));
+    final userAsync = ref.watch(currentUserProvider);
 
     return tournamentAsync.when(
       data: (tournament) {
@@ -35,42 +39,43 @@ class TournamentDetailScreen extends ConsumerWidget {
                     expandedHeight: 200,
                     pinned: true,
                     actions: [
-                      IconButton(
-                        icon: const Icon(Icons.shuffle),
-                        tooltip: 'Generate Bracket',
-                        onPressed: () async {
-                          final scaffoldMessenger = ScaffoldMessenger.of(context);
-                          try {
-                            // 1. Fetch players
-                            final players = await ref
-                                .read(playerRepositoryProvider)
-                                .getPlayersForTournament(tournament.id);
+                      if (userAsync.asData?.value?.userType == 'admin')
+                        IconButton(
+                          icon: const Icon(Icons.shuffle),
+                          tooltip: 'Generate Bracket',
+                          onPressed: () async {
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
+                            try {
+                              // 1. Fetch players
+                              final players = await ref
+                                  .read(playerRepositoryProvider)
+                                  .getPlayersForTournament(tournament.id);
 
-                            if (players.length < 2) {
+                              if (players.length < 2) {
+                                scaffoldMessenger.showSnackBar(
+                                  const SnackBar(content: Text('Not enough players to generate bracket')),
+                                );
+                                return;
+                              }
+
+                              // 2. Generate matches
+                              final matches = await ref
+                                  .read(schedulingServiceProvider)
+                                  .generateBracket(tournament, players);
+
+                              // 3. Save matches
+                              await ref.read(matchRepositoryProvider).createMatches(matches);
+
                               scaffoldMessenger.showSnackBar(
-                                const SnackBar(content: Text('Not enough players to generate bracket')),
+                                SnackBar(content: Text('Generated ${matches.length} matches!')),
                               );
-                              return;
+                            } catch (e) {
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
                             }
-
-                            // 2. Generate matches
-                            final matches = await ref
-                                .read(schedulingServiceProvider)
-                                .generateBracket(tournament, players);
-
-                            // 3. Save matches
-                            await ref.read(matchRepositoryProvider).createMatches(matches);
-
-                            scaffoldMessenger.showSnackBar(
-                              SnackBar(content: Text('Generated ${matches.length} matches!')),
-                            );
-                          } catch (e) {
-                            scaffoldMessenger.showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
-                            );
-                          }
-                        },
-                      ),
+                          },
+                        ),
                     ],
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(tournament.name),
@@ -99,7 +104,7 @@ class TournamentDetailScreen extends ConsumerWidget {
               body: TabBarView(
                 children: [
                   _InfoTab(tournament: tournament),
-                  const _BracketTab(),
+                  BracketView(tournament: tournament),
                   const Center(child: Text('Standings Placeholder')),
                 ],
               ),
@@ -113,40 +118,156 @@ class TournamentDetailScreen extends ConsumerWidget {
   }
 }
 
-class _InfoTab extends StatelessWidget {
+class _InfoTab extends ConsumerWidget {
   final Tournament tournament;
 
   const _InfoTab({required this.tournament});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'About',
-          style: Theme.of(context).textTheme.titleLarge,
+          'Description',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Text(
-          tournament.description,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text(tournament.description),
         const SizedBox(height: 24),
+        Text(
+          'Details',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
         _InfoRow(icon: Icons.calendar_today, text: tournament.dateRange),
         const SizedBox(height: 12),
         _InfoRow(icon: Icons.location_on, text: tournament.location),
         const SizedBox(height: 12),
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () {},
-            child: const Text('Register Now'),
-          ),
+        const SizedBox(height: 32),
+        _JoinTournamentButton(
+          tournament: tournament,
+          currentUser: userAsync.asData?.value,
         ),
       ],
+    );
+  }
+}
+
+class _JoinTournamentButton extends ConsumerStatefulWidget {
+  final Tournament tournament;
+  final Player? currentUser;
+
+  const _JoinTournamentButton({
+    required this.tournament,
+    required this.currentUser,
+  });
+
+  @override
+  ConsumerState<_JoinTournamentButton> createState() => _JoinTournamentButtonState();
+}
+
+class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
+  bool _isLoading = false;
+  bool _isRegistered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRegistration();
+  }
+
+  @override
+  void didUpdateWidget(_JoinTournamentButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentUser != widget.currentUser) {
+      _checkRegistration();
+    }
+  }
+
+  Future<void> _checkRegistration() async {
+    if (widget.currentUser == null) {
+      if (mounted) setState(() => _isRegistered = false);
+      return;
+    }
+
+    final isRegistered = await ref
+        .read(tournamentRepositoryProvider)
+        .isPlayerRegistered(widget.tournament.id, widget.currentUser!.id);
+    
+    if (mounted) {
+      setState(() => _isRegistered = isRegistered);
+    }
+  }
+
+  Future<void> _joinTournament() async {
+    if (widget.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to join')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ref
+          .read(tournamentRepositoryProvider)
+          .joinTournament(widget.tournament.id, widget.currentUser!.id);
+      
+      if (mounted) {
+        setState(() => _isRegistered = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully joined tournament!')),
+        );
+        ref.invalidate(tournamentDetailProvider(widget.tournament.id));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error joining: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isRegistered) {
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton.tonal(
+          onPressed: null,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check),
+              SizedBox(width: 8),
+              Text('Registered'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: _isLoading ? null : _joinTournament,
+        child: _isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text('Join Tournament'),
+      ),
     );
   }
 }
@@ -165,51 +286,6 @@ class _InfoRow extends StatelessWidget {
         const SizedBox(width: 12),
         Text(text),
       ],
-    );
-  }
-}
-
-class _BracketTab extends StatelessWidget {
-  const _BracketTab();
-
-  @override
-  Widget build(BuildContext context) {
-    // Note: Bracket data fetching needs similar refactoring, but keeping mock for now as per scope
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: MockData.bracket.length,
-      itemBuilder: (context, index) {
-        final round = MockData.bracket[index];
-        final matches = round['matches'] as List;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                round['round'] as String,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-              ),
-            ),
-            ...matches.map((m) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    title: Text('${m['p1']} vs ${m['p2']}'),
-                    trailing: Text(
-                      m['score'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: m['winner'] != ''
-                        ? Text('Winner: ${m['winner']}',
-                            style: TextStyle(color: Theme.of(context).colorScheme.primary))
-                        : null,
-                  ),
-                )),
-            const SizedBox(height: 16),
-          ],
-        );
-      },
     );
   }
 }

@@ -21,15 +21,35 @@ class FirestoreMatchRepository implements MatchRepository {
 
       final doc = snapshot.docs.first;
       final data = doc.data();
+      DateTime parsedTime;
+      final timeData = data['time'];
+      if (timeData is Timestamp) {
+        parsedTime = timeData.toDate();
+      } else if (timeData is String) {
+        parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+      } else {
+        parsedTime = DateTime.now();
+      }
+
       return TennisMatch(
         id: doc.id,
         tournamentId: data['tournamentId'] as String,
         tournamentName: data['tournamentName'] as String,
-        opponentName: data['opponentName'] as String,
-        time: (data['time'] as Timestamp).toDate(),
+        player1Id: data['player1Id'] as String? ?? '',
+        player1Name: data['player1Name'] as String? ?? 'TBD',
+        player1AvatarUrl: data['player1AvatarUrl'] as String?,
+        player2Id: data['player2Id'] as String?,
+        player2Name: data['player2Name'] as String?,
+        player2AvatarUrl: data['player2AvatarUrl'] as String?,
+        opponentName: data['opponentName'] as String? ?? '',
+        time: parsedTime,
         court: data['court'] as String,
         round: data['round'] as String,
         status: data['status'] as String,
+        score: data['score'] as String?,
+        winner: data['winner'] as String?,
+        nextMatchId: data['nextMatchId'] as String?,
+        matchIndex: data['matchIndex'] as int? ?? 0,
       );
     } catch (e) {
       return null;
@@ -42,28 +62,48 @@ class FirestoreMatchRepository implements MatchRepository {
     return [];
   }
 
+
+
   @override
   Future<List<TennisMatch>> getMatchesForTournament(String tournamentId) async {
     try {
       final snapshot = await _firestore
           .collection('matches')
           .where('tournamentId', isEqualTo: tournamentId)
-          .orderBy('time')
           .get();
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
+        
+        DateTime parsedTime;
+        final timeData = data['time'];
+        if (timeData is Timestamp) {
+          parsedTime = timeData.toDate();
+        } else if (timeData is String) {
+          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+        } else {
+          parsedTime = DateTime.now();
+        }
+
         return TennisMatch(
           id: doc.id,
           tournamentId: data['tournamentId'] as String,
           tournamentName: data['tournamentName'] as String,
-          opponentName: data['opponentName'] as String,
-          time: DateTime.parse(data['time'] as String),
+          player1Id: data['player1Id'] as String? ?? '',
+          player1Name: data['player1Name'] as String? ?? 'TBD',
+          player1AvatarUrl: data['player1AvatarUrl'] as String?,
+          player2Id: data['player2Id'] as String?,
+          player2Name: data['player2Name'] as String?,
+          player2AvatarUrl: data['player2AvatarUrl'] as String?,
+          opponentName: data['opponentName'] as String? ?? '',
+          time: parsedTime,
           court: data['court'] as String,
           round: data['round'] as String,
           status: data['status'] as String,
           score: data['score'] as String?,
           winner: data['winner'] as String?,
+          nextMatchId: data['nextMatchId'] as String?,
+          matchIndex: data['matchIndex'] as int? ?? 0,
         );
       }).toList();
     } catch (e) {

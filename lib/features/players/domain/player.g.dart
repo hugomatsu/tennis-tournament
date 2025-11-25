@@ -17,6 +17,7 @@ _Player _$PlayerFromJson(Map<String, dynamic> json) => _Player(
   rank: (json['rank'] as num).toInt(),
   bio: json['bio'] as String,
   avatarUrl: json['avatarUrl'] as String,
+  userType: json['userType'] as String? ?? 'player',
 );
 
 Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
@@ -30,4 +31,5 @@ Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
   'rank': instance.rank,
   'bio': instance.bio,
   'avatarUrl': instance.avatarUrl,
+  'userType': instance.userType,
 };

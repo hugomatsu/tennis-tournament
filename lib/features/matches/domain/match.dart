@@ -10,13 +10,21 @@ abstract class TennisMatch with _$TennisMatch {
     required String id,
     required String tournamentId,
     required String tournamentName,
-    required String opponentName,
     required DateTime time,
     required String court,
     required String round,
     required String status, // 'Scheduled', 'Live', 'Completed', 'Pending'
+    required String player1Id,
+    required String player1Name,
+    String? player1AvatarUrl,
+    String? player2Id,
+    String? player2Name,
+    String? player2AvatarUrl,
+    String? opponentName, // Deprecated, kept for backward compatibility if needed, or remove
     String? score,
     String? winner,
+    String? nextMatchId, // ID of the match where the winner goes
+    @Default(0) int matchIndex, // For sorting in bracket
   }) = _TennisMatch;
 
   factory TennisMatch.fromJson(Map<String, dynamic> json) =>

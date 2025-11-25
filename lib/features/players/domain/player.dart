@@ -17,6 +17,7 @@ abstract class Player with _$Player {
     required int rank,
     required String bio,
     required String avatarUrl,
+    @Default('player') String userType,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);

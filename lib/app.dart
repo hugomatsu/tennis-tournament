@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/core/theme/app_theme.dart';
 import 'package:tennis_tournament/core/widgets/scaffold_with_nav_bar.dart';
+import 'package:tennis_tournament/features/admin/presentation/admin_dashboard_screen.dart';
+import 'package:tennis_tournament/features/admin/presentation/create_tournament_screen.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/auth/presentation/login_screen.dart';
 import 'package:tennis_tournament/features/auth/presentation/register_screen.dart';
@@ -102,6 +104,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
             ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminDashboardScreen(),
+        routes: [
+          GoRoute(
+            path: 'create-tournament',
+            builder: (context, state) => const CreateTournamentScreen(),
           ),
         ],
       ),

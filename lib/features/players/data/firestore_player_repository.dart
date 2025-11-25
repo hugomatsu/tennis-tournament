@@ -28,6 +28,7 @@ class FirestorePlayerRepository implements PlayerRepository {
         rank: data['rank'] as int? ?? 0,
         bio: data['bio'] as String? ?? 'No bio yet.',
         avatarUrl: data['avatarUrl'] as String? ?? user.photoURL ?? 'https://via.placeholder.com/150',
+        userType: data['userType'] as String? ?? 'player',
       );
     } catch (e) {
       return null;
@@ -50,17 +51,30 @@ class FirestorePlayerRepository implements PlayerRepository {
       'wins': player.wins,
       'losses': player.losses,
       'rank': player.rank,
+      // userType is NOT updated here to prevent self-promotion
     }, SetOptions(merge: true));
   }
   @override
   Future<List<Player>> getPlayersForTournament(String tournamentId) async {
-    // For MVP, we'll assume all users are in the tournament or fetch from a subcollection
-    // A better schema would be a 'registrations' collection.
-    // For now, let's just fetch ALL users to simulate.
     try {
-      final snapshot = await _firestore.collection('users').limit(16).get();
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
+      // 1. Get participant IDs from the tournament's subcollection
+      final participantsSnapshot = await _firestore
+          .collection('tournaments')
+          .doc(tournamentId)
+          .collection('participants')
+          .get();
+
+      if (participantsSnapshot.docs.isEmpty) return [];
+
+      final participantIds = participantsSnapshot.docs.map((doc) => doc.id).toList();
+
+      // 2. Fetch user documents for these IDs
+      // Firestore 'in' query is limited to 10 items. For simplicity in MVP, we'll fetch individually
+      // or use 'where' with chunks if needed. For now, parallel gets.
+      final playerFutures = participantIds.map((id) async {
+        final doc = await _firestore.collection('users').doc(id).get();
+        if (!doc.exists) return null;
+        final data = doc.data()!;
         return Player(
           id: doc.id,
           name: data['name'] as String? ?? 'Player',
@@ -72,8 +86,12 @@ class FirestorePlayerRepository implements PlayerRepository {
           rank: data['rank'] as int? ?? 0,
           bio: data['bio'] as String? ?? '',
           avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
+          userType: data['userType'] as String? ?? 'player',
         );
-      }).toList();
+      });
+
+      final players = await Future.wait(playerFutures);
+      return players.whereType<Player>().toList();
     } catch (e) {
       return [];
     }

@@ -15,4 +15,7 @@ final tournamentRepositoryProvider = Provider<TournamentRepository>((ref) {
 abstract class TournamentRepository {
   Future<List<Tournament>> getLiveTournaments();
   Future<Tournament?> getTournament(String id);
+  Future<void> createTournament(Tournament tournament);
+  Future<void> joinTournament(String tournamentId, String userId);
+  Future<bool> isPlayerRegistered(String tournamentId, String userId);
 }
