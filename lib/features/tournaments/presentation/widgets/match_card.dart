@@ -147,7 +147,9 @@ class MatchCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 12,
-              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+              foregroundImage: avatarUrl != null && avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              onForegroundImageError: avatarUrl != null && avatarUrl.isNotEmpty ? (_, __) {} : null,
               backgroundColor: colorScheme.primary,
               child: avatarUrl == null
                   ? Text(

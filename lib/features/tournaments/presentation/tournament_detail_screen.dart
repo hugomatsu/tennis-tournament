@@ -93,12 +93,27 @@ class TournamentDetailScreen extends ConsumerWidget {
                     ],
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(tournament.name),
-                      background: Image.network(
-                        tournament.imageUrl,
-                        fit: BoxFit.cover,
-                        color: Colors.black.withValues(alpha: 0.4),
-                        colorBlendMode: BlendMode.darken,
-                      ),
+                      background: tournament.imageUrl.isNotEmpty
+                          ? Image.network(
+                              tournament.imageUrl,
+                              fit: BoxFit.cover,
+                              color: Colors.black.withValues(alpha: 0.4),
+                              colorBlendMode: BlendMode.darken,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/tournament_placeholder.png',
+                                  fit: BoxFit.cover,
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  colorBlendMode: BlendMode.darken,
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              'assets/images/tournament_placeholder.png',
+                              fit: BoxFit.cover,
+                              color: Colors.black.withValues(alpha: 0.4),
+                              colorBlendMode: BlendMode.darken,
+                            ),
                     ),
                   ),
                   SliverPersistentHeader(

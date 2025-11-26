@@ -53,7 +53,9 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: NetworkImage(user.avatarUrl),
+                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                  foregroundImage: user.avatarUrl.isNotEmpty ? NetworkImage(user.avatarUrl) : null,
+                  onForegroundImageError: user.avatarUrl.isNotEmpty ? (_, __) {} : null,
                 ),
                 const SizedBox(height: 16),
                 Text(
