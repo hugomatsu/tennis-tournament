@@ -20,8 +20,12 @@ abstract class MatchRepository {
   Future<TennisMatch?> getNextMatch();
   Future<List<TennisMatch>> getLiveTournamentsMatches();
   Future<List<TennisMatch>> getMatchesForTournament(String tournamentId);
+  Stream<List<TennisMatch>> watchMatchesForTournament(String tournamentId);
   Future<List<TennisMatch>> getUpcomingMatches();
+  Stream<List<TennisMatch>> watchUpcomingMatches();
   Future<void> createMatches(List<TennisMatch> matches);
   Future<void> updateMatch(TennisMatch match);
   Future<void> updateMatchScore(String matchId, String score, String winnerName);
+  Future<void> cheerForMatch(String matchId, String playerId);
+  Future<void> confirmMatch(String matchId, String playerId);
 }

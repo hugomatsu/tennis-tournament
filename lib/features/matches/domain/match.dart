@@ -25,6 +25,10 @@ abstract class TennisMatch with _$TennisMatch {
     String? winner,
     String? nextMatchId, // ID of the match where the winner goes
     @Default(0) int matchIndex, // For sorting in bracket
+    @Default(0) int player1Cheers,
+    @Default(0) int player2Cheers,
+    @Default(false) bool player1Confirmed,
+    @Default(false) bool player2Confirmed,
   }) = _TennisMatch;
 
   factory TennisMatch.fromJson(Map<String, dynamic> json) =>

@@ -5,10 +5,16 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
 class MockTournamentRepository implements TournamentRepository {
   @override
-  Future<List<Tournament>> getLiveTournaments() async {
+  Future<List<Tournament>> getLiveTournaments({String? category}) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    return MockData.liveTournaments.map((data) => _mapToTournament(data)).toList();
+    var tournaments = MockData.liveTournaments.map((data) => _mapToTournament(data)).toList();
+    
+    if (category != null && category != 'All') {
+      tournaments = tournaments.where((t) => t.category == category).toList();
+    }
+    
+    return tournaments;
   }
 
   @override
@@ -109,6 +115,7 @@ class MockTournamentRepository implements TournamentRepository {
       imageUrl: data['image'] as String,
       description: data['description'] as String? ?? '',
       dateRange: data['dates'] as String? ?? '',
+      category: data['category'] as String? ?? 'Open',
     );
   }
 }

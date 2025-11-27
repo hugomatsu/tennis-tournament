@@ -12,6 +12,7 @@ import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/availability/presentation/availability_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/participant_management_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
@@ -110,6 +111,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'edit',
                     builder: (context, state) => const EditProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'availability',
+                    builder: (context, state) => const AvailabilityScreen(),
                   ),
                 ],
               ),

@@ -8,6 +8,10 @@ import 'package:tennis_tournament/features/tournaments/presentation/widgets/matc
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/painters/bracket_painter.dart';
 
+final bracketMatchesProvider = StreamProvider.family<List<TennisMatch>, String>((ref, tournamentId) {
+  return ref.watch(matchRepositoryProvider).watchMatchesForTournament(tournamentId);
+});
+
 class BracketView extends ConsumerWidget {
   final Tournament tournament;
 
@@ -15,7 +19,7 @@ class BracketView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final matchesAsync = ref.watch(matchesForTournamentProvider(tournament.id));
+    final matchesAsync = ref.watch(bracketMatchesProvider(tournament.id));
     final currentUserAsync = ref.watch(currentUserProvider);
     final currentUserId = currentUserAsync.asData?.value?.id;
 
@@ -212,8 +216,8 @@ class BracketView extends ConsumerWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Score updated!')),
                         );
-                        // Refresh matches
-                        ref.invalidate(matchesForTournamentProvider(match.tournamentId));
+                        // Refresh matches - Stream will auto-update
+                        // ref.invalidate(matchesForTournamentProvider(match.tournamentId));
                       }
                     } catch (e) {
                       if (context.mounted) {

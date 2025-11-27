@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 
-final scheduleProvider = FutureProvider<List<TennisMatch>>((ref) {
-  return ref.watch(matchRepositoryProvider).getUpcomingMatches();
+final scheduleProvider = StreamProvider<List<TennisMatch>>((ref) {
+  return ref.watch(matchRepositoryProvider).watchUpcomingMatches();
 });
 
 class ScheduleScreen extends ConsumerWidget {

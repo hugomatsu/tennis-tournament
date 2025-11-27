@@ -15,6 +15,7 @@ abstract class Tournament with _$Tournament {
     required String imageUrl,
     required String description,
     required String dateRange,
+    @Default('Open') String category,
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>

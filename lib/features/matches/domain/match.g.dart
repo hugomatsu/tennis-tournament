@@ -25,6 +25,10 @@ _TennisMatch _$TennisMatchFromJson(Map<String, dynamic> json) => _TennisMatch(
   winner: json['winner'] as String?,
   nextMatchId: json['nextMatchId'] as String?,
   matchIndex: (json['matchIndex'] as num?)?.toInt() ?? 0,
+  player1Cheers: (json['player1Cheers'] as num?)?.toInt() ?? 0,
+  player2Cheers: (json['player2Cheers'] as num?)?.toInt() ?? 0,
+  player1Confirmed: json['player1Confirmed'] as bool? ?? false,
+  player2Confirmed: json['player2Confirmed'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$TennisMatchToJson(_TennisMatch instance) =>
@@ -47,4 +51,8 @@ Map<String, dynamic> _$TennisMatchToJson(_TennisMatch instance) =>
       'winner': instance.winner,
       'nextMatchId': instance.nextMatchId,
       'matchIndex': instance.matchIndex,
+      'player1Cheers': instance.player1Cheers,
+      'player2Cheers': instance.player2Cheers,
+      'player1Confirmed': instance.player1Confirmed,
+      'player2Confirmed': instance.player2Confirmed,
     };

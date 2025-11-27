@@ -7,11 +7,17 @@ class FirestoreTournamentRepository implements TournamentRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
-  Future<List<Tournament>> getLiveTournaments() async {
+  Future<List<Tournament>> getLiveTournaments({String? category}) async {
     try {
-      final snapshot = await _firestore.collection('tournaments').get();
+      Query query = _firestore.collection('tournaments');
+      
+      if (category != null && category != 'All') {
+        query = query.where('category', isEqualTo: category);
+      }
+      
+      final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = doc.data() as Map<String, dynamic>;
         return Tournament(
           id: doc.id,
           name: data['name'] as String,
@@ -21,6 +27,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
           imageUrl: data['imageUrl'] as String,
           description: data['description'] as String,
           dateRange: data['dateRange'] as String,
+          category: data['category'] as String? ?? 'Open',
         );
       }).toList();
     } catch (e) {
@@ -44,6 +51,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         imageUrl: data['imageUrl'] as String,
         description: data['description'] as String,
         dateRange: data['dateRange'] as String,
+        category: data['category'] as String? ?? 'Open',
       );
     } catch (e) {
       return null;
@@ -60,6 +68,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'status': tournament.status,
       'description': tournament.description,
       'playersCount': tournament.playersCount,
+      'category': tournament.category,
     });
   }
 

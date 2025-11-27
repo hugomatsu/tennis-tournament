@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 
@@ -50,6 +51,11 @@ class FirestoreMatchRepository implements MatchRepository {
         winner: data['winner'] as String?,
         nextMatchId: data['nextMatchId'] as String?,
         matchIndex: data['matchIndex'] as int? ?? 0,
+        player1Cheers: data['player1Cheers'] as int? ?? 0,
+        player2Cheers: data['player2Cheers'] as int? ?? 0,
+
+        player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+        player2Confirmed: data['player2Confirmed'] as bool? ?? false,
       );
     } catch (e) {
       return null;
@@ -104,6 +110,10 @@ class FirestoreMatchRepository implements MatchRepository {
           winner: data['winner'] as String?,
           nextMatchId: data['nextMatchId'] as String?,
           matchIndex: data['matchIndex'] as int? ?? 0,
+          player1Cheers: data['player1Cheers'] as int? ?? 0,
+          player2Cheers: data['player2Cheers'] as int? ?? 0,
+          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
       }).toList();
     } catch (e) {
@@ -112,9 +122,184 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   @override
+  Stream<List<TennisMatch>> watchMatchesForTournament(String tournamentId) {
+    return _firestore
+        .collection('matches')
+        .where('tournamentId', isEqualTo: tournamentId)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        
+        DateTime parsedTime;
+        final timeData = data['time'];
+        if (timeData is Timestamp) {
+          parsedTime = timeData.toDate();
+        } else if (timeData is String) {
+          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+        } else {
+          parsedTime = DateTime.now();
+        }
+
+        return TennisMatch(
+          id: doc.id,
+          tournamentId: data['tournamentId'] as String,
+          tournamentName: data['tournamentName'] as String,
+          player1Id: data['player1Id'] as String? ?? '',
+          player1Name: data['player1Name'] as String? ?? 'TBD',
+          player1AvatarUrl: data['player1AvatarUrl'] as String?,
+          player2Id: data['player2Id'] as String?,
+          player2Name: data['player2Name'] as String?,
+          player2AvatarUrl: data['player2AvatarUrl'] as String?,
+          opponentName: data['opponentName'] as String? ?? '',
+          time: parsedTime,
+          court: data['court'] as String,
+          round: data['round'] as String,
+          status: data['status'] as String,
+          score: data['score'] as String?,
+          winner: data['winner'] as String?,
+          nextMatchId: data['nextMatchId'] as String?,
+          matchIndex: data['matchIndex'] as int? ?? 0,
+          player1Cheers: data['player1Cheers'] as int? ?? 0,
+          player2Cheers: data['player2Cheers'] as int? ?? 0,
+          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+        );
+      }).toList();
+    });
+  }
+
+  @override
   Future<List<TennisMatch>> getUpcomingMatches() async {
-    // Placeholder: Fetch upcoming matches
-    return [];
+    try {
+      // Note: This requires the current user ID. 
+      // In a real app, we'd inject the AuthRepository or UserProvider.
+      // For now, we'll assume we can get it from FirebaseAuth directly since this is a Firestore repo.
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return [];
+
+      // Firestore doesn't support logical OR in queries easily for this case (player1 == me OR player2 == me)
+      // We have to do two queries and merge, OR rely on a 'participants' array field in the match document.
+      // Since we didn't add a 'participants' array, we'll do two queries.
+      
+      final q1 = _firestore
+          .collection('matches')
+          .where('status', isEqualTo: 'Scheduled')
+          .where('player1Id', isEqualTo: user.uid)
+          .get();
+
+      final q2 = _firestore
+          .collection('matches')
+          .where('status', isEqualTo: 'Scheduled')
+          .where('player2Id', isEqualTo: user.uid)
+          .get();
+
+      final results = await Future.wait([q1, q2]);
+      
+      final allDocs = [...results[0].docs, ...results[1].docs];
+      
+      // Deduplicate by ID just in case (though unlikely with this logic)
+      final uniqueDocs = {for (var doc in allDocs) doc.id: doc}.values;
+
+      final matches = uniqueDocs.map((doc) {
+        final data = doc.data();
+        DateTime parsedTime;
+        final timeData = data['time'];
+        if (timeData is Timestamp) {
+          parsedTime = timeData.toDate();
+        } else if (timeData is String) {
+          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+        } else {
+          parsedTime = DateTime.now();
+        }
+
+        return TennisMatch(
+          id: doc.id,
+          tournamentId: data['tournamentId'] as String,
+          tournamentName: data['tournamentName'] as String,
+          player1Id: data['player1Id'] as String? ?? '',
+          player1Name: data['player1Name'] as String? ?? 'TBD',
+          player1AvatarUrl: data['player1AvatarUrl'] as String?,
+          player2Id: data['player2Id'] as String?,
+          player2Name: data['player2Name'] as String?,
+          player2AvatarUrl: data['player2AvatarUrl'] as String?,
+          opponentName: data['opponentName'] as String? ?? '',
+          time: parsedTime,
+          court: data['court'] as String,
+          round: data['round'] as String,
+          status: data['status'] as String,
+          score: data['score'] as String?,
+          winner: data['winner'] as String?,
+          nextMatchId: data['nextMatchId'] as String?,
+          matchIndex: data['matchIndex'] as int? ?? 0,
+          player1Cheers: data['player1Cheers'] as int? ?? 0,
+          player2Cheers: data['player2Cheers'] as int? ?? 0,
+          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+        );
+      }).toList();
+
+      // Sort by time locally since we merged results
+      matches.sort((a, b) => a.time.compareTo(b.time));
+      
+      return matches;
+    } catch (e) {
+      print('Error fetching upcoming matches: $e');
+      return [];
+    }
+  }
+
+  @override
+  Stream<List<TennisMatch>> watchUpcomingMatches() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return Stream.value([]);
+
+    return _firestore
+        .collection('matches')
+        .where('status', isEqualTo: 'Scheduled')
+        .snapshots()
+        .map((snapshot) {
+      final matches = snapshot.docs.map((doc) {
+        final data = doc.data();
+        DateTime parsedTime;
+        final timeData = data['time'];
+        if (timeData is Timestamp) {
+          parsedTime = timeData.toDate();
+        } else if (timeData is String) {
+          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+        } else {
+          parsedTime = DateTime.now();
+        }
+
+        return TennisMatch(
+          id: doc.id,
+          tournamentId: data['tournamentId'] as String,
+          tournamentName: data['tournamentName'] as String,
+          player1Id: data['player1Id'] as String? ?? '',
+          player1Name: data['player1Name'] as String? ?? 'TBD',
+          player1AvatarUrl: data['player1AvatarUrl'] as String?,
+          player2Id: data['player2Id'] as String?,
+          player2Name: data['player2Name'] as String?,
+          player2AvatarUrl: data['player2AvatarUrl'] as String?,
+          opponentName: data['opponentName'] as String? ?? '',
+          time: parsedTime,
+          court: data['court'] as String,
+          round: data['round'] as String,
+          status: data['status'] as String,
+          score: data['score'] as String?,
+          winner: data['winner'] as String?,
+          nextMatchId: data['nextMatchId'] as String?,
+          matchIndex: data['matchIndex'] as int? ?? 0,
+          player1Cheers: data['player1Cheers'] as int? ?? 0,
+          player2Cheers: data['player2Cheers'] as int? ?? 0,
+          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+        );
+      }).where((match) => match.player1Id == user.uid || match.player2Id == user.uid).toList();
+      
+      matches.sort((a, b) => a.time.compareTo(b.time));
+      return matches;
+    });
   }
 
   @override
@@ -163,7 +348,6 @@ class FirestoreMatchRepository implements MatchRepository {
   @override
   Future<void> updateMatchScore(String matchId, String score, String winnerName) async {
     try {
-      print('Updating match score for $matchId. Score: $score, Winner: $winnerName');
       await _firestore.runTransaction((transaction) async {
         final matchRef = _firestore.collection('matches').doc(matchId);
         final matchSnapshot = await transaction.get(matchRef);
@@ -173,7 +357,6 @@ class FirestoreMatchRepository implements MatchRepository {
         }
 
         final matchData = matchSnapshot.data()!;
-        print('Match data loaded: ${matchData.keys.join(', ')}');
 
         final nextMatchId = matchData['nextMatchId'] as String?;
         
@@ -185,7 +368,6 @@ class FirestoreMatchRepository implements MatchRepository {
         } else if (matchIndexVal is String) {
           matchIndex = int.tryParse(matchIndexVal) ?? 0;
         }
-        print('Match Index: $matchIndex, Next Match ID: $nextMatchId');
 
         // PREPARE READS FIRST
         DocumentSnapshot<Map<String, dynamic>>? nextMatchSnapshot;
@@ -207,7 +389,6 @@ class FirestoreMatchRepository implements MatchRepository {
 
         // Propagate to next match if it exists and was read successfully
         if (nextMatchSnapshot != null && nextMatchSnapshot.exists && nextMatchRef != null) {
-            print('Next match found: $nextMatchId');
             // Determine which slot the winner goes to
             // Logic: Even index -> Player 1, Odd index -> Player 2
             final isPlayer1Slot = (matchIndex % 2) == 0;
@@ -232,8 +413,6 @@ class FirestoreMatchRepository implements MatchRepository {
               winnerAvatar = p2Avatar;
             }
             
-            print('Propagating winner $winnerName ($winnerId) to slot ${isPlayer1Slot ? "Player 1" : "Player 2"}');
-
             if (isPlayer1Slot) {
               transaction.update(nextMatchRef, {
                 'player1Id': winnerId,
@@ -248,15 +427,50 @@ class FirestoreMatchRepository implements MatchRepository {
                 'opponentName': winnerName, // Legacy field
               });
             }
-        } else if (nextMatchId != null && nextMatchId.isNotEmpty) {
-            print('Next match document does not exist: $nextMatchId');
         }
       });
-      print('Transaction completed successfully');
-    } catch (e, stack) {
-      print('Error in updateMatchScore: $e');
-      print(stack);
+    } catch (e) {
       rethrow;
     }
+  }
+  @override
+  Future<void> cheerForMatch(String matchId, String playerId) async {
+    final matchRef = _firestore.collection('matches').doc(matchId);
+    
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(matchRef);
+      if (!snapshot.exists) return;
+      
+      final data = snapshot.data()!;
+      if (data['player1Id'] == playerId) {
+        transaction.update(matchRef, {
+          'player1Cheers': FieldValue.increment(1),
+        });
+      } else if (data['player2Id'] == playerId) {
+        transaction.update(matchRef, {
+          'player2Cheers': FieldValue.increment(1),
+        });
+      }
+    });
+  }
+  @override
+  Future<void> confirmMatch(String matchId, String playerId) async {
+    final matchRef = _firestore.collection('matches').doc(matchId);
+    
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(matchRef);
+      if (!snapshot.exists) return;
+      
+      final data = snapshot.data()!;
+      if (data['player1Id'] == playerId) {
+        transaction.update(matchRef, {
+          'player1Confirmed': true,
+        });
+      } else if (data['player2Id'] == playerId) {
+        transaction.update(matchRef, {
+          'player2Confirmed': true,
+        });
+      }
+    });
   }
 }

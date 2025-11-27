@@ -35,9 +35,32 @@ class MockMatchRepository implements MatchRepository {
   }
 
   @override
+
   Future<List<TennisMatch>> getMatchesForTournament(String tournamentId) async {
     await Future.delayed(const Duration(milliseconds: 500));
     return [];
+  }
+
+  @override
+  Stream<List<TennisMatch>> watchMatchesForTournament(String tournamentId) {
+    return Stream.value([]);
+  }
+
+  @override
+  Stream<List<TennisMatch>> watchUpcomingMatches() {
+    return Stream.value([]);
+  }
+
+  @override
+  Future<void> cheerForMatch(String matchId, String playerId) async {
+    // Mock implementation
+    await Future.delayed(const Duration(milliseconds: 200));
+  }
+
+  @override
+  Future<void> confirmMatch(String matchId, String playerId) async {
+    // Mock implementation
+    await Future.delayed(const Duration(milliseconds: 200));
   }
 
   @override

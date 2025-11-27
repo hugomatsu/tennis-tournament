@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$Tournament {
 
  String get id; String get name; String get status;// 'Live Now', 'Registration Open', 'Upcoming', 'Completed'
- int get playersCount; String get location; String get imageUrl; String get description; String get dateRange;
+ int get playersCount; String get location; String get imageUrl; String get description; String get dateRange; String get category;
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $TournamentCopyWith<Tournament> get copyWith => _$TournamentCopyWithImpl<Tournam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,imageUrl,description,dateRange);
+int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,imageUrl,description,dateRange,category);
 
 @override
 String toString() {
-  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, imageUrl: $imageUrl, description: $description, dateRange: $dateRange)';
+  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $TournamentCopyWith<$Res>  {
   factory $TournamentCopyWith(Tournament value, $Res Function(Tournament) _then) = _$TournamentCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String status, int playersCount, String location, String imageUrl, String description, String dateRange
+ String id, String name, String status, int playersCount, String location, String imageUrl, String description, String dateRange, String category
 });
 
 
@@ -66,7 +66,7 @@ class _$TournamentCopyWithImpl<$Res>
 
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -76,6 +76,7 @@ as int,location: null == location ? _self.location : location // ignore: cast_nu
 as String,imageUrl: null == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange,  String category)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tournament() when $default != null:
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange,_that.category);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange,  String category)  $default,) {final _that = this;
 switch (_that) {
 case _Tournament():
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange,_that.category);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String status,  int playersCount,  String location,  String imageUrl,  String description,  String dateRange,  String category)?  $default,) {final _that = this;
 switch (_that) {
 case _Tournament() when $default != null:
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.imageUrl,_that.description,_that.dateRange,_that.category);case _:
   return null;
 
 }
@@ -217,7 +218,7 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 @JsonSerializable()
 
 class _Tournament implements Tournament {
-  const _Tournament({required this.id, required this.name, required this.status, required this.playersCount, required this.location, required this.imageUrl, required this.description, required this.dateRange});
+  const _Tournament({required this.id, required this.name, required this.status, required this.playersCount, required this.location, required this.imageUrl, required this.description, required this.dateRange, this.category = 'Open'});
   factory _Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);
 
 @override final  String id;
@@ -229,6 +230,7 @@ class _Tournament implements Tournament {
 @override final  String imageUrl;
 @override final  String description;
 @override final  String dateRange;
+@override@JsonKey() final  String category;
 
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,imageUrl,description,dateRange);
+int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,imageUrl,description,dateRange,category);
 
 @override
 String toString() {
-  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, imageUrl: $imageUrl, description: $description, dateRange: $dateRange)';
+  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category)';
 }
 
 
@@ -263,7 +265,7 @@ abstract mixin class _$TournamentCopyWith<$Res> implements $TournamentCopyWith<$
   factory _$TournamentCopyWith(_Tournament value, $Res Function(_Tournament) _then) = __$TournamentCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String status, int playersCount, String location, String imageUrl, String description, String dateRange
+ String id, String name, String status, int playersCount, String location, String imageUrl, String description, String dateRange, String category
 });
 
 
@@ -280,7 +282,7 @@ class __$TournamentCopyWithImpl<$Res>
 
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,}) {
   return _then(_Tournament(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -290,6 +292,7 @@ as int,location: null == location ? _self.location : location // ignore: cast_nu
 as String,imageUrl: null == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

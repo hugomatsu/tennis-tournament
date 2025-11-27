@@ -18,7 +18,8 @@ mixin _$TennisMatch {
  String get id; String get tournamentId; String get tournamentName; DateTime get time; String get court; String get round; String get status;// 'Scheduled', 'Live', 'Completed', 'Pending'
  String get player1Id; String get player1Name; String? get player1AvatarUrl; String? get player2Id; String? get player2Name; String? get player2AvatarUrl; String? get opponentName;// Deprecated, kept for backward compatibility if needed, or remove
  String? get score; String? get winner; String? get nextMatchId;// ID of the match where the winner goes
- int get matchIndex;
+ int get matchIndex;// For sorting in bracket
+ int get player1Cheers; int get player2Cheers; bool get player1Confirmed; bool get player2Confirmed;
 /// Create a copy of TennisMatch
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +32,16 @@ $TennisMatchCopyWith<TennisMatch> get copyWith => _$TennisMatchCopyWithImpl<Tenn
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TennisMatch&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.tournamentName, tournamentName) || other.tournamentName == tournamentName)&&(identical(other.time, time) || other.time == time)&&(identical(other.court, court) || other.court == court)&&(identical(other.round, round) || other.round == round)&&(identical(other.status, status) || other.status == status)&&(identical(other.player1Id, player1Id) || other.player1Id == player1Id)&&(identical(other.player1Name, player1Name) || other.player1Name == player1Name)&&(identical(other.player1AvatarUrl, player1AvatarUrl) || other.player1AvatarUrl == player1AvatarUrl)&&(identical(other.player2Id, player2Id) || other.player2Id == player2Id)&&(identical(other.player2Name, player2Name) || other.player2Name == player2Name)&&(identical(other.player2AvatarUrl, player2AvatarUrl) || other.player2AvatarUrl == player2AvatarUrl)&&(identical(other.opponentName, opponentName) || other.opponentName == opponentName)&&(identical(other.score, score) || other.score == score)&&(identical(other.winner, winner) || other.winner == winner)&&(identical(other.nextMatchId, nextMatchId) || other.nextMatchId == nextMatchId)&&(identical(other.matchIndex, matchIndex) || other.matchIndex == matchIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TennisMatch&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.tournamentName, tournamentName) || other.tournamentName == tournamentName)&&(identical(other.time, time) || other.time == time)&&(identical(other.court, court) || other.court == court)&&(identical(other.round, round) || other.round == round)&&(identical(other.status, status) || other.status == status)&&(identical(other.player1Id, player1Id) || other.player1Id == player1Id)&&(identical(other.player1Name, player1Name) || other.player1Name == player1Name)&&(identical(other.player1AvatarUrl, player1AvatarUrl) || other.player1AvatarUrl == player1AvatarUrl)&&(identical(other.player2Id, player2Id) || other.player2Id == player2Id)&&(identical(other.player2Name, player2Name) || other.player2Name == player2Name)&&(identical(other.player2AvatarUrl, player2AvatarUrl) || other.player2AvatarUrl == player2AvatarUrl)&&(identical(other.opponentName, opponentName) || other.opponentName == opponentName)&&(identical(other.score, score) || other.score == score)&&(identical(other.winner, winner) || other.winner == winner)&&(identical(other.nextMatchId, nextMatchId) || other.nextMatchId == nextMatchId)&&(identical(other.matchIndex, matchIndex) || other.matchIndex == matchIndex)&&(identical(other.player1Cheers, player1Cheers) || other.player1Cheers == player1Cheers)&&(identical(other.player2Cheers, player2Cheers) || other.player2Cheers == player2Cheers)&&(identical(other.player1Confirmed, player1Confirmed) || other.player1Confirmed == player1Confirmed)&&(identical(other.player2Confirmed, player2Confirmed) || other.player2Confirmed == player2Confirmed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tournamentId,tournamentName,time,court,round,status,player1Id,player1Name,player1AvatarUrl,player2Id,player2Name,player2AvatarUrl,opponentName,score,winner,nextMatchId,matchIndex);
+int get hashCode => Object.hashAll([runtimeType,id,tournamentId,tournamentName,time,court,round,status,player1Id,player1Name,player1AvatarUrl,player2Id,player2Name,player2AvatarUrl,opponentName,score,winner,nextMatchId,matchIndex,player1Cheers,player2Cheers,player1Confirmed,player2Confirmed]);
 
 @override
 String toString() {
-  return 'TennisMatch(id: $id, tournamentId: $tournamentId, tournamentName: $tournamentName, time: $time, court: $court, round: $round, status: $status, player1Id: $player1Id, player1Name: $player1Name, player1AvatarUrl: $player1AvatarUrl, player2Id: $player2Id, player2Name: $player2Name, player2AvatarUrl: $player2AvatarUrl, opponentName: $opponentName, score: $score, winner: $winner, nextMatchId: $nextMatchId, matchIndex: $matchIndex)';
+  return 'TennisMatch(id: $id, tournamentId: $tournamentId, tournamentName: $tournamentName, time: $time, court: $court, round: $round, status: $status, player1Id: $player1Id, player1Name: $player1Name, player1AvatarUrl: $player1AvatarUrl, player2Id: $player2Id, player2Name: $player2Name, player2AvatarUrl: $player2AvatarUrl, opponentName: $opponentName, score: $score, winner: $winner, nextMatchId: $nextMatchId, matchIndex: $matchIndex, player1Cheers: $player1Cheers, player2Cheers: $player2Cheers, player1Confirmed: $player1Confirmed, player2Confirmed: $player2Confirmed)';
 }
 
 
@@ -51,7 +52,7 @@ abstract mixin class $TennisMatchCopyWith<$Res>  {
   factory $TennisMatchCopyWith(TennisMatch value, $Res Function(TennisMatch) _then) = _$TennisMatchCopyWithImpl;
 @useResult
 $Res call({
- String id, String tournamentId, String tournamentName, DateTime time, String court, String round, String status, String player1Id, String player1Name, String? player1AvatarUrl, String? player2Id, String? player2Name, String? player2AvatarUrl, String? opponentName, String? score, String? winner, String? nextMatchId, int matchIndex
+ String id, String tournamentId, String tournamentName, DateTime time, String court, String round, String status, String player1Id, String player1Name, String? player1AvatarUrl, String? player2Id, String? player2Name, String? player2AvatarUrl, String? opponentName, String? score, String? winner, String? nextMatchId, int matchIndex, int player1Cheers, int player2Cheers, bool player1Confirmed, bool player2Confirmed
 });
 
 
@@ -68,7 +69,7 @@ class _$TennisMatchCopyWithImpl<$Res>
 
 /// Create a copy of TennisMatch
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tournamentId = null,Object? tournamentName = null,Object? time = null,Object? court = null,Object? round = null,Object? status = null,Object? player1Id = null,Object? player1Name = null,Object? player1AvatarUrl = freezed,Object? player2Id = freezed,Object? player2Name = freezed,Object? player2AvatarUrl = freezed,Object? opponentName = freezed,Object? score = freezed,Object? winner = freezed,Object? nextMatchId = freezed,Object? matchIndex = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tournamentId = null,Object? tournamentName = null,Object? time = null,Object? court = null,Object? round = null,Object? status = null,Object? player1Id = null,Object? player1Name = null,Object? player1AvatarUrl = freezed,Object? player2Id = freezed,Object? player2Name = freezed,Object? player2AvatarUrl = freezed,Object? opponentName = freezed,Object? score = freezed,Object? winner = freezed,Object? nextMatchId = freezed,Object? matchIndex = null,Object? player1Cheers = null,Object? player2Cheers = null,Object? player1Confirmed = null,Object? player2Confirmed = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tournamentId: null == tournamentId ? _self.tournamentId : tournamentId // ignore: cast_nullable_to_non_nullable
@@ -88,7 +89,11 @@ as String?,score: freezed == score ? _self.score : score // ignore: cast_nullabl
 as String?,winner: freezed == winner ? _self.winner : winner // ignore: cast_nullable_to_non_nullable
 as String?,nextMatchId: freezed == nextMatchId ? _self.nextMatchId : nextMatchId // ignore: cast_nullable_to_non_nullable
 as String?,matchIndex: null == matchIndex ? _self.matchIndex : matchIndex // ignore: cast_nullable_to_non_nullable
-as int,
+as int,player1Cheers: null == player1Cheers ? _self.player1Cheers : player1Cheers // ignore: cast_nullable_to_non_nullable
+as int,player2Cheers: null == player2Cheers ? _self.player2Cheers : player2Cheers // ignore: cast_nullable_to_non_nullable
+as int,player1Confirmed: null == player1Confirmed ? _self.player1Confirmed : player1Confirmed // ignore: cast_nullable_to_non_nullable
+as bool,player2Confirmed: null == player2Confirmed ? _self.player2Confirmed : player2Confirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -173,10 +178,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex,  int player1Cheers,  int player2Cheers,  bool player1Confirmed,  bool player2Confirmed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TennisMatch() when $default != null:
-return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex);case _:
+return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex,_that.player1Cheers,_that.player2Cheers,_that.player1Confirmed,_that.player2Confirmed);case _:
   return orElse();
 
 }
@@ -194,10 +199,10 @@ return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex,  int player1Cheers,  int player2Cheers,  bool player1Confirmed,  bool player2Confirmed)  $default,) {final _that = this;
 switch (_that) {
 case _TennisMatch():
-return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex);case _:
+return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex,_that.player1Cheers,_that.player2Cheers,_that.player1Confirmed,_that.player2Confirmed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +219,10 @@ return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tournamentId,  String tournamentName,  DateTime time,  String court,  String round,  String status,  String player1Id,  String player1Name,  String? player1AvatarUrl,  String? player2Id,  String? player2Name,  String? player2AvatarUrl,  String? opponentName,  String? score,  String? winner,  String? nextMatchId,  int matchIndex,  int player1Cheers,  int player2Cheers,  bool player1Confirmed,  bool player2Confirmed)?  $default,) {final _that = this;
 switch (_that) {
 case _TennisMatch() when $default != null:
-return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex);case _:
+return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_that.court,_that.round,_that.status,_that.player1Id,_that.player1Name,_that.player1AvatarUrl,_that.player2Id,_that.player2Name,_that.player2AvatarUrl,_that.opponentName,_that.score,_that.winner,_that.nextMatchId,_that.matchIndex,_that.player1Cheers,_that.player2Cheers,_that.player1Confirmed,_that.player2Confirmed);case _:
   return null;
 
 }
@@ -229,7 +234,7 @@ return $default(_that.id,_that.tournamentId,_that.tournamentName,_that.time,_tha
 @JsonSerializable()
 
 class _TennisMatch implements TennisMatch {
-  const _TennisMatch({required this.id, required this.tournamentId, required this.tournamentName, required this.time, required this.court, required this.round, required this.status, required this.player1Id, required this.player1Name, this.player1AvatarUrl, this.player2Id, this.player2Name, this.player2AvatarUrl, this.opponentName, this.score, this.winner, this.nextMatchId, this.matchIndex = 0});
+  const _TennisMatch({required this.id, required this.tournamentId, required this.tournamentName, required this.time, required this.court, required this.round, required this.status, required this.player1Id, required this.player1Name, this.player1AvatarUrl, this.player2Id, this.player2Name, this.player2AvatarUrl, this.opponentName, this.score, this.winner, this.nextMatchId, this.matchIndex = 0, this.player1Cheers = 0, this.player2Cheers = 0, this.player1Confirmed = false, this.player2Confirmed = false});
   factory _TennisMatch.fromJson(Map<String, dynamic> json) => _$TennisMatchFromJson(json);
 
 @override final  String id;
@@ -253,6 +258,11 @@ class _TennisMatch implements TennisMatch {
 @override final  String? nextMatchId;
 // ID of the match where the winner goes
 @override@JsonKey() final  int matchIndex;
+// For sorting in bracket
+@override@JsonKey() final  int player1Cheers;
+@override@JsonKey() final  int player2Cheers;
+@override@JsonKey() final  bool player1Confirmed;
+@override@JsonKey() final  bool player2Confirmed;
 
 /// Create a copy of TennisMatch
 /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +277,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TennisMatch&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.tournamentName, tournamentName) || other.tournamentName == tournamentName)&&(identical(other.time, time) || other.time == time)&&(identical(other.court, court) || other.court == court)&&(identical(other.round, round) || other.round == round)&&(identical(other.status, status) || other.status == status)&&(identical(other.player1Id, player1Id) || other.player1Id == player1Id)&&(identical(other.player1Name, player1Name) || other.player1Name == player1Name)&&(identical(other.player1AvatarUrl, player1AvatarUrl) || other.player1AvatarUrl == player1AvatarUrl)&&(identical(other.player2Id, player2Id) || other.player2Id == player2Id)&&(identical(other.player2Name, player2Name) || other.player2Name == player2Name)&&(identical(other.player2AvatarUrl, player2AvatarUrl) || other.player2AvatarUrl == player2AvatarUrl)&&(identical(other.opponentName, opponentName) || other.opponentName == opponentName)&&(identical(other.score, score) || other.score == score)&&(identical(other.winner, winner) || other.winner == winner)&&(identical(other.nextMatchId, nextMatchId) || other.nextMatchId == nextMatchId)&&(identical(other.matchIndex, matchIndex) || other.matchIndex == matchIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TennisMatch&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.tournamentName, tournamentName) || other.tournamentName == tournamentName)&&(identical(other.time, time) || other.time == time)&&(identical(other.court, court) || other.court == court)&&(identical(other.round, round) || other.round == round)&&(identical(other.status, status) || other.status == status)&&(identical(other.player1Id, player1Id) || other.player1Id == player1Id)&&(identical(other.player1Name, player1Name) || other.player1Name == player1Name)&&(identical(other.player1AvatarUrl, player1AvatarUrl) || other.player1AvatarUrl == player1AvatarUrl)&&(identical(other.player2Id, player2Id) || other.player2Id == player2Id)&&(identical(other.player2Name, player2Name) || other.player2Name == player2Name)&&(identical(other.player2AvatarUrl, player2AvatarUrl) || other.player2AvatarUrl == player2AvatarUrl)&&(identical(other.opponentName, opponentName) || other.opponentName == opponentName)&&(identical(other.score, score) || other.score == score)&&(identical(other.winner, winner) || other.winner == winner)&&(identical(other.nextMatchId, nextMatchId) || other.nextMatchId == nextMatchId)&&(identical(other.matchIndex, matchIndex) || other.matchIndex == matchIndex)&&(identical(other.player1Cheers, player1Cheers) || other.player1Cheers == player1Cheers)&&(identical(other.player2Cheers, player2Cheers) || other.player2Cheers == player2Cheers)&&(identical(other.player1Confirmed, player1Confirmed) || other.player1Confirmed == player1Confirmed)&&(identical(other.player2Confirmed, player2Confirmed) || other.player2Confirmed == player2Confirmed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tournamentId,tournamentName,time,court,round,status,player1Id,player1Name,player1AvatarUrl,player2Id,player2Name,player2AvatarUrl,opponentName,score,winner,nextMatchId,matchIndex);
+int get hashCode => Object.hashAll([runtimeType,id,tournamentId,tournamentName,time,court,round,status,player1Id,player1Name,player1AvatarUrl,player2Id,player2Name,player2AvatarUrl,opponentName,score,winner,nextMatchId,matchIndex,player1Cheers,player2Cheers,player1Confirmed,player2Confirmed]);
 
 @override
 String toString() {
-  return 'TennisMatch(id: $id, tournamentId: $tournamentId, tournamentName: $tournamentName, time: $time, court: $court, round: $round, status: $status, player1Id: $player1Id, player1Name: $player1Name, player1AvatarUrl: $player1AvatarUrl, player2Id: $player2Id, player2Name: $player2Name, player2AvatarUrl: $player2AvatarUrl, opponentName: $opponentName, score: $score, winner: $winner, nextMatchId: $nextMatchId, matchIndex: $matchIndex)';
+  return 'TennisMatch(id: $id, tournamentId: $tournamentId, tournamentName: $tournamentName, time: $time, court: $court, round: $round, status: $status, player1Id: $player1Id, player1Name: $player1Name, player1AvatarUrl: $player1AvatarUrl, player2Id: $player2Id, player2Name: $player2Name, player2AvatarUrl: $player2AvatarUrl, opponentName: $opponentName, score: $score, winner: $winner, nextMatchId: $nextMatchId, matchIndex: $matchIndex, player1Cheers: $player1Cheers, player2Cheers: $player2Cheers, player1Confirmed: $player1Confirmed, player2Confirmed: $player2Confirmed)';
 }
 
 
@@ -287,7 +297,7 @@ abstract mixin class _$TennisMatchCopyWith<$Res> implements $TennisMatchCopyWith
   factory _$TennisMatchCopyWith(_TennisMatch value, $Res Function(_TennisMatch) _then) = __$TennisMatchCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String tournamentId, String tournamentName, DateTime time, String court, String round, String status, String player1Id, String player1Name, String? player1AvatarUrl, String? player2Id, String? player2Name, String? player2AvatarUrl, String? opponentName, String? score, String? winner, String? nextMatchId, int matchIndex
+ String id, String tournamentId, String tournamentName, DateTime time, String court, String round, String status, String player1Id, String player1Name, String? player1AvatarUrl, String? player2Id, String? player2Name, String? player2AvatarUrl, String? opponentName, String? score, String? winner, String? nextMatchId, int matchIndex, int player1Cheers, int player2Cheers, bool player1Confirmed, bool player2Confirmed
 });
 
 
@@ -304,7 +314,7 @@ class __$TennisMatchCopyWithImpl<$Res>
 
 /// Create a copy of TennisMatch
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tournamentId = null,Object? tournamentName = null,Object? time = null,Object? court = null,Object? round = null,Object? status = null,Object? player1Id = null,Object? player1Name = null,Object? player1AvatarUrl = freezed,Object? player2Id = freezed,Object? player2Name = freezed,Object? player2AvatarUrl = freezed,Object? opponentName = freezed,Object? score = freezed,Object? winner = freezed,Object? nextMatchId = freezed,Object? matchIndex = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tournamentId = null,Object? tournamentName = null,Object? time = null,Object? court = null,Object? round = null,Object? status = null,Object? player1Id = null,Object? player1Name = null,Object? player1AvatarUrl = freezed,Object? player2Id = freezed,Object? player2Name = freezed,Object? player2AvatarUrl = freezed,Object? opponentName = freezed,Object? score = freezed,Object? winner = freezed,Object? nextMatchId = freezed,Object? matchIndex = null,Object? player1Cheers = null,Object? player2Cheers = null,Object? player1Confirmed = null,Object? player2Confirmed = null,}) {
   return _then(_TennisMatch(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tournamentId: null == tournamentId ? _self.tournamentId : tournamentId // ignore: cast_nullable_to_non_nullable
@@ -324,7 +334,11 @@ as String?,score: freezed == score ? _self.score : score // ignore: cast_nullabl
 as String?,winner: freezed == winner ? _self.winner : winner // ignore: cast_nullable_to_non_nullable
 as String?,nextMatchId: freezed == nextMatchId ? _self.nextMatchId : nextMatchId // ignore: cast_nullable_to_non_nullable
 as String?,matchIndex: null == matchIndex ? _self.matchIndex : matchIndex // ignore: cast_nullable_to_non_nullable
-as int,
+as int,player1Cheers: null == player1Cheers ? _self.player1Cheers : player1Cheers // ignore: cast_nullable_to_non_nullable
+as int,player2Cheers: null == player2Cheers ? _self.player2Cheers : player2Cheers // ignore: cast_nullable_to_non_nullable
+as int,player1Confirmed: null == player1Confirmed ? _self.player1Confirmed : player1Confirmed // ignore: cast_nullable_to_non_nullable
+as bool,player2Confirmed: null == player2Confirmed ? _self.player2Confirmed : player2Confirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

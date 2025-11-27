@@ -15,6 +15,7 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
   imageUrl: json['imageUrl'] as String,
   description: json['description'] as String,
   dateRange: json['dateRange'] as String,
+  category: json['category'] as String? ?? 'Open',
 );
 
 Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
@@ -27,4 +28,5 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'imageUrl': instance.imageUrl,
       'description': instance.description,
       'dateRange': instance.dateRange,
+      'category': instance.category,
     };
