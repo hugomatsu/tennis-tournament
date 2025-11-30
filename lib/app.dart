@@ -16,6 +16,7 @@ import 'package:tennis_tournament/features/availability/presentation/availabilit
 import 'package:tennis_tournament/features/tournaments/presentation/participant_management_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
+import 'package:tennis_tournament/features/debug/presentation/simulation_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -129,6 +130,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'create-tournament',
             builder: (context, state) => const CreateTournamentScreen(),
+          ),
+          GoRoute(
+            path: 'simulation',
+            builder: (context, state) => const SimulationScreen(),
           ),
         ],
       ),

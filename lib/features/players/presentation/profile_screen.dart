@@ -137,6 +137,15 @@ class ProfileScreen extends ConsumerWidget {
                               child: const Text('Admin Dashboard'),
                             ),
                           ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => context.push('/admin/simulation'),
+                              icon: const Icon(Icons.bug_report),
+                              label: const Text('Simulation & Debug'),
+                            ),
+                          ),
                         ],
                       ],
                     ),
