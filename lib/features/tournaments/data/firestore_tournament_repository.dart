@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 
 class FirestoreTournamentRepository implements TournamentRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -73,45 +74,167 @@ class FirestoreTournamentRepository implements TournamentRepository {
   }
 
   @override
-  Future<void> joinTournament(String tournamentId, String userId) async {
+  Future<void> updateTournament(Tournament tournament) async {
+    await _firestore.collection('tournaments').doc(tournament.id).update({
+      'name': tournament.name,
+      'dateRange': tournament.dateRange,
+      'location': tournament.location,
+      'imageUrl': tournament.imageUrl,
+      'description': tournament.description,
+      // 'status': tournament.status, // Status might be handled separately
+    });
+  }
+
+  @override
+  Future<void> deleteTournament(String tournamentId) async {
     final tournamentRef = _firestore.collection('tournaments').doc(tournamentId);
-    final participantRef = tournamentRef.collection('participants').doc(userId);
+
+    // Delete participants subcollection
+    final participantsSnapshot = await tournamentRef.collection('participants').get();
+    for (final doc in participantsSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    // Delete categories subcollection
+    final categoriesSnapshot = await tournamentRef.collection('categories').get();
+    for (final doc in categoriesSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    // Delete matches linked to this tournament
+    final matchesSnapshot = await _firestore
+        .collection('matches')
+        .where('tournamentId', isEqualTo: tournamentId)
+        .get();
+    
+    final batch = _firestore.batch();
+    for (final doc in matchesSnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+
+    // Finally delete tournament
+    await tournamentRef.delete();
+  }
+
+  @override
+  Future<void> addCategory(TournamentCategory category) async {
+    await _firestore
+        .collection('tournaments')
+        .doc(category.tournamentId)
+        .collection('categories')
+        .doc(category.id)
+        .set({
+      'id': category.id,
+      'tournamentId': category.tournamentId,
+      'name': category.name,
+      'type': category.type,
+      'format': category.format,
+    });
+  }
+
+  @override
+  Future<void> updateCategory(TournamentCategory category) async {
+    await _firestore
+        .collection('tournaments')
+        .doc(category.tournamentId)
+        .collection('categories')
+        .doc(category.id)
+        .update({
+      'name': category.name,
+      'type': category.type,
+      'format': category.format,
+    });
+  }
+
+  @override
+  Future<List<TournamentCategory>> getCategories(String tournamentId) async {
+    final snapshot = await _firestore
+        .collection('tournaments')
+        .doc(tournamentId)
+        .collection('categories')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return TournamentCategory(
+        id: data['id'] as String,
+        tournamentId: data['tournamentId'] as String,
+        name: data['name'] as String,
+        type: data['type'] as String,
+        format: data['format'] as String? ?? 'round_robin',
+      );
+    }).toList();
+  }
+
+  @override
+  Future<List<Participant>> getParticipantsForUser(String tournamentId, String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('tournaments')
+          .doc(tournamentId)
+          .collection('participants')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Participant(
+          id: doc.id,
+          name: data['name'] as String? ?? 'Unknown',
+          userId: data['userId'] as String?,
+          avatarUrl: data['avatarUrl'] as String?,
+          categoryId: data['categoryId'] as String? ?? '',
+          status: data['status'] as String? ?? 'pending',
+          joinedAt: (data['joinedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Future<void> joinTournament(String tournamentId, String userId, String categoryId) async {
+    final tournamentRef = _firestore.collection('tournaments').doc(tournamentId);
+    // Use composite ID to allow multiple registrations per user (one per category)
+    final participantId = '${userId}_$categoryId';
+    final participantRef = tournamentRef.collection('participants').doc(participantId);
 
     await _firestore.runTransaction((transaction) async {
       final participantDoc = await transaction.get(participantRef);
       if (participantDoc.exists) {
-        throw Exception('User already registered');
+        throw Exception('User already registered for this category');
       }
 
       // Fetch user details to store in participant doc (denormalization)
-      // This is important because we want to list participants without fetching users one by one
       final userDoc = await transaction.get(_firestore.collection('users').doc(userId));
       final userData = userDoc.data();
       final userName = userData?['name'] as String? ?? 'Unknown';
       final userAvatar = userData?['avatarUrl'] as String?;
 
       transaction.set(participantRef, {
-        'id': userId,
+        'id': participantId,
         'name': userName,
         'userId': userId,
         'avatarUrl': userAvatar,
         'status': 'pending',
+        'categoryId': categoryId,
         'joinedAt': FieldValue.serverTimestamp(),
       });
-
-      // Do NOT increment playersCount yet. Only approved players count.
     });
   }
 
   @override
   Future<bool> isPlayerRegistered(String tournamentId, String userId) async {
-    final doc = await _firestore
+    final snapshot = await _firestore
         .collection('tournaments')
         .doc(tournamentId)
         .collection('participants')
-        .doc(userId)
+        .where('userId', isEqualTo: userId)
+        .limit(1)
         .get();
-    return doc.exists;
+    return snapshot.docs.isNotEmpty;
   }
 
   @override
@@ -131,38 +254,13 @@ class FirestoreTournamentRepository implements TournamentRepository {
           name: data['name'] as String? ?? 'Unknown',
           userId: data['userId'] as String?,
           avatarUrl: data['avatarUrl'] as String?,
+          categoryId: data['categoryId'] as String? ?? '',
           status: data['status'] as String? ?? 'pending',
           joinedAt: (data['joinedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
         );
       }).toList();
     } catch (e) {
       return [];
-    }
-  }
-
-  @override
-  Future<Participant?> getParticipant(String tournamentId, String userId) async {
-    try {
-      final doc = await _firestore
-          .collection('tournaments')
-          .doc(tournamentId)
-          .collection('participants')
-          .doc(userId)
-          .get();
-
-      if (!doc.exists) return null;
-
-      final data = doc.data()!;
-      return Participant(
-        id: doc.id,
-        name: data['name'] as String? ?? 'Unknown',
-        userId: data['userId'] as String?,
-        avatarUrl: data['avatarUrl'] as String?,
-        status: data['status'] as String? ?? 'pending',
-        joinedAt: (data['joinedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      );
-    } catch (e) {
-      return null;
     }
   }
 
@@ -178,6 +276,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         'userId': participant.userId,
         'avatarUrl': participant.avatarUrl,
         'status': participant.status,
+        'categoryId': participant.categoryId,
         'joinedAt': Timestamp.fromDate(participant.joinedAt),
       });
 

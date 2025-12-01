@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Participant {
 
- String get id; String get name; String? get userId;// Nullable for manual entries
+ String get id; String get name; String get categoryId; String? get userId;// Nullable for manual entries
  String? get avatarUrl; String get status;// 'pending', 'approved', 'rejected'
  DateTime get joinedAt;
 /// Create a copy of Participant
@@ -30,16 +30,16 @@ $ParticipantCopyWith<Participant> get copyWith => _$ParticipantCopyWithImpl<Part
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Participant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Participant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,userId,avatarUrl,status,joinedAt);
+int get hashCode => Object.hash(runtimeType,id,name,categoryId,userId,avatarUrl,status,joinedAt);
 
 @override
 String toString() {
-  return 'Participant(id: $id, name: $name, userId: $userId, avatarUrl: $avatarUrl, status: $status, joinedAt: $joinedAt)';
+  return 'Participant(id: $id, name: $name, categoryId: $categoryId, userId: $userId, avatarUrl: $avatarUrl, status: $status, joinedAt: $joinedAt)';
 }
 
 
@@ -50,7 +50,7 @@ abstract mixin class $ParticipantCopyWith<$Res>  {
   factory $ParticipantCopyWith(Participant value, $Res Function(Participant) _then) = _$ParticipantCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? userId, String? avatarUrl, String status, DateTime joinedAt
+ String id, String name, String categoryId, String? userId, String? avatarUrl, String status, DateTime joinedAt
 });
 
 
@@ -67,10 +67,11 @@ class _$ParticipantCopyWithImpl<$Res>
 
 /// Create a copy of Participant
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? userId = freezed,Object? avatarUrl = freezed,Object? status = null,Object? joinedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? userId = freezed,Object? avatarUrl = freezed,Object? status = null,Object? joinedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -160,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Participant() when $default != null:
-return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
   return orElse();
 
 }
@@ -181,10 +182,10 @@ return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String categoryId,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Participant():
-return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +202,10 @@ return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String categoryId,  String? userId,  String? avatarUrl,  String status,  DateTime joinedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Participant() when $default != null:
-return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
+return $default(_that.id,_that.name,_that.categoryId,_that.userId,_that.avatarUrl,_that.status,_that.joinedAt);case _:
   return null;
 
 }
@@ -216,11 +217,12 @@ return $default(_that.id,_that.name,_that.userId,_that.avatarUrl,_that.status,_t
 @JsonSerializable()
 
 class _Participant implements Participant {
-  const _Participant({required this.id, required this.name, this.userId, this.avatarUrl, this.status = 'pending', required this.joinedAt});
+  const _Participant({required this.id, required this.name, required this.categoryId, this.userId, this.avatarUrl, this.status = 'pending', required this.joinedAt});
   factory _Participant.fromJson(Map<String, dynamic> json) => _$ParticipantFromJson(json);
 
 @override final  String id;
 @override final  String name;
+@override final  String categoryId;
 @override final  String? userId;
 // Nullable for manual entries
 @override final  String? avatarUrl;
@@ -241,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Participant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Participant&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,userId,avatarUrl,status,joinedAt);
+int get hashCode => Object.hash(runtimeType,id,name,categoryId,userId,avatarUrl,status,joinedAt);
 
 @override
 String toString() {
-  return 'Participant(id: $id, name: $name, userId: $userId, avatarUrl: $avatarUrl, status: $status, joinedAt: $joinedAt)';
+  return 'Participant(id: $id, name: $name, categoryId: $categoryId, userId: $userId, avatarUrl: $avatarUrl, status: $status, joinedAt: $joinedAt)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$ParticipantCopyWith<$Res> implements $ParticipantCopyWith
   factory _$ParticipantCopyWith(_Participant value, $Res Function(_Participant) _then) = __$ParticipantCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? userId, String? avatarUrl, String status, DateTime joinedAt
+ String id, String name, String categoryId, String? userId, String? avatarUrl, String status, DateTime joinedAt
 });
 
 
@@ -278,10 +280,11 @@ class __$ParticipantCopyWithImpl<$Res>
 
 /// Create a copy of Participant
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? userId = freezed,Object? avatarUrl = freezed,Object? status = null,Object? joinedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? categoryId = null,Object? userId = freezed,Object? avatarUrl = freezed,Object? status = null,Object? joinedAt = null,}) {
   return _then(_Participant(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as String,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable

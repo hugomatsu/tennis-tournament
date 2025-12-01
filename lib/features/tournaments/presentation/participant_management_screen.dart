@@ -4,9 +4,11 @@ import 'package:tennis_tournament/features/tournaments/data/tournament_repositor
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:uuid/uuid.dart';
 
-final participantsProvider = FutureProvider.family<List<Participant>, String>((ref, tournamentId) {
-  return ref.watch(tournamentRepositoryProvider).getParticipants(tournamentId);
-});
+import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
+import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
+import 'package:uuid/uuid.dart';
 
 class ParticipantManagementScreen extends ConsumerWidget {
   final String tournamentId;
@@ -97,6 +99,8 @@ class _ParticipantTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(tournamentId);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -109,7 +113,23 @@ class _ParticipantTile extends ConsumerWidget {
               : null,
         ),
         title: Text(participant.name),
-        subtitle: Text('Joined: ${_formatDate(participant.joinedAt)}'),
+        subtitle: FutureBuilder(
+          future: categoriesAsync,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return Text('Joined: ${_formatDate(participant.joinedAt)}');
+            final category = snapshot.data!.firstWhere(
+              (c) => c.id == participant.categoryId,
+              orElse: () => TournamentCategory(id: '', tournamentId: '', name: 'Unknown', type: ''),
+            );
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Category: ${category.name}'),
+                Text('Joined: ${_formatDate(participant.joinedAt)}'),
+              ],
+            );
+          },
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -162,6 +182,7 @@ class _AddParticipantDialog extends ConsumerStatefulWidget {
 class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
+  String? _selectedCategoryId;
 
   @override
   void dispose() {
@@ -171,15 +192,49 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(widget.tournamentId);
+
     return AlertDialog(
       title: const Text('Add Participant'),
-      content: TextField(
-        controller: _nameController,
-        decoration: const InputDecoration(
-          labelText: 'Name (e.g. Hugo or Hugo & Arthur)',
-          hintText: 'Enter participant name',
-        ),
-        autofocus: true,
+      content: FutureBuilder(
+        future: categoriesAsync,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const CircularProgressIndicator();
+          final categories = snapshot.data!;
+          if (categories.isEmpty) return const Text('No categories found.');
+          
+          if (_selectedCategoryId == null && categories.isNotEmpty) {
+            _selectedCategoryId = categories.first.id;
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name (e.g. Hugo or Hugo & Arthur)',
+                  hintText: 'Enter participant name',
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedCategoryId,
+                decoration: const InputDecoration(labelText: 'Category'),
+                items: categories.map((c) => DropdownMenuItem(
+                  value: c.id,
+                  child: Text(c.name),
+                )).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategoryId = value;
+                  });
+                },
+              ),
+            ],
+          );
+        },
       ),
       actions: [
         TextButton(
@@ -196,12 +251,13 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
 
   Future<void> _submit() async {
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty || _selectedCategoryId == null) return;
 
     final participant = Participant(
       id: _uuid.v4(),
       name: name,
       userId: null, // Manual entry
+      categoryId: _selectedCategoryId!,
       status: 'approved', // Auto-approve manual entries
       joinedAt: DateTime.now(),
     );

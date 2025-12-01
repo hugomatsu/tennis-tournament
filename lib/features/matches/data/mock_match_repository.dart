@@ -10,6 +10,7 @@ class MockMatchRepository implements MatchRepository {
       return TennisMatch(
         id: data['id'] as String,
         tournamentId: data['tournamentId'] as String,
+        categoryId: 'mock_category',
         tournamentName: data['tournamentName'] as String,
         player1Id: 'mock_p1',
         player1Name: data['opponentName'] as String,

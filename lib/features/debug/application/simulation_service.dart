@@ -6,6 +6,7 @@ import 'package:tennis_tournament/features/tournaments/application/single_elimin
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:uuid/uuid.dart';
 
 final simulationServiceProvider = Provider((ref) => SimulationService(ref));
@@ -42,12 +43,42 @@ class SimulationService {
 
     await tournamentRepo.createTournament(tournament);
 
-    // 2. Create Dummy Players & Participants
+    // 2. Create Categories
+    final categoryIds = <String>[];
+    if (categoryCount > 1) {
+      for (int c = 0; c < categoryCount; c++) {
+        final catId = const Uuid().v4();
+        categoryIds.add(catId);
+        final catName = 'Category ${String.fromCharCode(65 + c)}';
+        
+        await tournamentRepo.addCategory(TournamentCategory(
+          id: catId,
+          tournamentId: tournamentId,
+          name: catName,
+          type: 'singles',
+        ));
+      }
+    } else {
+      // Single category "Open"
+      final catId = const Uuid().v4();
+      categoryIds.add(catId);
+      await tournamentRepo.addCategory(TournamentCategory(
+        id: catId,
+        tournamentId: tournamentId,
+        name: 'Open',
+        type: 'singles',
+      ));
+    }
+
+    // 3. Create Dummy Players & Participants
     final participants = <Participant>[];
 
     for (int c = 0; c < categoryCount; c++) {
       final categoryName = categoryCount > 1 ? 'Category ${String.fromCharCode(65 + c)}' : 'Open';
+      final categoryId = categoryIds[c];
       
+      final categoryParticipants = <Participant>[];
+
       for (int i = 0; i < playerCount; i++) {
         final playerId = const Uuid().v4();
         final playerName = 'Bot ${String.fromCharCode(65 + c)}${i + 1}';
@@ -74,6 +105,7 @@ class SimulationService {
           id: const Uuid().v4(),
           userId: playerId,
           name: playerName,
+          categoryId: categoryId,
           avatarUrl: player.avatarUrl,
           status: 'approved', // Auto-approve
           joinedAt: DateTime.now(),
@@ -81,28 +113,18 @@ class SimulationService {
 
         await tournamentRepo.addParticipant(tournamentId, participant);
         participants.add(participant);
+        categoryParticipants.add(participant);
       }
-    }
-
-    // 3. Generate Bracket (Optional)
-    if (autoGenerateBracket) {
-      // If multi-category, we might need logic to split participants.
-      // For now, the SchedulingService might assume one big bracket or we need to filter.
-      // The current SchedulingService likely takes a list of participants and makes one bracket.
-      // If we have multiple categories, we'd ideally generate multiple brackets or one big one.
-      // Given the current implementation of SchedulingService (SingleElimination), it probably just takes a list.
       
-      // Let's just generate one bracket for the whole list for now, 
-      // or if categoryCount > 1, we might skip auto-generation or handle it if the service supports it.
-      // Checking SchedulingService... it takes (Tournament, List<Participant>).
-      
-      // For simplicity in this iteration, we'll generate one bracket with all participants.
-      final matches = await schedulingService.generateBracket(tournament, participants);
-      await matchRepo.createMatches(matches);
-      
-      // Update tournament status
-      // We don't have an updateTournament method exposed in the interface easily, 
-      // but we can assume it's fine or add it later.
+      // 4. Generate Bracket per Category
+      if (autoGenerateBracket) {
+        final matches = await schedulingService.generateBracket(tournament, categoryParticipants);
+        
+        // Assign categoryId to matches
+        final matchesWithCategory = matches.map((m) => m.copyWith(categoryId: categoryId)).toList();
+        
+        await matchRepo.createMatches(matchesWithCategory);
+      }
     }
   }
   

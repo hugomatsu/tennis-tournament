@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 
 import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
+import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
@@ -40,7 +43,29 @@ class TournamentDetailScreen extends ConsumerWidget {
                     expandedHeight: 200,
                     pinned: true,
                     actions: [
-                      if (userAsync.asData?.value?.userType == 'admin')
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Refresh',
+                        onPressed: () {
+                          ref.invalidate(tournamentDetailProvider(id));
+                          ref.invalidate(tournamentCategoriesProvider(id));
+                        },
+                      ),
+                      if (userAsync.asData?.value?.userType == 'admin') ...[
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Edit Tournament',
+                          onPressed: () {
+                            _showEditTournamentDialog(context, ref, tournament);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.category),
+                          tooltip: 'Manage Categories',
+                          onPressed: () {
+                            _showManageCategoriesDialog(context, ref, tournament.id);
+                          },
+                        ),
                         IconButton(
                           icon: const Icon(Icons.shuffle),
                           tooltip: 'Generate Bracket',
@@ -82,7 +107,6 @@ class TournamentDetailScreen extends ConsumerWidget {
                             }
                           },
                         ),
-                      if (userAsync.asData?.value?.userType == 'admin')
                         IconButton(
                           icon: const Icon(Icons.people),
                           tooltip: 'Manage Players',
@@ -90,6 +114,46 @@ class TournamentDetailScreen extends ConsumerWidget {
                             context.go('/tournaments/${tournament.id}/participants');
                           },
                         ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          tooltip: 'Delete Tournament',
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Tournament?'),
+                                content: const Text('This will delete all matches, participants, and categories. This action cannot be undone.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  FilledButton(
+                                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true && context.mounted) {
+                              try {
+                                await ref.read(tournamentRepositoryProvider).deleteTournament(tournament.id);
+                                if (context.mounted) {
+                                  context.pop(); // Go back to list
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error deleting: $e')),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                        ),
+                      ],
                     ],
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(tournament.name),
@@ -145,6 +209,235 @@ class TournamentDetailScreen extends ConsumerWidget {
       error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
     );
   }
+
+  void _showEditTournamentDialog(BuildContext context, WidgetRef ref, Tournament tournament) {
+    final nameController = TextEditingController(text: tournament.name);
+    final descController = TextEditingController(text: tournament.description);
+    final locationController = TextEditingController(text: tournament.location);
+    final dateController = TextEditingController(text: tournament.dateRange);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Tournament'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Name'),
+              ),
+              TextField(
+                controller: descController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+              ),
+              TextField(
+                controller: locationController,
+                decoration: const InputDecoration(labelText: 'Location'),
+              ),
+              TextField(
+                controller: dateController,
+                decoration: const InputDecoration(labelText: 'Date Range'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final updated = tournament.copyWith(
+                name: nameController.text,
+                description: descController.text,
+                location: locationController.text,
+                dateRange: dateController.text,
+              );
+              await ref.read(tournamentRepositoryProvider).updateTournament(updated);
+              ref.invalidate(tournamentDetailProvider(tournament.id));
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showManageCategoriesDialog(BuildContext context, WidgetRef ref, String tournamentId) {
+    showDialog(
+      context: context,
+      builder: (context) => _ManageCategoriesDialog(tournamentId: tournamentId),
+    );
+  }
+}
+
+class _ManageCategoriesDialog extends ConsumerStatefulWidget {
+  final String tournamentId;
+
+  const _ManageCategoriesDialog({required this.tournamentId});
+
+  @override
+  ConsumerState<_ManageCategoriesDialog> createState() => _ManageCategoriesDialogState();
+}
+
+class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog> {
+  @override
+  Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(tournamentCategoriesProvider(widget.tournamentId));
+
+    return AlertDialog(
+      title: const Text('Manage Categories'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: categoriesAsync.when(
+          data: (categories) {
+            return ListView(
+              shrinkWrap: true,
+              children: [
+                ...categories.map((category) => ListTile(
+                  title: Text(category.name),
+                  subtitle: Text(category.type),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => _showEditCategoryDialog(category),
+                  ),
+                )),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text('Add New Category'),
+                  onTap: () => _showAddCategoryDialog(),
+                ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Text('Error: $err'),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  void _showAddCategoryDialog() {
+    final nameController = TextEditingController();
+    String type = 'singles';
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Add Category'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Category Name (e.g. Men\'s A)'),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  decoration: const InputDecoration(labelText: 'Type'),
+                  items: const [
+                    DropdownMenuItem(value: 'singles', child: Text('Singles')),
+                    DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                  ],
+                  onChanged: (val) => setState(() => type = val!),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (nameController.text.isEmpty) return;
+                  final category = TournamentCategory(
+                    id: const Uuid().v4(),
+                    tournamentId: widget.tournamentId,
+                    name: nameController.text,
+                    type: type,
+                  );
+                  await ref.read(tournamentRepositoryProvider).addCategory(category);
+                  ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: const Text('Add'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _showEditCategoryDialog(TournamentCategory category) {
+    final nameController = TextEditingController(text: category.name);
+    String type = category.type;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Edit Category'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Category Name'),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  decoration: const InputDecoration(labelText: 'Type'),
+                  items: const [
+                    DropdownMenuItem(value: 'singles', child: Text('Singles')),
+                    DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                  ],
+                  onChanged: (val) => setState(() => type = val!),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (nameController.text.isEmpty) return;
+                  final updated = category.copyWith(
+                    name: nameController.text,
+                    type: type,
+                  );
+                  await ref.read(tournamentRepositoryProvider).updateCategory(updated);
+                  ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _InfoTab extends ConsumerWidget {
@@ -155,6 +448,7 @@ class _InfoTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final participantsAsync = ref.watch(participantsProvider(tournament.id));
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -177,6 +471,31 @@ class _InfoTab extends ConsumerWidget {
         const SizedBox(height: 12),
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 32),
+        Text(
+          'Participants',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        participantsAsync.when(
+          data: (participants) {
+            if (participants.isEmpty) return const Text('No participants yet.');
+            // Deduplicate users for display (since one user can be in multiple categories)
+            final uniqueUsers = {for (var p in participants) p.userId: p}.values.toList();
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: uniqueUsers.map((p) => Chip(
+                avatar: CircleAvatar(
+                  backgroundImage: p.avatarUrl != null ? NetworkImage(p.avatarUrl!) : null,
+                  child: p.avatarUrl == null ? Text(p.name[0]) : null,
+                ),
+                label: Text(p.name),
+              )).toList(),
+            );
+          },
+          loading: () => const SizedBox(height: 20, child: LinearProgressIndicator()),
+          error: (e, s) => const Text('Error loading participants'),
+        ),
         const SizedBox(height: 32),
         _JoinTournamentButton(
           tournament: tournament,
@@ -202,7 +521,7 @@ class _JoinTournamentButton extends ConsumerStatefulWidget {
 
 class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
   bool _isLoading = false;
-  String? _status; // null, 'pending', 'approved', 'rejected'
+  List<String> _joinedCategoryIds = [];
 
   @override
   void initState() {
@@ -220,16 +539,16 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   Future<void> _checkRegistration() async {
     if (widget.currentUser == null) {
-      if (mounted) setState(() => _status = null);
+      if (mounted) setState(() => _joinedCategoryIds = []);
       return;
     }
 
-    final participant = await ref
+    final participants = await ref
         .read(tournamentRepositoryProvider)
-        .getParticipant(widget.tournament.id, widget.currentUser!.id);
+        .getParticipantsForUser(widget.tournament.id, widget.currentUser!.id);
     
     if (mounted) {
-      setState(() => _status = participant?.status);
+      setState(() => _joinedCategoryIds = participants.map((p) => p.categoryId).toList());
     }
   }
 
@@ -241,19 +560,66 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
       return;
     }
 
+    // Fetch categories first
+    final categories = await ref.read(tournamentRepositoryProvider).getCategories(widget.tournament.id);
+    
+    if (categories.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No categories available to join.')),
+        );
+      }
+      return;
+    }
+
+    // Filter out categories already joined
+    final availableCategories = categories.where((c) => !_joinedCategoryIds.contains(c.id)).toList();
+
+    if (availableCategories.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have joined all available categories.')),
+        );
+      }
+      return;
+    }
+
+    String? selectedCategoryId;
+    if (availableCategories.length == 1) {
+      selectedCategoryId = availableCategories.first.id;
+    } else {
+      // Show dialog to select category
+      if (mounted) {
+        selectedCategoryId = await showDialog<String>(
+          context: context,
+          builder: (context) => SimpleDialog(
+            title: const Text('Select Category'),
+            children: availableCategories.map((c) => SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, c.id),
+              child: Text(c.name),
+            )).toList(),
+          ),
+        );
+      }
+    }
+
+    if (selectedCategoryId == null) return; // Cancelled
+
     setState(() => _isLoading = true);
 
     try {
       await ref
           .read(tournamentRepositoryProvider)
-          .joinTournament(widget.tournament.id, widget.currentUser!.id);
+          .joinTournament(widget.tournament.id, widget.currentUser!.id, selectedCategoryId);
       
+      await _checkRegistration(); // Refresh status
+
       if (mounted) {
-        setState(() => _status = 'pending');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Request sent! Waiting for approval.')),
         );
         ref.invalidate(tournamentDetailProvider(widget.tournament.id));
+        ref.invalidate(participantsProvider(widget.tournament.id));
       }
     } catch (e) {
       if (mounted) {
@@ -268,37 +634,29 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (_status == 'approved') {
-      return SizedBox(
-        width: double.infinity,
-        child: FilledButton.tonal(
-          onPressed: null,
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.check),
-              SizedBox(width: 8),
-              Text('Registered'),
-            ],
+    if (_joinedCategoryIds.isNotEmpty) {
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonal(
+              onPressed: _isLoading ? null : _joinTournament,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add),
+                  SizedBox(width: 8),
+                  Text('Join Another Category'),
+                ],
+              ),
+            ),
           ),
-        ),
-      );
-    }
-
-    if (_status == 'pending') {
-      return SizedBox(
-        width: double.infinity,
-        child: FilledButton.tonal(
-          onPressed: null,
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.hourglass_empty),
-              SizedBox(width: 8),
-              Text('Requested'),
-            ],
+          const SizedBox(height: 8),
+          Text(
+            'Joined ${_joinedCategoryIds.length} categories',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
-        ),
+        ],
       );
     }
 

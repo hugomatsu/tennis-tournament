@@ -162,6 +162,7 @@ class SingleEliminationService implements SchedulingService {
         final match = TennisMatch(
           id: matchId,
           tournamentId: tournament.id,
+          categoryId: participants.first.categoryId,
           tournamentName: tournament.name,
           player1Id: player1Id,
           player1Name: player1Name,

@@ -2,6 +2,7 @@ import 'package:tennis_tournament/core/utils/mock_data.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 
 class MockTournamentRepository implements TournamentRepository {
   @override
@@ -35,15 +36,48 @@ class MockTournamentRepository implements TournamentRepository {
   }
 
   @override
-  Future<void> joinTournament(String tournamentId, String userId) async {
+  Future<List<Participant>> getParticipantsForUser(String tournamentId, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return [];
+  }
+
+  @override
+  Future<void> joinTournament(String tournamentId, String userId, String categoryId) async {
     // Mock implementation
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
   @override
-  Future<bool> isPlayerRegistered(String tournamentId, String userId) async {
-    // Mock implementation
-    return false;
+  Future<void> updateTournament(Tournament tournament) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<void> deleteTournament(String tournamentId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<void> addCategory(TournamentCategory category) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<void> updateCategory(TournamentCategory category) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<List<TournamentCategory>> getCategories(String tournamentId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return [
+      TournamentCategory(
+        id: 'cat1',
+        tournamentId: tournamentId,
+        name: 'Open',
+        type: 'singles',
+      ),
+    ];
   }
 
   @override
@@ -54,6 +88,7 @@ class MockTournamentRepository implements TournamentRepository {
         id: '1',
         name: 'John Doe',
         userId: 'user1',
+        categoryId: 'cat1',
         status: 'approved',
         joinedAt: DateTime.now().subtract(const Duration(days: 1)),
       ),
@@ -61,6 +96,7 @@ class MockTournamentRepository implements TournamentRepository {
         id: '2',
         name: 'Jane Smith',
         userId: 'user2',
+        categoryId: 'cat1',
         status: 'pending',
         joinedAt: DateTime.now(),
       ),
@@ -68,27 +104,9 @@ class MockTournamentRepository implements TournamentRepository {
   }
 
   @override
-  Future<Participant?> getParticipant(String tournamentId, String userId) async {
+  Future<bool> isPlayerRegistered(String tournamentId, String userId) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    // Mock: return pending for user2, approved for user1
-    if (userId == 'user1') {
-      return Participant(
-        id: '1',
-        name: 'John Doe',
-        userId: 'user1',
-        status: 'approved',
-        joinedAt: DateTime.now().subtract(const Duration(days: 1)),
-      );
-    } else if (userId == 'user2') {
-      return Participant(
-        id: '2',
-        name: 'Jane Smith',
-        userId: 'user2',
-        status: 'pending',
-        joinedAt: DateTime.now(),
-      );
-    }
-    return null;
+    return false;
   }
 
   @override

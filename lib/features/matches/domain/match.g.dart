@@ -9,6 +9,7 @@ part of 'match.dart';
 _TennisMatch _$TennisMatchFromJson(Map<String, dynamic> json) => _TennisMatch(
   id: json['id'] as String,
   tournamentId: json['tournamentId'] as String,
+  categoryId: json['categoryId'] as String,
   tournamentName: json['tournamentName'] as String,
   time: DateTime.parse(json['time'] as String),
   court: json['court'] as String,
@@ -35,6 +36,7 @@ Map<String, dynamic> _$TennisMatchToJson(_TennisMatch instance) =>
     <String, dynamic>{
       'id': instance.id,
       'tournamentId': instance.tournamentId,
+      'categoryId': instance.categoryId,
       'tournamentName': instance.tournamentName,
       'time': instance.time.toIso8601String(),
       'court': instance.court,

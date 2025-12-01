@@ -35,6 +35,7 @@ class FirestoreMatchRepository implements MatchRepository {
       return TennisMatch(
         id: doc.id,
         tournamentId: data['tournamentId'] as String,
+        categoryId: data['categoryId'] as String? ?? '',
         tournamentName: data['tournamentName'] as String,
         player1Id: data['player1Id'] as String? ?? '',
         player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -53,7 +54,6 @@ class FirestoreMatchRepository implements MatchRepository {
         matchIndex: data['matchIndex'] as int? ?? 0,
         player1Cheers: data['player1Cheers'] as int? ?? 0,
         player2Cheers: data['player2Cheers'] as int? ?? 0,
-
         player1Confirmed: data['player1Confirmed'] as bool? ?? false,
         player2Confirmed: data['player2Confirmed'] as bool? ?? false,
       );
@@ -94,6 +94,7 @@ class FirestoreMatchRepository implements MatchRepository {
         return TennisMatch(
           id: doc.id,
           tournamentId: data['tournamentId'] as String,
+          categoryId: data['categoryId'] as String? ?? '',
           tournamentName: data['tournamentName'] as String,
           player1Id: data['player1Id'] as String? ?? '',
           player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -115,7 +116,7 @@ class FirestoreMatchRepository implements MatchRepository {
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
-      }).toList();
+      }).toList().cast<TennisMatch>();
     } catch (e) {
       return [];
     }
@@ -144,6 +145,7 @@ class FirestoreMatchRepository implements MatchRepository {
         return TennisMatch(
           id: doc.id,
           tournamentId: data['tournamentId'] as String,
+          categoryId: data['categoryId'] as String? ?? '',
           tournamentName: data['tournamentName'] as String,
           player1Id: data['player1Id'] as String? ?? '',
           player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -165,7 +167,7 @@ class FirestoreMatchRepository implements MatchRepository {
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
-      }).toList();
+      }).toList().cast<TennisMatch>();
     });
   }
 
@@ -216,6 +218,7 @@ class FirestoreMatchRepository implements MatchRepository {
         return TennisMatch(
           id: doc.id,
           tournamentId: data['tournamentId'] as String,
+          categoryId: data['categoryId'] as String? ?? '',
           tournamentName: data['tournamentName'] as String,
           player1Id: data['player1Id'] as String? ?? '',
           player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -237,7 +240,7 @@ class FirestoreMatchRepository implements MatchRepository {
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
-      }).toList();
+      }).toList().cast<TennisMatch>();
 
       // Sort by time locally since we merged results
       matches.sort((a, b) => a.time.compareTo(b.time));
@@ -274,6 +277,7 @@ class FirestoreMatchRepository implements MatchRepository {
         return TennisMatch(
           id: doc.id,
           tournamentId: data['tournamentId'] as String,
+          categoryId: data['categoryId'] as String? ?? '',
           tournamentName: data['tournamentName'] as String,
           player1Id: data['player1Id'] as String? ?? '',
           player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -295,7 +299,7 @@ class FirestoreMatchRepository implements MatchRepository {
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
-      }).where((match) => match.player1Id == user.uid || match.player2Id == user.uid).toList();
+      }).where((match) => match.player1Id == user.uid || match.player2Id == user.uid).toList().cast<TennisMatch>();
       
       matches.sort((a, b) => a.time.compareTo(b.time));
       return matches;
@@ -309,6 +313,7 @@ class FirestoreMatchRepository implements MatchRepository {
       final docRef = _firestore.collection('matches').doc(match.id);
       batch.set(docRef, {
         'tournamentId': match.tournamentId,
+        'categoryId': match.categoryId,
         'tournamentName': match.tournamentName,
         'player1Id': match.player1Id,
         'player1Name': match.player1Name,

@@ -8,6 +8,7 @@ abstract class Participant with _$Participant {
   const factory Participant({
     required String id,
     required String name,
+    required String categoryId,
     String? userId, // Nullable for manual entries
     String? avatarUrl,
     @Default('pending') String status, // 'pending', 'approved', 'rejected'

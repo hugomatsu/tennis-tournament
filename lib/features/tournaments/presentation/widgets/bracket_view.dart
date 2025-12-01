@@ -6,6 +6,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_card.dart';
 
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/painters/bracket_painter.dart';
 
 final bracketMatchesProvider = StreamProvider.family<List<TennisMatch>, String>((ref, tournamentId) {
@@ -19,15 +20,108 @@ class BracketView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final matchesAsync = ref.watch(bracketMatchesProvider(tournament.id));
+    final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournament.id));
+
+    return categoriesAsync.when(
+      data: (categories) {
+        if (categories.isEmpty) {
+          return const Center(child: Text('No categories found. Please create a category.'));
+        }
+
+        return DefaultTabController(
+          length: categories.length,
+          child: Column(
+            children: [
+              Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: TabBar(
+                  isScrollable: true,
+                  tabs: categories.map((c) => Tab(text: c.name)).toList(),
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: categories.map((c) {
+                    return _SingleBracketView(
+                      tournamentId: tournament.id,
+                      categoryId: c.id,
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error loading categories: $err')),
+    );
+  }
+}
+
+class _SingleBracketView extends ConsumerWidget {
+  final String tournamentId;
+  final String categoryId;
+
+  const _SingleBracketView({
+    required this.tournamentId,
+    required this.categoryId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final matchesAsync = ref.watch(bracketMatchesProvider(tournamentId));
     final currentUserAsync = ref.watch(currentUserProvider);
     final currentUserId = currentUserAsync.asData?.value?.id;
 
     return matchesAsync.when(
-      data: (matches) {
+      data: (allMatches) {
+        // Filter matches by category
+        final matches = allMatches.where((m) => m.categoryId == categoryId).toList();
+
         if (matches.isEmpty) {
-          return const Center(child: Text('No matches generated yet'));
-        }
+      final participantsAsync = ref.watch(participantsProvider(tournamentId));
+      return participantsAsync.when(
+        data: (participants) {
+          final categoryParticipants = participants
+              .where((p) => p.categoryId == categoryId && p.status == 'approved')
+              .toList();
+          
+          if (categoryParticipants.isEmpty) {
+            return const Center(child: Text('No matches generated and no players in this category yet.'));
+          }
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('No matches generated yet.'),
+                const SizedBox(height: 16),
+                Text(
+                  'Players in this category (${categoryParticipants.length}):',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: categoryParticipants.map((p) => Chip(
+                    avatar: CircleAvatar(
+                      backgroundImage: p.avatarUrl != null ? NetworkImage(p.avatarUrl!) : null,
+                      child: p.avatarUrl == null ? Text(p.name[0]) : null,
+                    ),
+                    label: Text(p.name),
+                  )).toList(),
+                ),
+              ],
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Error loading players: $e')),
+      );
+    }
 
         // Group matches by round
         final rounds = <int, List<TennisMatch>>{};
@@ -216,8 +310,6 @@ class BracketView extends ConsumerWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Score updated!')),
                         );
-                        // Refresh matches - Stream will auto-update
-                        // ref.invalidate(matchesForTournamentProvider(match.tournamentId));
                       }
                     } catch (e) {
                       if (context.mounted) {

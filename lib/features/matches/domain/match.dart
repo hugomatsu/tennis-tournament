@@ -9,6 +9,7 @@ abstract class TennisMatch with _$TennisMatch {
   const factory TennisMatch({
     required String id,
     required String tournamentId,
+    required String categoryId,
     required String tournamentName,
     required DateTime time,
     required String court,
