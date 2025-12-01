@@ -129,6 +129,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'tournamentId': category.tournamentId,
       'name': category.name,
       'type': category.type,
+      'description': category.description,
       'format': category.format,
     });
   }
@@ -143,6 +144,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         .update({
       'name': category.name,
       'type': category.type,
+      'description': category.description,
       'format': category.format,
     });
   }
@@ -162,6 +164,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         tournamentId: data['tournamentId'] as String,
         name: data['name'] as String,
         type: data['type'] as String,
+        description: data['description'] as String? ?? '',
         format: data['format'] as String? ?? 'round_robin',
       );
     }).toList();

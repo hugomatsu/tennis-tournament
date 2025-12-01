@@ -10,6 +10,7 @@ abstract class TournamentCategory with _$TournamentCategory {
     required String tournamentId,
     required String name, // e.g., "Men's A", "Mixed Doubles"
     required String type, // 'singles' | 'doubles'
+    @Default('') String description,
     @Default('round_robin') String format, // 'round_robin' | 'elimination'
   }) = _TournamentCategory;
 

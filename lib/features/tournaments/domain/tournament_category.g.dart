@@ -12,6 +12,7 @@ _TournamentCategory _$TournamentCategoryFromJson(Map<String, dynamic> json) =>
       tournamentId: json['tournamentId'] as String,
       name: json['name'] as String,
       type: json['type'] as String,
+      description: json['description'] as String? ?? '',
       format: json['format'] as String? ?? 'round_robin',
     );
 
@@ -21,5 +22,6 @@ Map<String, dynamic> _$TournamentCategoryToJson(_TournamentCategory instance) =>
       'tournamentId': instance.tournamentId,
       'name': instance.name,
       'type': instance.type,
+      'description': instance.description,
       'format': instance.format,
     };

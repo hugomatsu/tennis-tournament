@@ -17,7 +17,7 @@ mixin _$TournamentCategory {
 
  String get id; String get tournamentId; String get name;// e.g., "Men's A", "Mixed Doubles"
  String get type;// 'singles' | 'doubles'
- String get format;
+ String get description; String get format;
 /// Create a copy of TournamentCategory
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +30,16 @@ $TournamentCategoryCopyWith<TournamentCategory> get copyWith => _$TournamentCate
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TournamentCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.format, format) || other.format == format));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TournamentCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.description, description) || other.description == description)&&(identical(other.format, format) || other.format == format));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tournamentId,name,type,format);
+int get hashCode => Object.hash(runtimeType,id,tournamentId,name,type,description,format);
 
 @override
 String toString() {
-  return 'TournamentCategory(id: $id, tournamentId: $tournamentId, name: $name, type: $type, format: $format)';
+  return 'TournamentCategory(id: $id, tournamentId: $tournamentId, name: $name, type: $type, description: $description, format: $format)';
 }
 
 
@@ -50,7 +50,7 @@ abstract mixin class $TournamentCategoryCopyWith<$Res>  {
   factory $TournamentCategoryCopyWith(TournamentCategory value, $Res Function(TournamentCategory) _then) = _$TournamentCategoryCopyWithImpl;
 @useResult
 $Res call({
- String id, String tournamentId, String name, String type, String format
+ String id, String tournamentId, String name, String type, String description, String format
 });
 
 
@@ -67,12 +67,13 @@ class _$TournamentCategoryCopyWithImpl<$Res>
 
 /// Create a copy of TournamentCategory
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tournamentId = null,Object? name = null,Object? type = null,Object? format = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tournamentId = null,Object? name = null,Object? type = null,Object? description = null,Object? format = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tournamentId: null == tournamentId ? _self.tournamentId : tournamentId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,format: null == format ? _self.format : format // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -159,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String name,  String type,  String format)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String name,  String type,  String description,  String format)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TournamentCategory() when $default != null:
-return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);case _:
+return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.description,_that.format);case _:
   return orElse();
 
 }
@@ -180,10 +181,10 @@ return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String name,  String type,  String format)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tournamentId,  String name,  String type,  String description,  String format)  $default,) {final _that = this;
 switch (_that) {
 case _TournamentCategory():
-return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);case _:
+return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.description,_that.format);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +201,10 @@ return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tournamentId,  String name,  String type,  String format)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tournamentId,  String name,  String type,  String description,  String format)?  $default,) {final _that = this;
 switch (_that) {
 case _TournamentCategory() when $default != null:
-return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);case _:
+return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.description,_that.format);case _:
   return null;
 
 }
@@ -215,7 +216,7 @@ return $default(_that.id,_that.tournamentId,_that.name,_that.type,_that.format);
 @JsonSerializable()
 
 class _TournamentCategory implements TournamentCategory {
-  const _TournamentCategory({required this.id, required this.tournamentId, required this.name, required this.type, this.format = 'round_robin'});
+  const _TournamentCategory({required this.id, required this.tournamentId, required this.name, required this.type, this.description = '', this.format = 'round_robin'});
   factory _TournamentCategory.fromJson(Map<String, dynamic> json) => _$TournamentCategoryFromJson(json);
 
 @override final  String id;
@@ -224,6 +225,7 @@ class _TournamentCategory implements TournamentCategory {
 // e.g., "Men's A", "Mixed Doubles"
 @override final  String type;
 // 'singles' | 'doubles'
+@override@JsonKey() final  String description;
 @override@JsonKey() final  String format;
 
 /// Create a copy of TournamentCategory
@@ -239,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TournamentCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.format, format) || other.format == format));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TournamentCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.tournamentId, tournamentId) || other.tournamentId == tournamentId)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.description, description) || other.description == description)&&(identical(other.format, format) || other.format == format));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tournamentId,name,type,format);
+int get hashCode => Object.hash(runtimeType,id,tournamentId,name,type,description,format);
 
 @override
 String toString() {
-  return 'TournamentCategory(id: $id, tournamentId: $tournamentId, name: $name, type: $type, format: $format)';
+  return 'TournamentCategory(id: $id, tournamentId: $tournamentId, name: $name, type: $type, description: $description, format: $format)';
 }
 
 
@@ -259,7 +261,7 @@ abstract mixin class _$TournamentCategoryCopyWith<$Res> implements $TournamentCa
   factory _$TournamentCategoryCopyWith(_TournamentCategory value, $Res Function(_TournamentCategory) _then) = __$TournamentCategoryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String tournamentId, String name, String type, String format
+ String id, String tournamentId, String name, String type, String description, String format
 });
 
 
@@ -276,12 +278,13 @@ class __$TournamentCategoryCopyWithImpl<$Res>
 
 /// Create a copy of TournamentCategory
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tournamentId = null,Object? name = null,Object? type = null,Object? format = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tournamentId = null,Object? name = null,Object? type = null,Object? description = null,Object? format = null,}) {
   return _then(_TournamentCategory(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tournamentId: null == tournamentId ? _self.tournamentId : tournamentId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,format: null == format ? _self.format : format // ignore: cast_nullable_to_non_nullable
 as String,
   ));

@@ -76,6 +76,7 @@ class MockTournamentRepository implements TournamentRepository {
         tournamentId: tournamentId,
         name: 'Open',
         type: 'singles',
+        description: 'Open category for all players',
       ),
     ];
   }

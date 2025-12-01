@@ -10,6 +10,7 @@ import 'package:tennis_tournament/features/players/presentation/profile_screen.d
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
@@ -301,7 +302,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
               children: [
                 ...categories.map((category) => ListTile(
                   title: Text(category.name),
-                  subtitle: Text(category.type),
+                  subtitle: Text('${category.type} - ${category.description}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () => _showEditCategoryDialog(category),
@@ -331,6 +332,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
 
   void _showAddCategoryDialog() {
     final nameController = TextEditingController();
+    final descController = TextEditingController();
     String type = 'singles';
 
     showDialog(
@@ -345,6 +347,12 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Category Name (e.g. Men\'s A)'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 2,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -371,6 +379,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                     tournamentId: widget.tournamentId,
                     name: nameController.text,
                     type: type,
+                    description: descController.text,
                   );
                   await ref.read(tournamentRepositoryProvider).addCategory(category);
                   ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
@@ -387,6 +396,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
 
   void _showEditCategoryDialog(TournamentCategory category) {
     final nameController = TextEditingController(text: category.name);
+    final descController = TextEditingController(text: category.description);
     String type = category.type;
 
     showDialog(
@@ -401,6 +411,12 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Category Name'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 2,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -425,6 +441,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                   final updated = category.copyWith(
                     name: nameController.text,
                     type: type,
+                    description: descController.text,
                   );
                   await ref.read(tournamentRepositoryProvider).updateCategory(updated);
                   ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
@@ -449,6 +466,7 @@ class _InfoTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
     final participantsAsync = ref.watch(participantsProvider(tournament.id));
+    final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournament.id));
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -479,18 +497,89 @@ class _InfoTab extends ConsumerWidget {
         participantsAsync.when(
           data: (participants) {
             if (participants.isEmpty) return const Text('No participants yet.');
-            // Deduplicate users for display (since one user can be in multiple categories)
-            final uniqueUsers = {for (var p in participants) p.userId: p}.values.toList();
-            return Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: uniqueUsers.map((p) => Chip(
-                avatar: CircleAvatar(
-                  backgroundImage: p.avatarUrl != null ? NetworkImage(p.avatarUrl!) : null,
-                  child: p.avatarUrl == null ? Text(p.name[0]) : null,
-                ),
-                label: Text(p.name),
-              )).toList(),
+            
+            return categoriesAsync.when(
+              data: (categories) {
+                if (categories.isEmpty) return const Text('No categories found.');
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: categories.map((category) {
+                    final categoryParticipants = participants
+                        .where((p) => p.categoryId == category.id)
+                        .toList();
+                    
+                    if (categoryParticipants.isEmpty) return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            category.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          if (category.description.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                              child: Text(
+                                category.description,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          const SizedBox(height: 8),
+                          ...categoryParticipants.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final participant = entry.value;
+                            final isCurrentUser = participant.userId == userAsync.asData?.value?.id;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 24,
+                                    child: Text(
+                                      '${index + 1}.',
+                                      style: TextStyle(
+                                        fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                                        color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
+                                      ),
+                                    ),
+                                  ),
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundImage: participant.avatarUrl != null 
+                                        ? NetworkImage(participant.avatarUrl!) 
+                                        : null,
+                                    child: participant.avatarUrl == null 
+                                        ? Text(participant.name[0].toUpperCase(), style: const TextStyle(fontSize: 10)) 
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    participant.name,
+                                    style: TextStyle(
+                                      fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                                      color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+              loading: () => const SizedBox(height: 20, child: LinearProgressIndicator()),
+              error: (e, s) => Text('Error loading categories: $e'),
             );
           },
           loading: () => const SizedBox(height: 20, child: LinearProgressIndicator()),

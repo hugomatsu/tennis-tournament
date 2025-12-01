@@ -50,11 +50,12 @@ Thumbs.db
 
 
 # Environment variables
-.env
+assets/env
 .dart_tool/chrome-device/Default/Cookies
 /.dart_tool/chrome-device
 /.dart_tool/chrome-device
 /.dart_tool/build
 /.dart_tool
+/build
 /build
 /build
