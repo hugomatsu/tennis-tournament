@@ -19,6 +19,7 @@ abstract class TournamentRepository {
   Future<Tournament?> getTournament(String id);
   Future<void> createTournament(Tournament tournament);
   Future<void> joinTournament(String tournamentId, String userId, String categoryId);
+  Future<void> leaveTournament(String tournamentId, String userId, String categoryId);
   Future<bool> isPlayerRegistered(String tournamentId, String userId);
   
   Future<void> updateTournament(Tournament tournament);

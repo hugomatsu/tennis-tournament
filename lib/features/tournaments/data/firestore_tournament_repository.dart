@@ -229,6 +229,31 @@ class FirestoreTournamentRepository implements TournamentRepository {
   }
 
   @override
+  Future<void> leaveTournament(String tournamentId, String userId, String categoryId) async {
+    final tournamentRef = _firestore.collection('tournaments').doc(tournamentId);
+    final participantId = '${userId}_$categoryId';
+    final participantRef = tournamentRef.collection('participants').doc(participantId);
+
+    await _firestore.runTransaction((transaction) async {
+      final participantDoc = await transaction.get(participantRef);
+      if (!participantDoc.exists) {
+        return; // Already left or never joined
+      }
+
+      final status = participantDoc.data()?['status'] as String? ?? 'pending';
+
+      transaction.delete(participantRef);
+
+      // Decrement count if they were approved
+      if (status == 'approved') {
+        transaction.update(tournamentRef, {
+          'playersCount': FieldValue.increment(-1),
+        });
+      }
+    });
+  }
+
+  @override
   Future<bool> isPlayerRegistered(String tournamentId, String userId) async {
     final snapshot = await _firestore
         .collection('tournaments')

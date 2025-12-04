@@ -48,6 +48,12 @@ class MockTournamentRepository implements TournamentRepository {
   }
 
   @override
+  Future<void> leaveTournament(String tournamentId, String userId, String categoryId) async {
+    // Mock implementation
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
   Future<void> updateTournament(Tournament tournament) async {
     await Future.delayed(const Duration(milliseconds: 500));
   }

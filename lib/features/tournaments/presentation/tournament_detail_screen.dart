@@ -561,13 +561,21 @@ class _InfoTab extends ConsumerWidget {
                                         : null,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    participant.name,
-                                    style: TextStyle(
-                                      fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                                      color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
+                                  Expanded(
+                                    child: Text(
+                                      participant.name,
+                                      style: TextStyle(
+                                        fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                                        color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
+                                      ),
                                     ),
                                   ),
+                                  if (isCurrentUser)
+                                    IconButton(
+                                      icon: const Icon(Icons.logout, size: 16, color: Colors.red),
+                                      tooltip: 'Leave Category',
+                                      onPressed: () => _leaveCategory(context, ref, tournament.id, userAsync.asData!.value!.id, category.id),
+                                    ),
                                 ],
                               ),
                             );
@@ -592,6 +600,51 @@ class _InfoTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _leaveCategory(BuildContext context, WidgetRef ref, String tournamentId, String userId, String categoryId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave Category?'),
+        content: const Text('Are you sure you want to withdraw from this category?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await ref
+          .read(tournamentRepositoryProvider)
+          .leaveTournament(tournamentId, userId, categoryId);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have left the category.')),
+        );
+        ref.invalidate(tournamentDetailProvider(tournamentId));
+        ref.invalidate(participantsProvider(tournamentId));
+        // Force refresh of join button state
+        ref.invalidate(currentUserProvider); 
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error leaving: $e')),
+        );
+      }
+    }
   }
 }
 
@@ -723,32 +776,6 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (_joinedCategoryIds.isNotEmpty) {
-      return Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.tonal(
-              onPressed: _isLoading ? null : _joinTournament,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add),
-                  SizedBox(width: 8),
-                  Text('Join Another Category'),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Joined ${_joinedCategoryIds.length} categories',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      );
-    }
-
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
@@ -759,7 +786,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text('Join Tournament'),
+            : Text(_joinedCategoryIds.isEmpty ? 'Join Tournament' : 'Join Another Category'),
       ),
     );
   }
