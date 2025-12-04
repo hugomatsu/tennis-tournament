@@ -14,6 +14,7 @@ import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
+import 'package:tennis_tournament/features/matches/domain/match.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -68,38 +69,104 @@ class TournamentDetailScreen extends ConsumerWidget {
                           },
                         ),
                         IconButton(
+                          icon: const Icon(Icons.delete_sweep),
+                          tooltip: 'Delete Bracket',
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Bracket?'),
+                                content: const Text('This will delete all generated matches for this tournament. This action cannot be undone.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  FilledButton(
+                                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true && context.mounted) {
+                              final scaffoldMessenger = ScaffoldMessenger.of(context);
+                              try {
+                                await ref.read(matchRepositoryProvider).deleteMatchesForTournament(tournament.id);
+                                scaffoldMessenger.showSnackBar(
+                                  const SnackBar(content: Text('Bracket deleted successfully')),
+                                );
+                              } catch (e) {
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(content: Text('Error deleting bracket: $e')),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.shuffle),
                           tooltip: 'Generate Bracket',
                           onPressed: () async {
                             final scaffoldMessenger = ScaffoldMessenger.of(context);
                             try {
-                              // 1. Fetch participants
+                              // 1. Fetch participants and categories
                               final participants = await ref
                                   .read(tournamentRepositoryProvider)
                                   .getParticipants(tournament.id);
+                              
+                              final categories = await ref
+                                  .read(tournamentRepositoryProvider)
+                                  .getCategories(tournament.id);
+
+                              if (categories.isEmpty) {
+                                scaffoldMessenger.showSnackBar(
+                                  const SnackBar(content: Text('No categories found to generate bracket')),
+                                );
+                                return;
+                              }
 
                               // Filter only approved participants
                               final approvedParticipants = participants
                                   .where((p) => p.status == 'approved')
                                   .toList();
 
-                              if (approvedParticipants.length < 2) {
+                              final allMatches = <TennisMatch>[];
+                              int generatedCount = 0;
+
+                              // 2. Generate matches for each category
+                              for (final category in categories) {
+                                final categoryParticipants = approvedParticipants
+                                    .where((p) => p.categoryId == category.id)
+                                    .toList();
+                                
+                                if (categoryParticipants.length < 2) {
+                                  // Skip categories with not enough players
+                                  continue;
+                                }
+
+                                final matches = await ref
+                                    .read(schedulingServiceProvider)
+                                    .generateBracket(tournament, categoryParticipants);
+                                
+                                allMatches.addAll(matches);
+                                generatedCount += matches.length;
+                              }
+
+                              if (allMatches.isEmpty) {
                                 scaffoldMessenger.showSnackBar(
-                                  const SnackBar(content: Text('Not enough approved participants to generate bracket')),
+                                  const SnackBar(content: Text('Not enough approved participants in any category')),
                                 );
                                 return;
                               }
 
-                              // 2. Generate matches
-                              final matches = await ref
-                                  .read(schedulingServiceProvider)
-                                  .generateBracket(tournament, approvedParticipants);
-
                               // 3. Save matches
-                              await ref.read(matchRepositoryProvider).createMatches(matches);
+                              await ref.read(matchRepositoryProvider).createMatches(allMatches);
 
                               scaffoldMessenger.showSnackBar(
-                                SnackBar(content: Text('Generated ${matches.length} matches!')),
+                                SnackBar(content: Text('Generated $generatedCount matches across ${categories.length} categories!')),
                               );
                             } catch (e) {
                               scaffoldMessenger.showSnackBar(
@@ -570,12 +637,6 @@ class _InfoTab extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  if (isCurrentUser)
-                                    IconButton(
-                                      icon: const Icon(Icons.logout, size: 16, color: Colors.red),
-                                      tooltip: 'Leave Category',
-                                      onPressed: () => _leaveCategory(context, ref, tournament.id, userAsync.asData!.value!.id, category.id),
-                                    ),
                                 ],
                               ),
                             );
@@ -600,51 +661,6 @@ class _InfoTab extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  Future<void> _leaveCategory(BuildContext context, WidgetRef ref, String tournamentId, String userId, String categoryId) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Leave Category?'),
-        content: const Text('Are you sure you want to withdraw from this category?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Leave'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    try {
-      await ref
-          .read(tournamentRepositoryProvider)
-          .leaveTournament(tournamentId, userId, categoryId);
-      
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You have left the category.')),
-        );
-        ref.invalidate(tournamentDetailProvider(tournamentId));
-        ref.invalidate(participantsProvider(tournamentId));
-        // Force refresh of join button state
-        ref.invalidate(currentUserProvider); 
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error leaving: $e')),
-        );
-      }
-    }
   }
 }
 
@@ -694,7 +710,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     }
   }
 
-  Future<void> _joinTournament() async {
+  Future<void> _showCategorySelectionDialog() async {
     if (widget.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please log in to join')),
@@ -702,7 +718,6 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
       return;
     }
 
-    // Fetch categories first
     final categories = await ref.read(tournamentRepositoryProvider).getCategories(widget.tournament.id);
     
     if (categories.isEmpty) {
@@ -714,59 +729,152 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
       return;
     }
 
-    // Filter out categories already joined
-    final availableCategories = categories.where((c) => !_joinedCategoryIds.contains(c.id)).toList();
+    // Local state for the dialog
+    final selectedCategories = Set<String>.from(_joinedCategoryIds);
+    final isEditing = _joinedCategoryIds.isNotEmpty;
 
-    if (availableCategories.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You have joined all available categories.')),
-        );
-      }
-      return;
-    }
+    if (!mounted) return;
 
-    String? selectedCategoryId;
-    if (availableCategories.length == 1) {
-      selectedCategoryId = availableCategories.first.id;
-    } else {
-      // Show dialog to select category
-      if (mounted) {
-        selectedCategoryId = await showDialog<String>(
-          context: context,
-          builder: (context) => SimpleDialog(
-            title: const Text('Select Category'),
-            children: availableCategories.map((c) => SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, c.id),
-              child: Text(c.name),
-            )).toList(),
-          ),
-        );
-      }
-    }
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(isEditing ? 'Edit Participation' : 'Select Categories'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: categories.map((category) {
+                  return CheckboxListTile(
+                    title: Text(category.name),
+                    subtitle: Text(category.type),
+                    value: selectedCategories.contains(category.id),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value == true) {
+                          selectedCategories.add(category.id);
+                        } else {
+                          selectedCategories.remove(category.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [
+              if (isEditing)
+                TextButton(
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Leave Tournament?'),
+                        content: const Text('Are you sure you want to leave the tournament completely? This will remove you from all categories.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          FilledButton(
+                            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Leave'),
+                          ),
+                        ],
+                      ),
+                    );
 
-    if (selectedCategoryId == null) return; // Cancelled
+                    if (confirm == true && context.mounted) {
+                      Navigator.pop(context); // Close selection dialog
+                      _handleLeaveTournament();
+                    }
+                  },
+                  child: const Text('Leave Participation'),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleUpdateParticipation(selectedCategories);
+                },
+                child: const Text('Confirm'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
+  Future<void> _handleUpdateParticipation(Set<String> selectedCategories) async {
     setState(() => _isLoading = true);
+    final userId = widget.currentUser!.id;
+    final tournamentId = widget.tournament.id;
+    final repo = ref.read(tournamentRepositoryProvider);
 
     try {
-      await ref
-          .read(tournamentRepositoryProvider)
-          .joinTournament(widget.tournament.id, widget.currentUser!.id, selectedCategoryId);
-      
-      await _checkRegistration(); // Refresh status
+      // Determine additions and removals
+      final toAdd = selectedCategories.difference(_joinedCategoryIds.toSet());
+      final toRemove = _joinedCategoryIds.toSet().difference(selectedCategories);
+
+      // Execute changes
+      for (final categoryId in toAdd) {
+        await repo.joinTournament(tournamentId, userId, categoryId);
+      }
+
+      for (final categoryId in toRemove) {
+        await repo.leaveTournament(tournamentId, userId, categoryId);
+      }
+
+      await _checkRegistration();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Request sent! Waiting for approval.')),
+          const SnackBar(content: Text('Participation updated successfully')),
         );
-        ref.invalidate(tournamentDetailProvider(widget.tournament.id));
-        ref.invalidate(participantsProvider(widget.tournament.id));
+        ref.invalidate(tournamentDetailProvider(tournamentId));
+        ref.invalidate(participantsProvider(tournamentId));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error joining: $e')),
+          SnackBar(content: Text('Error updating participation: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleLeaveTournament() async {
+    setState(() => _isLoading = true);
+    final userId = widget.currentUser!.id;
+    final tournamentId = widget.tournament.id;
+    final repo = ref.read(tournamentRepositoryProvider);
+
+    try {
+      for (final categoryId in _joinedCategoryIds) {
+        await repo.leaveTournament(tournamentId, userId, categoryId);
+      }
+
+      await _checkRegistration();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have left the tournament')),
+        );
+        ref.invalidate(tournamentDetailProvider(tournamentId));
+        ref.invalidate(participantsProvider(tournamentId));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error leaving tournament: $e')),
         );
       }
     } finally {
@@ -776,17 +884,30 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isJoined = _joinedCategoryIds.isNotEmpty;
+    final categoriesAsync = ref.watch(tournamentCategoriesProvider(widget.tournament.id));
+
     return SizedBox(
       width: double.infinity,
-      child: FilledButton(
-        onPressed: _isLoading ? null : _joinTournament,
-        child: _isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Text(_joinedCategoryIds.isEmpty ? 'Join Tournament' : 'Join Another Category'),
+      child: categoriesAsync.when(
+        data: (categories) {
+          final isDisabled = categories.isEmpty;
+          return FilledButton(
+            onPressed: (_isLoading || isDisabled) ? null : _showCategorySelectionDialog,
+            style: isJoined ? FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary) : null,
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(isDisabled 
+                    ? 'No Categories Available' 
+                    : (isJoined ? 'Edit Participation' : 'Join Tournament')),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const SizedBox.shrink(),
       ),
     );
   }

@@ -478,4 +478,18 @@ class FirestoreMatchRepository implements MatchRepository {
       }
     });
   }
+
+  @override
+  Future<void> deleteMatchesForTournament(String tournamentId) async {
+    final snapshot = await _firestore
+        .collection('matches')
+        .where('tournamentId', isEqualTo: tournamentId)
+        .get();
+
+    final batch = _firestore.batch();
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+  }
 }

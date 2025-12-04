@@ -28,4 +28,5 @@ abstract class MatchRepository {
   Future<void> updateMatchScore(String matchId, String score, String winnerName);
   Future<void> cheerForMatch(String matchId, String playerId);
   Future<void> confirmMatch(String matchId, String playerId);
+  Future<void> deleteMatchesForTournament(String tournamentId);
 }

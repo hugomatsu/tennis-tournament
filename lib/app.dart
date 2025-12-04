@@ -26,7 +26,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/',
+    initialLocation: '/tournaments',
     redirect: (context, state) {
       final isLoading = authState.isLoading;
       final hasError = authState.hasError;
@@ -42,7 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       if (isAuthenticated && (isLogin || isRegister)) {
-        return '/';
+        return '/tournaments';
       }
 
       return null;
