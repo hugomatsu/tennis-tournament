@@ -15,12 +15,16 @@ class SingleEliminationService implements SchedulingService {
   @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
-    List<Participant> participants,
-  ) async {
+    List<Participant> participants, {
+    bool shuffle = true,
+  }) async {
     if (participants.length < 2) return [];
 
-    // 1. Shuffle players (random seeding for now)
-    final shuffledPlayers = List<Participant>.from(participants)..shuffle();
+    // 1. Shuffle players if requested, otherwise use provided order
+    final shuffledPlayers = List<Participant>.from(participants);
+    if (shuffle) {
+      shuffledPlayers.shuffle();
+    }
 
     // 2. Calculate bracket size and byes
     final n = shuffledPlayers.length;

@@ -111,45 +111,98 @@ class TournamentDetailScreen extends ConsumerWidget {
                           tooltip: 'Generate Bracket',
                           onPressed: () async {
                             final scaffoldMessenger = ScaffoldMessenger.of(context);
+                            
+                            // 1. Fetch participants and categories
+                            final participants = await ref
+                                .read(tournamentRepositoryProvider)
+                                .getParticipants(tournament.id);
+                            
+                            final categories = await ref
+                                .read(tournamentRepositoryProvider)
+                                .getCategories(tournament.id);
+
+                            if (categories.isEmpty) {
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(content: Text('No categories found to generate bracket')),
+                              );
+                              return;
+                            }
+
+                            // Filter only approved participants
+                            final approvedParticipants = participants
+                                .where((p) => p.status == 'approved')
+                                .toList();
+
+                            // Ask for generation method
+                            if (!context.mounted) return;
+                            final method = await showDialog<String>(
+                              context: context,
+                              builder: (context) => SimpleDialog(
+                                title: const Text('Generation Method'),
+                                children: [
+                                  SimpleDialogOption(
+                                    onPressed: () => Navigator.pop(context, 'automatic'),
+                                    child: const ListTile(
+                                      leading: Icon(Icons.auto_fix_high),
+                                      title: Text('Automatic'),
+                                      subtitle: Text('Randomly shuffle players'),
+                                    ),
+                                  ),
+                                  SimpleDialogOption(
+                                    onPressed: () => Navigator.pop(context, 'manual'),
+                                    child: const ListTile(
+                                      leading: Icon(Icons.drag_handle),
+                                      title: Text('Manual'),
+                                      subtitle: Text('Reorder players manually'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (method == null) return;
+
+                            final allMatches = <TennisMatch>[];
+                            int generatedCount = 0;
+
                             try {
-                              // 1. Fetch participants and categories
-                              final participants = await ref
-                                  .read(tournamentRepositoryProvider)
-                                  .getParticipants(tournament.id);
-                              
-                              final categories = await ref
-                                  .read(tournamentRepositoryProvider)
-                                  .getCategories(tournament.id);
-
-                              if (categories.isEmpty) {
-                                scaffoldMessenger.showSnackBar(
-                                  const SnackBar(content: Text('No categories found to generate bracket')),
-                                );
-                                return;
-                              }
-
-                              // Filter only approved participants
-                              final approvedParticipants = participants
-                                  .where((p) => p.status == 'approved')
-                                  .toList();
-
-                              final allMatches = <TennisMatch>[];
-                              int generatedCount = 0;
-
                               // 2. Generate matches for each category
                               for (final category in categories) {
-                                final categoryParticipants = approvedParticipants
+                                var categoryParticipants = approvedParticipants
                                     .where((p) => p.categoryId == category.id)
                                     .toList();
                                 
                                 if (categoryParticipants.length < 2) {
-                                  // Skip categories with not enough players
                                   continue;
+                                }
+
+                                if (method == 'manual') {
+                                  if (!context.mounted) return;
+                                  // Show reordering dialog for this category
+                                  final reordered = await showDialog<List<Participant>>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => _ManualBracketOrderingDialog(
+                                      categoryName: category.name,
+                                      participants: categoryParticipants,
+                                    ),
+                                  );
+
+                                  if (reordered == null) {
+                                    // User cancelled manual ordering for this category
+                                    // We can either skip or abort. Let's abort to be safe.
+                                    return;
+                                  }
+                                  categoryParticipants = reordered;
                                 }
 
                                 final matches = await ref
                                     .read(schedulingServiceProvider)
-                                    .generateBracket(tournament, categoryParticipants);
+                                    .generateBracket(
+                                      tournament, 
+                                      categoryParticipants,
+                                      shuffle: method == 'automatic', // Only shuffle if automatic
+                                    );
                                 
                                 allMatches.addAll(matches);
                                 generatedCount += matches.length;
@@ -952,5 +1005,98 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return false;
+  }
+}
+
+class _ManualBracketOrderingDialog extends StatefulWidget {
+  final String categoryName;
+  final List<Participant> participants;
+
+  const _ManualBracketOrderingDialog({
+    required this.categoryName,
+    required this.participants,
+  });
+
+  @override
+  State<_ManualBracketOrderingDialog> createState() => _ManualBracketOrderingDialogState();
+}
+
+class _ManualBracketOrderingDialogState extends State<_ManualBracketOrderingDialog> {
+  late List<Participant> _items;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start with a random shuffle as requested
+    _items = List.from(widget.participants)..shuffle();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Order Players - ${widget.categoryName}'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Drag to reorder. Players are paired from top to bottom (1 vs 2, 3 vs 4, etc.)',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ),
+            Expanded(
+              child: ReorderableListView(
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    final item = _items.removeAt(oldIndex);
+                    _items.insert(newIndex, item);
+                  });
+                },
+                children: [
+                  for (int i = 0; i < _items.length; i++)
+                    ListTile(
+                      key: ValueKey(_items[i].id),
+                      leading: CircleAvatar(
+                        radius: 12,
+                        backgroundImage: _items[i].avatarUrl != null 
+                            ? NetworkImage(_items[i].avatarUrl!) 
+                            : null,
+                        child: _items[i].avatarUrl == null 
+                            ? Text(_items[i].name[0].toUpperCase(), style: const TextStyle(fontSize: 10)) 
+                            : null,
+                      ),
+                      title: Text(_items[i].name),
+                      trailing: const Icon(Icons.drag_handle),
+                      // Add visual separation for pairs
+                      tileColor: (i ~/ 2) % 2 == 0 
+                          ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                          : null,
+                      shape: i % 2 == 1 
+                          ? const Border(bottom: BorderSide(color: Colors.grey, width: 0.5))
+                          : null,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _items),
+          child: const Text('Confirm Order'),
+        ),
+      ],
+    );
   }
 }

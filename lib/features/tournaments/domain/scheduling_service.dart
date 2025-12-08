@@ -5,6 +5,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 abstract class SchedulingService {
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
-    List<Participant> participants,
-  );
+    List<Participant> participants, {
+    bool shuffle = true,
+  });
 }
