@@ -16,6 +16,9 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament_categor
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 
+import 'package:tennis_tournament/features/locations/data/location_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
 });
@@ -605,7 +608,76 @@ class _InfoTab extends ConsumerWidget {
         const SizedBox(height: 12),
         _InfoRow(icon: Icons.calendar_today, text: tournament.dateRange),
         const SizedBox(height: 12),
-        _InfoRow(icon: Icons.location_on, text: tournament.location),
+        if (tournament.locationId != null)
+          FutureBuilder(
+            future: ref.watch(locationRepositoryProvider).getLocation(tournament.locationId!),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                final location = snapshot.data!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        final uri = Uri.parse(location.googleMapsUrl);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.location_on, size: 20, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  location.name,
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.sports_tennis, size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text('${location.numberOfCourts} Courts', style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (location.imageUrl != null) ...[
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 32.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child:  Image.network(
+                              location.imageUrl!,
+                              height: 120,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }
+              // Fallback if loading or not found
+              return _InfoRow(icon: Icons.location_on, text: tournament.location);
+            },
+          )
+        else
+          _InfoRow(icon: Icons.location_on, text: tournament.location),
         const SizedBox(height: 12),
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 32),

@@ -7,6 +7,8 @@ import 'package:tennis_tournament/features/tournaments/data/tournament_repositor
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
+import 'package:tennis_tournament/features/locations/data/location_repository.dart';
+import 'package:tennis_tournament/features/locations/domain/location.dart';
 import 'package:uuid/uuid.dart';
 
 final simulationServiceProvider = Provider((ref) => SimulationService(ref));
@@ -26,6 +28,29 @@ class SimulationService {
     final tournamentRepo = _ref.read(tournamentRepositoryProvider);
     final matchRepo = _ref.read(matchRepositoryProvider);
     final schedulingService = _ref.read(schedulingServiceProvider);
+    final locationRepo = _ref.read(locationRepositoryProvider);
+
+    // 0. Get or Create Location
+    String locationId;
+    String locationName;
+
+    final existingLocations = await locationRepo.getLocations();
+    if (existingLocations.isNotEmpty) {
+      final loc = existingLocations.first;
+      locationId = loc.id;
+      locationName = loc.name;
+    } else {
+      locationId = const Uuid().v4();
+      locationName = 'Simulation Court';
+      await locationRepo.addLocation(TournamentLocation(
+        id: locationId,
+        name: locationName,
+        googleMapsUrl: 'https://maps.google.com',
+        description: 'A default court for simulations',
+        numberOfCourts: 4,
+        imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80&w=2070&auto=format&fit=crop',
+      ));
+    }
 
     // 1. Create Tournament
     final tournamentId = const Uuid().v4();
@@ -34,7 +59,8 @@ class SimulationService {
       name: name,
       status: 'Registration Open',
       playersCount: playerCount * categoryCount,
-      location: 'Simulation Court',
+      location: locationName,
+      locationId: locationId,
       imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80&w=2070&auto=format&fit=crop',
       description: 'Simulated tournament for testing purposes.',
       dateRange: 'Dec 1 - Dec 5',

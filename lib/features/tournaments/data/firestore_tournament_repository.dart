@@ -29,6 +29,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
           description: data['description'] as String,
           dateRange: data['dateRange'] as String,
           category: data['category'] as String? ?? 'Open',
+          locationId: data['locationId'] as String?,
         );
       }).toList();
     } catch (e) {
@@ -53,6 +54,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         description: data['description'] as String,
         dateRange: data['dateRange'] as String,
         category: data['category'] as String? ?? 'Open',
+        locationId: data['locationId'] as String?,
       );
     } catch (e) {
       return null;
@@ -65,6 +67,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'name': tournament.name,
       'dateRange': tournament.dateRange,
       'location': tournament.location,
+      'locationId': tournament.locationId,
       'imageUrl': tournament.imageUrl,
       'status': tournament.status,
       'description': tournament.description,
@@ -79,6 +82,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'name': tournament.name,
       'dateRange': tournament.dateRange,
       'location': tournament.location,
+      'locationId': tournament.locationId,
       'imageUrl': tournament.imageUrl,
       'description': tournament.description,
       // 'status': tournament.status, // Status might be handled separately
