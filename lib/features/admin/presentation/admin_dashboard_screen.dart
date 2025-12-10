@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
@@ -37,6 +37,12 @@ class AdminDashboardScreen extends ConsumerWidget {
                     const SnackBar(content: Text('Coming Soon')),
                   );
                 },
+              ),
+              const SizedBox(height: 16),
+              _AdminCard(
+                title: 'Manage Locations',
+                icon: Icons.stadium,
+                onTap: () => context.push('/admin/locations'),
               ),
             ],
           );

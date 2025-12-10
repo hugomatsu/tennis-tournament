@@ -12,6 +12,7 @@ abstract class Tournament with _$Tournament {
     required String status, // 'Live Now', 'Registration Open', 'Upcoming', 'Completed'
     required int playersCount,
     required String location,
+    String? locationId, // Added to link to Location entity
     required String imageUrl,
     required String description,
     required String dateRange,

@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
-import 'package:tennis_tournament/features/players/data/player_repository.dart';
-import 'package:tennis_tournament/features/players/domain/player.dart';
 
-final currentUserProvider = FutureProvider<Player?>((ref) {
-  // Invalidate provider when auth state changes to force refresh
-  ref.watch(authStateChangesProvider);
-  return ref.watch(playerRepositoryProvider).getCurrentUser();
-});
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
+
+
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -147,6 +143,15 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                           ),
                         ],
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => context.push('/media-library'),
+                            icon: const Icon(Icons.photo_library),
+                            label: const Text('My Media Library'),
+                          ),
+                        ),
                       ],
                     ),
                   ),

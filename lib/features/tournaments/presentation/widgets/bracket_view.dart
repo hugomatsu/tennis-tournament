@@ -5,7 +5,7 @@ import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_card.dart';
 
-import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/painters/bracket_painter.dart';
 

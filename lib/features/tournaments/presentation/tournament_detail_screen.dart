@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 
 import 'package:tennis_tournament/features/players/domain/player.dart';
-import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:tennis_tournament/features/locations/presentation/location_picker.dart';
+import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:uuid/uuid.dart';
@@ -17,8 +20,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _dateRangeController = TextEditingController();
   final _imageUrlController = TextEditingController();
+  
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _selectedLocationId;
   bool _isLoading = false;
 
   @override
@@ -26,23 +32,122 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     _nameController.dispose();
     _locationController.dispose();
     _descriptionController.dispose();
-    _dateRangeController.dispose();
     _imageUrlController.dispose();
     super.dispose();
   }
 
+  void _showLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            AppBar(
+              title: const Text('Select Location'),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            Expanded(
+              child: LocationPicker(
+                onLocationSelected: (location) {
+                  setState(() {
+                    _locationController.text = location.name;
+                    _selectedLocationId = location.id;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+      initialDateRange: _startDate != null && _endDate != null
+          ? DateTimeRange(start: _startDate!, end: _endDate!)
+          : null,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
+  void _showMediaLibrary() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            AppBar(
+              title: const Text('Select Image'),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            Expanded(
+              child: MediaLibraryPicker(
+                onImageSelected: (asset) {
+                  setState(() {
+                    _imageUrlController.text = asset.url;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _createTournament() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a date range')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
     try {
+      final dateFormat = DateFormat('MMMM d, y');
+      final dateRangeString = '${dateFormat.format(_startDate!)} - ${dateFormat.format(_endDate!)}';
+
       final tournament = Tournament(
         id: const Uuid().v4(),
         name: _nameController.text.trim(),
         location: _locationController.text.trim(),
+        locationId: _selectedLocationId,
         description: _descriptionController.text.trim(),
-        dateRange: _dateRangeController.text.trim(),
+        dateRange: dateRangeString,
         imageUrl: _imageUrlController.text.trim().isNotEmpty
             ? _imageUrlController.text.trim()
             : 'https://via.placeholder.com/400x200',
@@ -71,6 +176,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = DateFormat('MMM d, y');
+    
     return Scaffold(
       appBar: AppBar(title: const Text('Create Tournament')),
       body: SingleChildScrollView(
@@ -78,12 +185,14 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Tournament Name',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.emoji_events),
                 ),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter a name' : null,
@@ -91,47 +200,107 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               const SizedBox(height: 16),
               TextFormField(
                 controller: _locationController,
+                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Location',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.location_on),
+                  suffixIcon: Icon(Icons.arrow_drop_down),
                 ),
+                onTap: _showLocationPicker,
                 validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter a location' : null,
+                    value == null || value.isEmpty ? 'Please select a location' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _dateRangeController,
-                decoration: const InputDecoration(
-                  labelText: 'Date Range (e.g., "July 15-20, 2025")',
-                  border: OutlineInputBorder(),
+              
+              // Date Range Picker
+              InkWell(
+                onTap: () => _selectDateRange(context),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Date Range',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.date_range),
+                  ),
+                  child: Text(
+                    _startDate != null && _endDate != null
+                        ? '${dateFormat.format(_startDate!)} - ${dateFormat.format(_endDate!)}'
+                        : 'Select Dates',
+                    style: TextStyle(
+                      color: _startDate != null ? Colors.black : Colors.grey[600],
+                    ),
+                  ),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter dates' : null,
               ),
+              
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
                   labelText: 'Description',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _imageUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Image URL (Optional)',
-                  border: OutlineInputBorder(),
-                ),
+              
+              // Image Picker
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _imageUrlController,
+                      decoration: const InputDecoration(
+                        labelText: 'Cover Image URL',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.image),
+                      ),
+                      readOnly: true, // Make it read-only so user uses the picker
+                      onTap: _showMediaLibrary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filledTonal(
+                    onPressed: _showMediaLibrary,
+                    icon: const Icon(Icons.photo_library),
+                    tooltip: 'Select from Library',
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
+              if (_imageUrlController.text.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    _imageUrlController.text,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 150,
+                      width: double.infinity,
+                      color: Colors.grey[200],
+                      child: const Center(child: Icon(Icons.broken_image)),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _isLoading ? null : _createTournament,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
                   child: _isLoading
-                      ? const CircularProgressIndicator()
+                      ? const SizedBox(
+                          height: 20, 
+                          width: 20, 
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                        )
                       : const Text('Create Tournament'),
                 ),
               ),

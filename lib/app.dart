@@ -5,6 +5,7 @@ import 'package:tennis_tournament/core/theme/app_theme.dart';
 import 'package:tennis_tournament/core/widgets/scaffold_with_nav_bar.dart';
 import 'package:tennis_tournament/features/admin/presentation/admin_dashboard_screen.dart';
 import 'package:tennis_tournament/features/admin/presentation/create_tournament_screen.dart';
+import 'package:tennis_tournament/features/locations/presentation/location_management_screen.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/auth/presentation/login_screen.dart';
 import 'package:tennis_tournament/features/auth/presentation/register_screen.dart';
@@ -12,6 +13,7 @@ import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
+import 'package:tennis_tournament/features/media/presentation/media_library_screen.dart';
 import 'package:tennis_tournament/features/availability/presentation/availability_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/participant_management_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
@@ -135,7 +137,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'simulation',
             builder: (context, state) => const SimulationScreen(),
           ),
+          GoRoute(
+            path: 'locations',
+            builder: (context, state) => const LocationManagementScreen(),
+          ),
         ],
+      ),
+      GoRoute(
+        path: '/media-library',
+        builder: (context, state) => const MediaLibraryScreen(),
       ),
     ],
   );
