@@ -6,6 +6,14 @@
 **Framework**: [Flutter](https://flutter.dev/)
 **Language**: Dart
 
+**Core Libraries**:
+- **Navigation**: `go_router` (Shell-based navigation).
+- **State Management**: `flutter_riverpod` & `riverpod_annotation`.
+- **Data Class Generation**: `freezed` & `json_serializable`.
+- **Environment config**: `flutter_dotenv`.
+- **Utilities**: `intl` (Dates), `uuid`.
+- **Media**: `image_picker` (Gallery/Camera access), `url_launcher` (Maps/Links).
+
 **Rationale**:
 - **Cross-Platform**: "Write once, run everywhere" capability perfectly matches the "Mobile First, but also Web" requirement.
 - **C# / Unity Background**: Dart's syntax is very similar to C# (strongly typed, object-oriented), making the transition from Unity/C# much smoother than switching to JavaScript/TypeScript.
@@ -39,21 +47,22 @@
 
 - **Presentation Layer**: Flutter Widgets (UI).
 - **Logic Layer**: Providers/Controllers (State Management).
-- **Data Layer**: Repositories (Firebase interaction).
+- **Domain Layer**: Entities and Repositories interfaces.
+- **Data Layer**: Repositories implementations (Firebase) and DTOs.
 
 ## Data Model (High Level)
 
 ### Collections
 - `users`: Profiles, stats, availability.
-- `tournaments`: Event metadata, dates, courts.
-- `categories`: Divisions within a tournament (e.g., "Men's A").
-- `matches`: Players, scores, time, linked to a category.
-- `courts`: Locations, availability rules.
+- `tournaments`: Event metadata, dates, courts, participants (sub-collection).
+- `matches`: Players, scores, time, status, linked to a specific tournament and category.
+- `locations`: Physical courts details and Google Maps links.
 
 ## Development Tools
 - **IDE**: VS Code or Android Studio (VS Code recommended for lightweight feel).
 - **Version Control**: Git.
 - **CI/CD**: GitHub Actions or Codemagic (for automated building/deploying).
+- **Code Quality**: `flutter_lints` for static analysis.
 
 ## Future Scalability
 - The app is designed to be modular.

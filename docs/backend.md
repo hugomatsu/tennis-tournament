@@ -8,24 +8,18 @@
 Stores user profiles and global settings.
 ```json
 {
-  "uid": "string (Auth ID)",
+  "id": "string (Auth ID)",
+  "name": "string",
   "email": "string",
-  "displayName": "string",
-  "photoURL": "string",
+  "avatarUrl": "string",
   "role": "string ('admin' | 'player')",
-  "profile": {
-    "category": "string (e.g., 'A', 'B')",
-    "playingSince": "timestamp",
-    "bio": "string",
-    "title": "string",
-    "birthDate": "timestamp",
-    "preferredPartnerId": "string (uid)"
-  },
-  "stats": {
-    "wins": "number",
-    "losses": "number",
-    "rank": "number"
-  },
+  "title": "string (e.g., 'Pro', 'Beginner')",
+  "bio": "string",
+  "category": "string (Self-assessed level)",
+  "playingSince": "string (MM/yyyy)",
+  "wins": "number",
+  "losses": "number",
+  "rank": "number",
   "createdAt": "timestamp"
 }
 ```
@@ -36,83 +30,88 @@ Stores high-level event metadata.
 {
   "id": "string",
   "name": "string",
-  "status": "string ('open' | 'active' | 'completed')",
-  "dates": {
-    "start": "timestamp",
-    "end": "timestamp",
-    "registrationDeadline": "timestamp"
-  },
-  "courts": ["string (courtId)"] 
+  "status": "string ('Upcoming' | 'In Progress' | 'Completed')",
+  "dateRange": "string",
+  "location": "string (Display name)",
+  "locationId": "string (Reference to locations collection)",
+  "imageUrl": "string",
+  "description": "string",
+  "playersCount": "number",
+  "category": "string (Filter tag)"
 }
 ```
 
-#### `categories`
-Represents a specific division within a tournament (e.g., "Men's A", "Mixed Doubles").
+#### `tournaments/{tournamentId}/participants`
+Sub-collection storing players registered for a specific tournament.
+```json
+{
+  "id": "string (userId_categoryId)",
+  "userId": "string",
+  "name": "string",
+  "avatarUrl": "string",
+  "categoryId": "string",
+  "status": "string ('pending' | 'approved' | 'rejected')",
+  "joinedAt": "timestamp"
+}
+```
+
+#### `tournaments/{tournamentId}/categories`
+Sub-collection defining divisions within a tournament.
 ```json
 {
   "id": "string",
-  "tournamentId": "string",
-  "name": "string",
+  "name": "string (e.g. Men's A)",
   "type": "string ('singles' | 'doubles')",
-  "rules": {
-    "scoringType": "string",
-    "sets": "number",
-    "format": "string ('round_robin' | 'elimination')"
-  },
-  "participants": ["string (uid) or {uid, partnerUid}"]
+  "description": "string",
+  "matchDurationMinutes": "number (Default 90)"
 }
 ```
 
 #### `matches`
-Stores individual match details linked to a category.
+Stores individual match details.
 ```json
 {
   "id": "string",
   "tournamentId": "string",
   "categoryId": "string",
-  "round": "number",
-  "status": "string ('scheduled' | 'in_progress' | 'completed')",
-  "players": [
-    { "uid": "string", "team": 1 },
-    { "uid": "string", "team": 2 }
-  ],
-  "schedule": {
-    "startTime": "timestamp",
-    "endTime": "timestamp",
-    "courtId": "string"
-  },
-  "result": {
-    "winnerTeam": "number",
-    "score": "string (e.g., '6-4, 6-2')"
-  }
+  "round": "string (e.g. '1', '2', 'Quarter-Final')",
+  "matchIndex": "number (position in bracket)",
+  "status": "string ('Preparing' | 'Scheduled' | 'Confirmed' | 'Started' | 'Finished' | 'Completed')",
+  "time": "timestamp",
+  "durationMinutes": "number",
+  "court": "string",
+  "locationId": "string",
+  
+  "player1Id": "string",
+  "player1Name": "string",
+  "player1AvatarUrl": "string",
+  "player1Confirmed": "boolean",
+  "player1Cheers": "number",
+  "player1Justification": "string (optional)",
+  
+  "player2Id": "string (nullable)",
+  "player2Name": "string (nullable)",
+  "player2AvatarUrl": "string",
+  "player2Confirmed": "boolean",
+  "player2Cheers": "number",
+  "player2Justification": "string (optional)",
+  
+  "winner": "string (Name of winner)",
+  "score": "string (e.g., '6-4, 6-2')"
 }
 ```
 
-#### `availability`
-Stores player availability constraints for the scheduling algorithm.
-```json
-{
-  "id": "string (auto-id)",
-  "userId": "string",
-  "tournamentId": "string (optional, if specific)",
-  "unavailableRanges": [
-    { "start": "timestamp", "end": "timestamp" }
-  ]
-}
-```
-
-#### `courts`
-Stores physical locations and their specific availability.
+#### `locations`
+Stores physical locations and their details.
 ```json
 {
   "id": "string",
   "name": "string",
-  "location": "geopoint",
-  "type": "string ('clay' | 'hard')",
-  "ownerId": "string (optional, for private courts)",
-  "availableSlots": [
-    { "dayOfWeek": "number", "startHour": "number", "endHour": "number" }
-  ]
+  "address": "string",
+  "numberOfCourts": "number",
+  "surface": "string",
+  "googleMapsUrl": "string",
+  "imageUrl": "string"
 }
 ```
 
@@ -120,42 +119,25 @@ Stores physical locations and their specific availability.
 
 ## API & Cloud Functions
 
-While simple CRUD operations (e.g., updating profile) will happen directly from the Flutter client using Firestore SDK, complex logic will be handled by **Cloud Functions**.
+Currently, most operations are performed directly from the Flutter client using the Firebase SDK with plans to migrate complex logic (like advanced scheduling algorithms or mass notifications) to Cloud Functions as the user base grows.
 
-### 1. Scheduling Engine
-*   **Function**: `generateSchedule`
-*   **Trigger**: HTTPS Callable (Admin only)
-*   **Input**: `tournamentId`, `startDate`, `endDate`
-*   **Logic**:
-    1.  Fetch all registered players and their `availability`.
-    2.  Fetch available `courts`.
-    3.  Run Constraint Satisfaction Algorithm to assign matches.
-    4.  Batch write `matches` documents with status `scheduled`.
+### Implemented Logic (Client-Side)
 
-### 2. Match Management
-*   **Function**: `submitMatchResult`
-*   **Trigger**: HTTPS Callable
-*   **Input**: `matchId`, `score`, `winnerTeam`
-*   **Logic**:
-    1.  Validate user permissions (Admin or assigned Scorekeeper).
-    2.  Update `matches/{matchId}`.
-    3.  Trigger `onMatchCompleted` to advance bracket or update standings.
+1.  **Bracket Generation**: 
+    -   **Automatic**: Randomly shuffles approved participants and generates a single-elimination tree.
+    -   **Manual**: Allows admin to reorder participants via drag-and-drop before generation.
+    -   **Conflict Detection**: Checks for time/court overlaps when scheduling/rescheduling.
 
-### 3. Notifications
-*   **Function**: `onMatchScheduled`
-*   **Trigger**: Firestore `onCreate` / `onUpdate` of `matches`
-*   **Logic**:
-    1.  Check if `status` changed to `scheduled`.
-    2.  Send FCM (Firebase Cloud Messaging) notification to participants.
+2.  **Match Management**:
+    -   **Confirmation**: Admins can mark players as 'Present'. If both are present, status auto-updates to 'Confirmed'.
+    -   **Score Entry**: Updates individual match and advances winner in bracket (manual advancement in current version).
 
-### 4. User Management
-*   **Function**: `addGhostPlayer`
-*   **Trigger**: HTTPS Callable (Admin only)
-*   **Input**: `name`, `category`
-*   **Logic**: Creates a user document without Auth credentials for manual management.
+3.  **Social**:
+    -   **Cheering**: Real-time counter updates on match cards.
 
 ## Security Rules Strategy
-*   **Users**: Read public profile (Auth required); Write own profile only.
+*   **Users**: Read public profile; Write own profile only.
 *   **Tournaments**: Public Read; Admin Write.
-*   **Matches**: Public Read; Admin/Delegate Write.
-*   **Availability**: Read (Admin/Self); Write (Self).
+*   **Matches**: Public Read; Admin Write (Score/Schedule); Authenticated User Write (Cheering).
+*   **Locations**: Public Read; Admin Write.
+

@@ -13,32 +13,38 @@ We will use a **Shell-based Navigation** (likely using `go_router` in Flutter) t
 
 ### 1. Onboarding & Auth
 -   **Splash Screen**: Animated logo.
--   **Login/Register**: Email/Password or Social Auth.
--   **Onboarding**: Quick profile setup (Name, Level, "Playing Since").
+-   **Login/Register**: Email/Password.
+-   **Onboarding**: Quick profile setup.
 
 ### 2. Home Tab
--   **Hero Section**: "Next Match" countdown (if active) or "Join a Tournament" CTA.
--   **News Feed**: Updates from tournaments.
--   **Quick Actions**: "Check In", "Enter Score".
+-   **Dashboard**: Active tournaments and simple stats.
+-   **Debug Tools**: Seed data, simulate matches (for development).
 
 ### 3. Tournaments Tab
--   **List View**: Filterable list (Open, In Progress).
--   **Tournament Detail (Stack Push)**:
-    -   Info & Rules.
-    -   **Category Selection**: Choose division (e.g., "Men's A").
-    -   **Bracket View**: Interactive tree diagram for selected category.
-    -   **Standings**: Group stage tables.
-    -   **Register Button**: If open.
+-   **List View**: Filterable list (Upcoming, In Progress).
+-   **Tournament Detail**:
+-       **Info**: Description, Link to Google Maps location.
+-       **Bracket**: Interactive tree. Admins can click to reschedule/edit matches.
+-       **Matches (Calendar)**: Day-by-day view of scheduled matches.
+-       **Participants**: List of players (with avatars).
+-   **Bracket Generation (Admin)**: Option for "Automatic" (random) or "Manual" (drag-and-drop reordering) generation.
 
-### 4. My Schedule Tab
--   **Calendar View**: Visual representation of match days.
--   **Availability Manager**: Tap to toggle "Busy/Available" slots.
--   **Match Detail**: Opponent info, court location, "Cheer" button.
+### 4. Matches / Calendar
+-   **Match Detail**:
+-       **Public**: View players, time, location, status. "Cheer" button with animation.
+-       **Admin**:
+-           -   **Status Control**: Update status (Scheduled -> Confirmed -> Started -> Finished).
+-           -   **Confirmation**: Checkboxes to confirm player attendance (Auto-confirms match if both present).
+-           -   **Reschedule**: Pick new date/time with conflict detection.
+-           -   **Score Entry**: Enter final score to advance bracket.
 
 ### 5. Profile Tab
--   **Header**: Avatar, Name, Title (e.g., "Weekend Warrior").
--   **Stats**: Win/Loss record, Rank.
--   **Edit Profile**: Update bio, preferred partner.
+-   **View**: Avatar, Name, Title (e.g., "Pro"), Stats (Wins/Losses).
+-   **Edit Profile**:
+-       -   **Photo**: Select from Media Library (Gallery) or take photo.
+-       -   **Title**: Select from predefined list (Beginner, Pro, etc.) or type custom.
+-       -   **Playing Since**: Date picker (Month/Year).
+-       -   **Bio & Category**: Text fields.
 
 ## Visual Identity (Premium Aesthetic)
 -   **Theme**: Dark Mode default.
