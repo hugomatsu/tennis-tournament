@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
+import 'package:intl/intl.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -20,6 +22,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _categoryController;
   late TextEditingController _playingSinceController;
   bool _isLoading = false;
+  String? _avatarUrl;
+  
+  final List<String> _titleSuggestions = [
+    'Beginner', 'Novice', 'Intermediate', 'Club Player', 
+    'Advanced', 'Semi-Pro', 'Pro', 'Coach', 'Enthusiast', 'Weekend Warrior'
+  ];
 
   @override
   void initState() {
@@ -41,6 +49,46 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Scaffold(
+          appBar: AppBar(title: const Text('Select Image')),
+          body: MediaLibraryPicker(
+            onImageSelected: (asset) {
+              setState(() => _avatarUrl = asset.url);
+              context.pop();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(1950),
+      lastDate: now,
+      initialDatePickerMode: DatePickerMode.year,
+    );
+    if (picked != null) {
+      // User wants Month and Year. DatePicker gives full date.
+      // We can format it.
+      setState(() {
+        _playingSinceController.text = DateFormat('MM/yyyy').format(picked);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserProvider);
@@ -56,24 +104,50 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             _bioController.text = user.bio;
             _categoryController.text = user.category;
             _playingSinceController.text = user.playingSince;
+             _avatarUrl ??= user.avatarUrl;
           }
-
+          
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
+                      child: _avatarUrl == null ? const Icon(Icons.camera_alt, size: 30) : null,
+                    ),
+                  ),
+                  TextButton(onPressed: _pickImage, child: const Text('Change Photo')),
+                  
+                  const SizedBox(height: 16),
+                  
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(labelText: 'Name'),
                     validator: (v) => v!.isEmpty ? 'Required' : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title (e.g. Tennis Enthusiast)'),
+                  
+                  DropdownButtonFormField<String>(
+                    value: _titleSuggestions.contains(_titleController.text) ? _titleController.text : null,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                    hint: const Text('Select Title'),
+                    items: [
+                      ..._titleSuggestions.map((t) => DropdownMenuItem(value: t, child: Text(t))),
+                      if (_titleController.text.isNotEmpty && !_titleSuggestions.contains(_titleController.text))
+                        DropdownMenuItem(value: _titleController.text, child: Text(_titleController.text)),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                         _titleController.text = val;
+                      }
+                    },
                   ),
+                  
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _bioController,
@@ -86,11 +160,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     decoration: const InputDecoration(labelText: 'Category (e.g. A, B, C)'),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _playingSinceController,
-                    decoration: const InputDecoration(labelText: 'Playing Since (Year)'),
-                    keyboardType: TextInputType.number,
+                  
+                  GestureDetector(
+                    onTap: _pickDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: _playingSinceController,
+                        decoration: const InputDecoration(
+                          labelText: 'Playing Since',
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
                   ),
+                  
                   const SizedBox(height: 32),
                   FilledButton(
                     onPressed: _isLoading ? null : () => _saveProfile(user),
@@ -120,6 +203,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             bio: _bioController.text.trim(),
             category: _categoryController.text.trim(),
             playingSince: _playingSinceController.text.trim(),
+            avatarUrl: _avatarUrl ?? existingUser.avatarUrl,
           ) ??
           Player(
             id: '', // ID will be handled by repo/auth
@@ -131,7 +215,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             wins: 0,
             losses: 0,
             rank: 0,
-            avatarUrl: 'https://via.placeholder.com/150',
+            avatarUrl: _avatarUrl ?? 'https://via.placeholder.com/150',
           );
 
       await ref.read(playerRepositoryProvider).updateUser(updatedPlayer);
@@ -149,3 +233,4 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 }
+

@@ -135,6 +135,27 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       }
   }
 
+  Future<void> _togglePlayerConfirmation(TennisMatch match, String playerId, bool isConfirmed) async {
+    final isP1 = match.player1Id == playerId;
+    
+    // We update the match immediately
+    var updated = match.copyWith(
+      player1Confirmed: isP1 ? isConfirmed : match.player1Confirmed,
+      player2Confirmed: !isP1 ? isConfirmed : match.player2Confirmed,
+    );
+
+    // Auto-confirm status if both present
+    // Only if match is currently Scheduled or Preparing
+    if ((updated.status == 'Scheduled' || updated.status == 'Preparing') && 
+        updated.player1Confirmed && 
+        (updated.player2Name == null || updated.player2Confirmed)) {
+        updated = updated.copyWith(status: 'Confirmed');
+    }
+
+    await ref.read(matchRepositoryProvider).updateMatch(updated);
+    // No need to set state as stream will update UI
+  }
+
   Future<void> _showRescheduleDialog(TennisMatch match) async {
     // 1. Pick Date
     final newDate = await showDatePicker(
@@ -526,6 +547,37 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              if (match.player1Justification != null || match.player2Justification != null)
                 const SizedBox(height: 16),
 
+             const SizedBox(height: 16),
+             
+             Row(
+               mainAxisSize: MainAxisSize.min,
+               children: [
+                Expanded(
+                  child: CheckboxListTile(
+                    title: Text(match.player1Name, style: const TextStyle(fontSize: 12)),
+                    value: match.player1Confirmed,
+                    onChanged: (val) => _togglePlayerConfirmation(match, match.player1Id, val!),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                if (match.player2Name != null) ...[
+                 const SizedBox(width: 8),
+                 Expanded(
+                  child: CheckboxListTile(
+                    title: Text(match.player2Name!, style: const TextStyle(fontSize: 12)),
+                    value: match.player2Confirmed,
+                    onChanged: (val) => _togglePlayerConfirmation(match, match.player2Id!, val!),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                 ),
+                ],
+               ],
+             ),
+
+             const SizedBox(height: 16),
+
              DropdownButtonFormField<String>(
                value: _pendingStatus,
                decoration: const InputDecoration(labelText: 'Status'),
@@ -623,8 +675,12 @@ class _PlayerCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-              child: avatarUrl == null ? Text(name.isNotEmpty ? name[0] : '?', style: const TextStyle(fontSize: 20)) : null,
+              backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+              foregroundImage: avatarUrl != null && avatarUrl!.isNotEmpty ? NetworkImage(avatarUrl!) : null,
+              onForegroundImageError: avatarUrl != null && avatarUrl!.isNotEmpty ? (_, __) {} : null,
+              child: (avatarUrl == null || avatarUrl!.isEmpty) 
+                  ? Text(name.isNotEmpty ? name[0] : '?', style: const TextStyle(fontSize: 20)) 
+                  : null,
             ),
             const Spacer(),
             Text(

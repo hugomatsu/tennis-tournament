@@ -768,11 +768,13 @@ class _InfoTab extends ConsumerWidget {
                                   ),
                                   CircleAvatar(
                                     radius: 12,
-                                    backgroundImage: participant.avatarUrl != null 
+                                    backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                    foregroundImage: participant.avatarUrl != null && participant.avatarUrl!.isNotEmpty 
                                         ? NetworkImage(participant.avatarUrl!) 
                                         : null,
-                                    child: participant.avatarUrl == null 
-                                        ? Text(participant.name[0].toUpperCase(), style: const TextStyle(fontSize: 10)) 
+                                    onForegroundImageError: participant.avatarUrl != null && participant.avatarUrl!.isNotEmpty ? (_, __) {} : null,
+                                    child: (participant.avatarUrl == null || participant.avatarUrl!.isEmpty) 
+                                        ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)) 
                                         : null,
                                   ),
                                   const SizedBox(width: 8),
