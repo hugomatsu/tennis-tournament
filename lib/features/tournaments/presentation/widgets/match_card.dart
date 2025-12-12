@@ -28,6 +28,9 @@ class MatchCard extends ConsumerWidget {
     final winnerName = match.winner;
     final theme = Theme.of(context);
 
+    final isParticipant = currentUserId != null && 
+        (match.player1Id == currentUserId || match.player2Id == currentUserId);
+
     return SizedBox(
       width: width,
       height: height + (isFinal ? 24 : 0), // Extra space for crown
@@ -50,7 +53,13 @@ class MatchCard extends ConsumerWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                border: isFinal ? Border.all(color: Colors.amber, width: 2) : null,
+                color: theme.colorScheme.surface, 
+                border: isFinal 
+                    ? Border.all(color: Colors.amber, width: 2) 
+                    : (isParticipant ? Border.all(color: theme.colorScheme.primary, width: 2) : null),
+                boxShadow: isParticipant 
+                    ? [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 1)]
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

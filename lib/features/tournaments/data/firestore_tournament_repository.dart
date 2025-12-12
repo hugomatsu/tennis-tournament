@@ -134,7 +134,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'name': category.name,
       'type': category.type,
       'description': category.description,
+      'description': category.description,
       'format': category.format,
+      'matchDurationMinutes': category.matchDurationMinutes,
     });
   }
 
@@ -150,6 +152,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'type': category.type,
       'description': category.description,
       'format': category.format,
+      'matchDurationMinutes': category.matchDurationMinutes,
     });
   }
 
@@ -170,6 +173,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         type: data['type'] as String,
         description: data['description'] as String? ?? '',
         format: data['format'] as String? ?? 'round_robin',
+        matchDurationMinutes: data['matchDurationMinutes'] as int? ?? 90,
       );
     }).toList();
   }

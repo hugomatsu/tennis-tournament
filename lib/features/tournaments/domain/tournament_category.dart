@@ -12,6 +12,7 @@ abstract class TournamentCategory with _$TournamentCategory {
     required String type, // 'singles' | 'doubles'
     @Default('') String description,
     @Default('round_robin') String format, // 'round_robin' | 'elimination'
+    @Default(90) int matchDurationMinutes,
   }) = _TournamentCategory;
 
   factory TournamentCategory.fromJson(Map<String, dynamic> json) =>

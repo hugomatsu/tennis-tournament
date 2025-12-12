@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
@@ -197,11 +198,7 @@ class _SingleBracketView extends ConsumerWidget {
                               isFinal: isFinal,
                               currentUserId: currentUserId,
                               onTap: () {
-                                // Check if admin
-                                final user = currentUserAsync.asData?.value;
-                                if (user?.userType == 'admin') {
-                                  _showScoreDialog(context, ref, match);
-                                }
+                                context.push('/matches/${match.id}');
                               },
                             ),
                           );
@@ -231,101 +228,4 @@ class _SingleBracketView extends ConsumerWidget {
     return center - cardHeight / 2;
   }
 
-  void _showScoreDialog(BuildContext context, WidgetRef ref, TennisMatch match) {
-    final formKey = GlobalKey<FormState>();
-    final scoreController = TextEditingController(text: match.score);
-    String? selectedWinner = match.winner;
-
-    // Default to player 1 if no winner selected yet
-    if (selectedWinner == null && match.player1Name != 'TBD') {
-      selectedWinner = match.player1Name;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Update Score'),
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: scoreController,
-                    decoration: const InputDecoration(
-                      labelText: 'Score (e.g. 6-4, 6-2)',
-                      hintText: 'Enter set scores',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a score';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedWinner,
-                    decoration: const InputDecoration(labelText: 'Winner'),
-                    items: [
-                      if (match.player1Name != 'TBD')
-                        DropdownMenuItem(
-                          value: match.player1Name,
-                          child: Text(match.player1Name),
-                        ),
-                      if (match.player2Name != null && match.player2Name != 'TBD')
-                        DropdownMenuItem(
-                          value: match.player2Name,
-                          child: Text(match.player2Name!),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedWinner = value;
-                      });
-                    },
-                    validator: (value) => value == null ? 'Select a winner' : null,
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  if (formKey.currentState!.validate() && selectedWinner != null) {
-                    try {
-                      await ref.read(matchRepositoryProvider).updateMatchScore(
-                            match.id,
-                            scoreController.text,
-                            selectedWinner!,
-                          );
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Score updated!')),
-                        );
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
-                      }
-                    }
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 }

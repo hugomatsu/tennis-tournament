@@ -3,22 +3,50 @@ import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/scheduling_service.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
+import 'package:tennis_tournament/features/locations/data/location_repository.dart';
+import 'package:tennis_tournament/features/locations/domain/location.dart';
 import 'package:uuid/uuid.dart';
 
 final schedulingServiceProvider = Provider<SchedulingService>((ref) {
-  return SingleEliminationService();
+  return SingleEliminationService(ref);
 });
 
 class SingleEliminationService implements SchedulingService {
+  final Ref _ref;
   final _uuid = const Uuid();
+
+  SingleEliminationService(this._ref);
 
   @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
+    TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
   }) async {
     if (participants.length < 2) return [];
+
+    // 0. Fetch Location info for Courts
+    int numberOfCourts = 1;
+    if (tournament.locationId != null) {
+      try {
+        final loc = await _ref.read(locationRepositoryProvider).getLocation(tournament.locationId!);
+        if (loc != null) {
+          numberOfCourts = loc.numberOfCourts;
+        }
+      } catch (_) {}
+    }
+
+    // Parse start date
+    DateTime startDate = DateTime.now().add(const Duration(days: 1));
+    // Try parse "Dec 1 - Dec 5" or similar?
+    // This is tricky as format is loose string.
+    // For now, let's just use tomorrow at 9 AM as base.
+    // Ideally we should parse tournament.dateRange if structured.
+    startDate = DateTime(startDate.year, startDate.month, startDate.day, 9, 0);
+
+    final matchDuration = category.matchDurationMinutes;
 
     // 1. Shuffle players if requested, otherwise use provided order
     final shuffledPlayers = List<Participant>.from(participants);
@@ -119,6 +147,10 @@ class SingleEliminationService implements SchedulingService {
     int playerIndex = 0;
 
     for (int r = 1; r <= totalRounds; r++) {
+      // Matches for this round are played on Day (r-1) from start
+      // e.g. Round 1 on Day 0, Round 2 on Day 1
+      final roundDate = startDate.add(Duration(days: r - 1));
+
       for (int i = 0; i < matchesInRound; i++) {
         final matchId = _uuid.v4();
         
@@ -129,7 +161,7 @@ class SingleEliminationService implements SchedulingService {
         String? player2Id;
         String? player2Name;
         String? player2Avatar;
-        String status = 'Pending';
+        String status = 'Preparing';
         String? winner;
         String? score;
 
@@ -137,7 +169,7 @@ class SingleEliminationService implements SchedulingService {
           final isByeMatch = i < byesCount;
           
           final p1 = shuffledPlayers[playerIndex++];
-          player1Id = p1.id;
+          player1Id = p1.userId ?? p1.id;
           player1Name = p1.name;
           player1Avatar = p1.avatarUrl;
 
@@ -148,10 +180,10 @@ class SingleEliminationService implements SchedulingService {
             // Player 2 is null/Bye
           } else {
             final p2 = shuffledPlayers[playerIndex++];
-            player2Id = p2.id;
+            player2Id = p2.userId ?? p2.id;
             player2Name = p2.name;
             player2Avatar = p2.avatarUrl;
-            status = 'Scheduled';
+            status = 'Preparing';
           }
         } else {
           // For subsequent rounds, players are TBD initially
@@ -163,10 +195,22 @@ class SingleEliminationService implements SchedulingService {
           // So maybe we should generate matches first, then link?
         }
 
+        // Schedule Logic
+        // i is the match index in this round.
+        // We have 'numberOfCourts' courts.
+        // batchIndex = i ~/ numberOfCourts
+        // courtIndex = i % numberOfCourts
+        final batchIndex = i ~/ numberOfCourts;
+        final courtIndex = i % numberOfCourts;
+        
+        // Time = roundDate + (batchIndex * duration)
+        final matchTime = roundDate.add(Duration(minutes: batchIndex * matchDuration));
+        final courtName = 'Court ${courtIndex + 1}';
+
         final match = TennisMatch(
           id: matchId,
           tournamentId: tournament.id,
-          categoryId: participants.first.categoryId,
+          categoryId: category.id,
           tournamentName: tournament.name,
           player1Id: player1Id,
           player1Name: player1Name,
@@ -175,13 +219,15 @@ class SingleEliminationService implements SchedulingService {
           player2Name: player2Name,
           player2AvatarUrl: player2Avatar,
           opponentName: player2Name ?? 'BYE',
-          time: DateTime.now().add(Duration(days: r, hours: i)), // Staggered times
-          court: 'Court ${i + 1}',
+          time: matchTime,
+          court: courtName,
           round: r.toString(),
           status: status,
           score: score,
           winner: winner,
           matchIndex: i,
+          durationMinutes: matchDuration,
+          locationId: tournament.locationId,
         );
         
         matchMap['${r}_$i'] = match;

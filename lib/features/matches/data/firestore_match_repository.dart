@@ -115,6 +115,8 @@ class FirestoreMatchRepository implements MatchRepository {
           player2Cheers: data['player2Cheers'] as int? ?? 0,
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+          durationMinutes: data['durationMinutes'] as int? ?? 90,
+          locationId: data['locationId'] as String?,
         );
       }).toList().cast<TennisMatch>();
     } catch (e) {
@@ -166,6 +168,8 @@ class FirestoreMatchRepository implements MatchRepository {
           player2Cheers: data['player2Cheers'] as int? ?? 0,
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+          durationMinutes: data['durationMinutes'] as int? ?? 90,
+          locationId: data['locationId'] as String?,
         );
       }).toList().cast<TennisMatch>();
     });
@@ -325,11 +329,13 @@ class FirestoreMatchRepository implements MatchRepository {
         'time': match.time.toIso8601String(),
         'court': match.court,
         'round': match.round,
-        'status': match.status,
+      'status': match.status,
         'score': match.score,
         'winner': match.winner,
         'nextMatchId': match.nextMatchId,
         'matchIndex': match.matchIndex,
+        'durationMinutes': match.durationMinutes,
+        'locationId': match.locationId,
       });
     }
     await batch.commit();
@@ -347,6 +353,14 @@ class FirestoreMatchRepository implements MatchRepository {
       'status': match.status,
       'score': match.score,
       'winner': match.winner,
+      'time': match.time.toIso8601String(),
+      'court': match.court,
+      'durationMinutes': match.durationMinutes,
+      'locationId': match.locationId,
+      'player1Justification': match.player1Justification,
+      'player2Justification': match.player2Justification,
+      'player1Confirmed': match.player1Confirmed,
+      'player2Confirmed': match.player2Confirmed,
     });
   }
 
@@ -491,5 +505,67 @@ class FirestoreMatchRepository implements MatchRepository {
       batch.delete(doc.reference);
     }
     await batch.commit();
+  }
+
+  @override
+  Future<TennisMatch?> getMatch(String matchId) async {
+    try {
+      final doc = await _firestore.collection('matches').doc(matchId).get();
+      if (!doc.exists) return null;
+      final data = doc.data()!;
+      return _matchFromData(doc.id, data);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Stream<TennisMatch?> watchMatch(String matchId) {
+    return _firestore.collection('matches').doc(matchId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return _matchFromData(doc.id, doc.data()!);
+    });
+  }
+
+  TennisMatch _matchFromData(String id, Map<String, dynamic> data) {
+    DateTime parsedTime;
+    final timeData = data['time'];
+    if (timeData is Timestamp) {
+      parsedTime = timeData.toDate();
+    } else if (timeData is String) {
+      parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
+    } else {
+      parsedTime = DateTime.now();
+    }
+
+    return TennisMatch(
+      id: id,
+      tournamentId: data['tournamentId'] as String,
+      categoryId: data['categoryId'] as String? ?? '',
+      tournamentName: data['tournamentName'] as String,
+      player1Id: data['player1Id'] as String? ?? '',
+      player1Name: data['player1Name'] as String? ?? 'TBD',
+      player1AvatarUrl: data['player1AvatarUrl'] as String?,
+      player2Id: data['player2Id'] as String?,
+      player2Name: data['player2Name'] as String?,
+      player2AvatarUrl: data['player2AvatarUrl'] as String?,
+      opponentName: data['opponentName'] as String? ?? '',
+      time: parsedTime,
+      court: data['court'] as String,
+      round: data['round'] as String,
+      status: data['status'] as String,
+      score: data['score'] as String?,
+      winner: data['winner'] as String?,
+      nextMatchId: data['nextMatchId'] as String?,
+      matchIndex: data['matchIndex'] as int? ?? 0,
+      player1Cheers: data['player1Cheers'] as int? ?? 0,
+      player2Cheers: data['player2Cheers'] as int? ?? 0,
+      player1Confirmed: data['player1Confirmed'] as bool? ?? false,
+      player2Confirmed: data['player2Confirmed'] as bool? ?? false,
+      durationMinutes: data['durationMinutes'] as int? ?? 90,
+      locationId: data['locationId'] as String?,
+      player1Justification: data['player1Justification'] as String?,
+      player2Justification: data['player2Justification'] as String?,
+    );
   }
 }

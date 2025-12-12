@@ -14,7 +14,9 @@ abstract class TennisMatch with _$TennisMatch {
     required DateTime time,
     required String court,
     required String round,
-    required String status, // 'Scheduled', 'Live', 'Completed', 'Pending'
+    required String status, // 'Preparing', 'Scheduled', 'Confirmed', 'Started', 'Finished'
+    @Default(90) int durationMinutes,
+    String? locationId,
     required String player1Id,
     required String player1Name,
     String? player1AvatarUrl,
@@ -30,6 +32,8 @@ abstract class TennisMatch with _$TennisMatch {
     @Default(0) int player2Cheers,
     @Default(false) bool player1Confirmed,
     @Default(false) bool player2Confirmed,
+    String? player1Justification,
+    String? player2Justification,
   }) = _TennisMatch;
 
   factory TennisMatch.fromJson(Map<String, dynamic> json) =>

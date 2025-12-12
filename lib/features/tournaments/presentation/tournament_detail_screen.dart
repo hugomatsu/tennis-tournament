@@ -15,7 +15,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/bracket_view.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
-
+import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_calendar_tab.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -203,6 +203,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                     .read(schedulingServiceProvider)
                                     .generateBracket(
                                       tournament, 
+                                      category,
                                       categoryParticipants,
                                       shuffle: method == 'automatic', // Only shuffle if automatic
                                     );
@@ -310,7 +311,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                         tabs: [
                           Tab(text: 'Info'),
                           Tab(text: 'Bracket'),
-                          Tab(text: 'Standings'),
+                          Tab(text: 'Calendar'),
                         ],
                       ),
                     ),
@@ -322,7 +323,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                 children: [
                   _InfoTab(tournament: tournament),
                   BracketView(tournament: tournament),
-                  const Center(child: Text('Standings Placeholder')),
+                  MatchCalendarTab(tournament: tournament),
                 ],
               ),
             ),
@@ -456,6 +457,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
   void _showAddCategoryDialog() {
     final nameController = TextEditingController();
     final descController = TextEditingController();
+    final durationController = TextEditingController(text: '90');
     String type = 'singles';
 
     showDialog(
@@ -464,30 +466,38 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
         builder: (context, setState) {
           return AlertDialog(
             title: const Text('Add Category'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Category Name (e.g. Men\'s A)'),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: type,
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  items: const [
-                    DropdownMenuItem(value: 'singles', child: Text('Singles')),
-                    DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
-                  ],
-                  onChanged: (val) => setState(() => type = val!),
-                ),
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Category Name (e.g. Men\'s A)'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descController,
+                    decoration: const InputDecoration(labelText: 'Description'),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: type,
+                    decoration: const InputDecoration(labelText: 'Type'),
+                    items: const [
+                      DropdownMenuItem(value: 'singles', child: Text('Singles')),
+                      DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                    ],
+                    onChanged: (val) => setState(() => type = val!),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: durationController,
+                    decoration: const InputDecoration(labelText: 'Match Duration (minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -497,12 +507,14 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
               FilledButton(
                 onPressed: () async {
                   if (nameController.text.isEmpty) return;
+                  final duration = int.tryParse(durationController.text) ?? 90;
                   final category = TournamentCategory(
                     id: const Uuid().v4(),
                     tournamentId: widget.tournamentId,
                     name: nameController.text,
                     type: type,
                     description: descController.text,
+                    matchDurationMinutes: duration,
                   );
                   await ref.read(tournamentRepositoryProvider).addCategory(category);
                   ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
@@ -520,6 +532,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
   void _showEditCategoryDialog(TournamentCategory category) {
     final nameController = TextEditingController(text: category.name);
     final descController = TextEditingController(text: category.description);
+    final durationController = TextEditingController(text: category.matchDurationMinutes.toString());
     String type = category.type;
 
     showDialog(
@@ -528,56 +541,66 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
         builder: (context, setState) {
           return AlertDialog(
             title: const Text('Edit Category'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Category Name'),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: type,
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  items: const [
-                    DropdownMenuItem(value: 'singles', child: Text('Singles')),
-                    DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
-                  ],
-                  onChanged: (val) => setState(() => type = val!),
-                ),
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Category Name'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descController,
+                    decoration: const InputDecoration(labelText: 'Description'),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: type,
+                    decoration: const InputDecoration(labelText: 'Type'),
+                    items: const [
+                      DropdownMenuItem(value: 'singles', child: Text('Singles')),
+                      DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                    ],
+                    onChanged: (val) => setState(() => type = val!),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: durationController,
+                    decoration: const InputDecoration(labelText: 'Match Duration (minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  if (nameController.text.isEmpty) return;
-                  final updated = category.copyWith(
-                    name: nameController.text,
-                    type: type,
-                    description: descController.text,
-                  );
-                  await ref.read(tournamentRepositoryProvider).updateCategory(updated);
-                  ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (nameController.text.isEmpty) return;
+                final duration = int.tryParse(durationController.text) ?? 90;
+                final updated = category.copyWith(
+                  name: nameController.text,
+                  type: type,
+                  description: descController.text,
+                  matchDurationMinutes: duration,
+                );
+                await ref.read(tournamentRepositoryProvider).updateCategory(updated);
+                ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    ),
+  );
+}
 }
 
 class _InfoTab extends ConsumerWidget {

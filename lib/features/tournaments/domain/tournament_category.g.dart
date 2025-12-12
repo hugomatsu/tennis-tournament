@@ -14,6 +14,8 @@ _TournamentCategory _$TournamentCategoryFromJson(Map<String, dynamic> json) =>
       type: json['type'] as String,
       description: json['description'] as String? ?? '',
       format: json['format'] as String? ?? 'round_robin',
+      matchDurationMinutes:
+          (json['matchDurationMinutes'] as num?)?.toInt() ?? 90,
     );
 
 Map<String, dynamic> _$TournamentCategoryToJson(_TournamentCategory instance) =>
@@ -24,4 +26,5 @@ Map<String, dynamic> _$TournamentCategoryToJson(_TournamentCategory instance) =>
       'type': instance.type,
       'description': instance.description,
       'format': instance.format,
+      'matchDurationMinutes': instance.matchDurationMinutes,
     };

@@ -11,6 +11,7 @@ import 'package:tennis_tournament/features/auth/presentation/login_screen.dart';
 import 'package:tennis_tournament/features/auth/presentation/register_screen.dart';
 import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
+import 'package:tennis_tournament/features/matches/presentation/match_detail_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/profile_screen.dart';
 import 'package:tennis_tournament/features/media/presentation/media_library_screen.dart';
@@ -146,6 +147,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/media-library',
         builder: (context, state) => const MediaLibraryScreen(),
+      ),
+      GoRoute(
+        path: '/matches/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return MatchDetailScreen(matchId: id);
+        },
       ),
     ],
   );

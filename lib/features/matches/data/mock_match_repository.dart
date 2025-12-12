@@ -88,6 +88,16 @@ class MockMatchRepository implements MatchRepository {
 
   @override
   Future<void> deleteMatchesForTournament(String tournamentId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock implementation
+  }
+
+  @override
+  Future<TennisMatch?> getMatch(String matchId) async {
+    return null;
+  }
+
+  @override
+  Stream<TennisMatch?> watchMatch(String matchId) {
+    return Stream.value(null);
   }
 }

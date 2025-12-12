@@ -29,4 +29,6 @@ abstract class MatchRepository {
   Future<void> cheerForMatch(String matchId, String playerId);
   Future<void> confirmMatch(String matchId, String playerId);
   Future<void> deleteMatchesForTournament(String tournamentId);
+  Future<TennisMatch?> getMatch(String matchId);
+  Stream<TennisMatch?> watchMatch(String matchId);
 }

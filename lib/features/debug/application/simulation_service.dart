@@ -144,7 +144,15 @@ class SimulationService {
       
       // 4. Generate Bracket per Category
       if (autoGenerateBracket) {
-        final matches = await schedulingService.generateBracket(tournament, categoryParticipants);
+        final categoryObj = TournamentCategory(
+          id: categoryId,
+          tournamentId: tournamentId,
+          name: categoryName,
+          type: 'singles', 
+          matchDurationMinutes: 90, // Default for simulation
+        );
+
+        final matches = await schedulingService.generateBracket(tournament, categoryObj, categoryParticipants);
         
         // Assign categoryId to matches
         final matchesWithCategory = matches.map((m) => m.copyWith(categoryId: categoryId)).toList();
