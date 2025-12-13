@@ -535,6 +535,246 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Tamanho'**
   String get size;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bem-vindo de volta'**
+  String get welcomeBack;
+
+  /// No description provided for @email.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In pt, this message translates to:
+  /// **'Senha'**
+  String get password;
+
+  /// No description provided for @signIn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar'**
+  String get signIn;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não tem uma conta? Cadastre-se'**
+  String get dontHaveAccount;
+
+  /// No description provided for @register.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cadastro'**
+  String get register;
+
+  /// No description provided for @pleaseEnterEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por favor, insira seu email'**
+  String get pleaseEnterEmail;
+
+  /// No description provided for @pleaseEnterPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por favor, insira sua senha'**
+  String get pleaseEnterPassword;
+
+  /// No description provided for @player.
+  ///
+  /// In pt, this message translates to:
+  /// **'Jogador'**
+  String get player;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próximos'**
+  String get upcoming;
+
+  /// No description provided for @rank.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ranking'**
+  String get rank;
+
+  /// No description provided for @wins.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vitórias'**
+  String get wins;
+
+  /// No description provided for @losses.
+  ///
+  /// In pt, this message translates to:
+  /// **'Derrotas'**
+  String get losses;
+
+  /// No description provided for @loses.
+  ///
+  /// In pt, this message translates to:
+  /// **'Derrotas'**
+  String get loses;
+
+  /// No description provided for @points.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pontos'**
+  String get points;
+
+  /// No description provided for @createTournament.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar Torneio'**
+  String get createTournament;
+
+  /// No description provided for @adminDashboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Painel do Administrador'**
+  String get adminDashboard;
+
+  /// No description provided for @manageLocations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gerenciar Locais'**
+  String get manageLocations;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gerenciar Categorias'**
+  String get manageCategories;
+
+  /// No description provided for @description.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descrição'**
+  String get description;
+
+  /// No description provided for @tournamentName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do Torneio'**
+  String get tournamentName;
+
+  /// No description provided for @location.
+  ///
+  /// In pt, this message translates to:
+  /// **'Local'**
+  String get location;
+
+  /// No description provided for @startDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data de Início'**
+  String get startDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data de Fim'**
+  String get endDate;
+
+  /// No description provided for @follow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seguir'**
+  String get follow;
+
+  /// No description provided for @unfollow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deixar de Seguir'**
+  String get unfollow;
+
+  /// No description provided for @titleBeginner.
+  ///
+  /// In pt, this message translates to:
+  /// **'Iniciante'**
+  String get titleBeginner;
+
+  /// No description provided for @titleNovice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novato'**
+  String get titleNovice;
+
+  /// No description provided for @titleIntermediate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intermediário'**
+  String get titleIntermediate;
+
+  /// No description provided for @titleClubPlayer.
+  ///
+  /// In pt, this message translates to:
+  /// **'Jogador de Clube'**
+  String get titleClubPlayer;
+
+  /// No description provided for @titleAdvanced.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avançado'**
+  String get titleAdvanced;
+
+  /// No description provided for @titleSemiPro.
+  ///
+  /// In pt, this message translates to:
+  /// **'Semi-Profissional'**
+  String get titleSemiPro;
+
+  /// No description provided for @titlePro.
+  ///
+  /// In pt, this message translates to:
+  /// **'Profissional'**
+  String get titlePro;
+
+  /// No description provided for @titleCoach.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treinador'**
+  String get titleCoach;
+
+  /// No description provided for @titleEnthusiast.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entusiasta'**
+  String get titleEnthusiast;
+
+  /// No description provided for @titleWeekendWarrior.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guerreiro de Fim de Semana'**
+  String get titleWeekendWarrior;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro: {error}'**
+  String errorOccurred(Object error);
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por favor, insira um nome'**
+  String get pleaseEnterName;
+
+  /// No description provided for @pleaseSelectTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por favor, selecione ou insira um título'**
+  String get pleaseSelectTitle;
+
+  /// No description provided for @create.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar'**
+  String get create;
 }
 
 class _AppLocalizationsDelegate

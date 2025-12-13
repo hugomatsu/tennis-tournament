@@ -18,6 +18,11 @@ _Player _$PlayerFromJson(Map<String, dynamic> json) => _Player(
   bio: json['bio'] as String,
   avatarUrl: json['avatarUrl'] as String,
   userType: json['userType'] as String? ?? 'player',
+  followedMatchIds:
+      (json['followedMatchIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
@@ -32,4 +37,5 @@ Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
   'bio': instance.bio,
   'avatarUrl': instance.avatarUrl,
   'userType': instance.userType,
+  'followedMatchIds': instance.followedMatchIds,
 };

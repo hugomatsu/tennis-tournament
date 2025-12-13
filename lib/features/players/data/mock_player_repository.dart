@@ -18,6 +18,7 @@ class MockPlayerRepository implements PlayerRepository {
       rank: data['rank'] as int,
       bio: data['bio'] as String,
       avatarUrl: data['avatar'] as String,
+      followedMatchIds: [],
     );
   }
   @override
@@ -43,6 +44,7 @@ class MockPlayerRepository implements PlayerRepository {
         bio: 'Bio',
         avatarUrl: 'https://via.placeholder.com/150',
         userType: 'player',
+        followedMatchIds: [],
       ),
     );
   }

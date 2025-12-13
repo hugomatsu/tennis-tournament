@@ -3,16 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 
+import 'package:tennis_tournament/l10n/app_localizations.dart';
+
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(loc.adminDashboard),
       ),
       body: userAsync.when(
         data: (user) {
@@ -23,13 +26,13 @@ class AdminDashboardScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               _AdminCard(
-                title: 'Create Tournament',
+                title: loc.createTournament,
                 icon: Icons.add_circle,
                 onTap: () => context.push('/admin/create-tournament'),
               ),
               const SizedBox(height: 16),
               _AdminCard(
-                title: 'Manage Players',
+                title: loc.managePlayers,
                 icon: Icons.people,
                 onTap: () {
                   // TODO: Implement player management
@@ -40,7 +43,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               _AdminCard(
-                title: 'Manage Locations',
+                title: loc.manageLocations,
                 icon: Icons.stadium,
                 onTap: () => context.push('/admin/locations'),
               ),

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 
+import 'package:tennis_tournament/l10n/app_localizations.dart';
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -39,6 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -56,7 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'Welcome Back',
+                  loc.welcomeBack,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -65,28 +68,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.email,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: const OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter your email';
+                    if (value == null || value.isEmpty) return loc.pleaseEnterEmail;
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.password,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: const OutlineInputBorder(),
                   ),
                   obscureText: true,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter your password';
+                    if (value == null || value.isEmpty) return loc.pleaseEnterPassword;
                     return null;
                   },
                 ),
@@ -99,12 +102,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Sign In'),
+                      : Text(loc.signIn),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.go('/register'),
-                  child: const Text('Don\'t have an account? Sign Up'),
+                  child: Text(loc.dontHaveAccount),
                 ),
               ],
             ),

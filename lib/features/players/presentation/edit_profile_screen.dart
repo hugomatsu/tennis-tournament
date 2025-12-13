@@ -96,6 +96,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final userAsync = ref.watch(currentUserProvider);
     final loc = AppLocalizations.of(context)!;
 
+    // Localized suggestions
+    final titleSuggestions = [
+        loc.titleBeginner, loc.titleNovice, loc.titleIntermediate, loc.titleClubPlayer,
+        loc.titleAdvanced, loc.titleSemiPro, loc.titlePro, loc.titleCoach, 
+        loc.titleEnthusiast, loc.titleWeekendWarrior
+    ];
+
     return Scaffold(
       appBar: AppBar(title: Text(loc.editProfile)),
       body: userAsync.when(
@@ -124,30 +131,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       child: _avatarUrl == null ? const Icon(Icons.camera_alt, size: 30) : null,
                     ),
                   ),
-                  TextButton(onPressed: _pickImage, child: const Text('Change Photo')),
+                  TextButton(onPressed: _pickImage, child: Text(loc.changePhoto)),
                   
                   const SizedBox(height: 16),
                   
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(labelText: loc.name),
-                    validator: (value) => value!.isEmpty ? 'Please enter a name' : null,
+                    validator: (value) => value!.isEmpty ? loc.pleaseEnterName : null,
                   ),
                   const SizedBox(height: 16),
                   
                   DropdownButtonFormField<String>(
-                    value: _titleSuggestions.contains(_titleController.text) ? _titleController.text : null,
+                    value: titleSuggestions.contains(_titleController.text) ? _titleController.text : null,
                     decoration: InputDecoration(labelText: loc.title),
                     items: [
                       // Add current value if it's custom/not in list (handled by logic above partially?)
                       // If text is not empty and not in list, we might want to show it?
                       // The previous logic was: if text is not in suggestions, add it.
-                      if (_titleController.text.isNotEmpty && !_titleSuggestions.contains(_titleController.text))
+                      if (_titleController.text.isNotEmpty && !titleSuggestions.contains(_titleController.text))
                         DropdownMenuItem(
                           value: _titleController.text,
                           child: Text(_titleController.text),
                         ),
-                      ..._titleSuggestions.map((title) => DropdownMenuItem(
+                      ...titleSuggestions.map((title) => DropdownMenuItem(
                         value: title,
                         child: Text(title),
                       )),
@@ -155,7 +162,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     onChanged: (val) {
                       if (val != null) setState(() => _titleController.text = val);
                     },
-                    validator: (val) => val == null || val.isEmpty ? 'Please select or enter a title' : null,
+                    validator: (val) => val == null || val.isEmpty ? loc.pleaseSelectTitle : null,
                   ),
                   
                   const SizedBox(height: 16),
@@ -197,12 +204,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
       ),
     );
   }
 
   Future<void> _saveProfile(Player? existingUser) async {
+    final loc = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -236,7 +244,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -29,6 +29,7 @@ class FirestorePlayerRepository implements PlayerRepository {
         bio: data['bio'] as String? ?? 'No bio yet.',
         avatarUrl: data['avatarUrl'] as String? ?? user.photoURL ?? 'https://via.placeholder.com/150',
         userType: data['userType'] as String? ?? 'player',
+        followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
       );
     } catch (e) {
       return null;
@@ -52,6 +53,7 @@ class FirestorePlayerRepository implements PlayerRepository {
       'losses': player.losses,
       'rank': player.rank,
       // userType is NOT updated here to prevent self-promotion
+      'followedMatchIds': player.followedMatchIds,
     }, SetOptions(merge: true));
   }
   @override
@@ -87,6 +89,7 @@ class FirestorePlayerRepository implements PlayerRepository {
           bio: data['bio'] as String? ?? '',
           avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
           userType: data['userType'] as String? ?? 'player',
+          followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
         );
       });
 

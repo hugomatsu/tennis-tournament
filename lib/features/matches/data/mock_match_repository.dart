@@ -48,7 +48,7 @@ class MockMatchRepository implements MatchRepository {
   }
 
   @override
-  Stream<List<TennisMatch>> watchUpcomingMatches() {
+  Stream<List<TennisMatch>> watchUpcomingMatches(List<String> followedMatchIds) {
     return Stream.value([]);
   }
 
@@ -94,6 +94,11 @@ class MockMatchRepository implements MatchRepository {
   @override
   Future<TennisMatch?> getMatch(String matchId) async {
     return null;
+  }
+
+  @override
+  Future<List<TennisMatch>> getMatchesByIds(List<String> matchIds) async {
+    return [];
   }
 
   @override

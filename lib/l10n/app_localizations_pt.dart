@@ -227,4 +227,126 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get size => 'Tamanho';
+
+  @override
+  String get welcomeBack => 'Bem-vindo de volta';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Senha';
+
+  @override
+  String get signIn => 'Entrar';
+
+  @override
+  String get dontHaveAccount => 'Não tem uma conta? Cadastre-se';
+
+  @override
+  String get register => 'Cadastro';
+
+  @override
+  String get pleaseEnterEmail => 'Por favor, insira seu email';
+
+  @override
+  String get pleaseEnterPassword => 'Por favor, insira sua senha';
+
+  @override
+  String get player => 'Jogador';
+
+  @override
+  String get upcoming => 'Próximos';
+
+  @override
+  String get rank => 'Ranking';
+
+  @override
+  String get wins => 'Vitórias';
+
+  @override
+  String get losses => 'Derrotas';
+
+  @override
+  String get loses => 'Derrotas';
+
+  @override
+  String get points => 'Pontos';
+
+  @override
+  String get createTournament => 'Criar Torneio';
+
+  @override
+  String get adminDashboard => 'Painel do Administrador';
+
+  @override
+  String get manageLocations => 'Gerenciar Locais';
+
+  @override
+  String get manageCategories => 'Gerenciar Categorias';
+
+  @override
+  String get description => 'Descrição';
+
+  @override
+  String get tournamentName => 'Nome do Torneio';
+
+  @override
+  String get location => 'Local';
+
+  @override
+  String get startDate => 'Data de Início';
+
+  @override
+  String get endDate => 'Data de Fim';
+
+  @override
+  String get follow => 'Seguir';
+
+  @override
+  String get unfollow => 'Deixar de Seguir';
+
+  @override
+  String get titleBeginner => 'Iniciante';
+
+  @override
+  String get titleNovice => 'Novato';
+
+  @override
+  String get titleIntermediate => 'Intermediário';
+
+  @override
+  String get titleClubPlayer => 'Jogador de Clube';
+
+  @override
+  String get titleAdvanced => 'Avançado';
+
+  @override
+  String get titleSemiPro => 'Semi-Profissional';
+
+  @override
+  String get titlePro => 'Profissional';
+
+  @override
+  String get titleCoach => 'Treinador';
+
+  @override
+  String get titleEnthusiast => 'Entusiasta';
+
+  @override
+  String get titleWeekendWarrior => 'Guerreiro de Fim de Semana';
+
+  @override
+  String errorOccurred(Object error) {
+    return 'Erro: $error';
+  }
+
+  @override
+  String get pleaseEnterName => 'Por favor, insira um nome';
+
+  @override
+  String get pleaseSelectTitle => 'Por favor, selecione ou insira um título';
+
+  @override
+  String get create => 'Criar';
 }

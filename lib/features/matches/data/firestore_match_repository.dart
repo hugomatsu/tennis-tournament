@@ -190,13 +190,13 @@ class FirestoreMatchRepository implements MatchRepository {
       
       final q1 = _firestore
           .collection('matches')
-          .where('status', isEqualTo: 'Scheduled')
+          .where('status', whereIn: ['Scheduled', 'Confirmed', 'Preparing', 'Started', 'Pending'])
           .where('player1Id', isEqualTo: user.uid)
           .get();
 
       final q2 = _firestore
           .collection('matches')
-          .where('status', isEqualTo: 'Scheduled')
+          .where('status', whereIn: ['Scheduled', 'Confirmed', 'Preparing', 'Started', 'Pending'])
           .where('player2Id', isEqualTo: user.uid)
           .get();
 
@@ -257,13 +257,13 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   @override
-  Stream<List<TennisMatch>> watchUpcomingMatches() {
+  Stream<List<TennisMatch>> watchUpcomingMatches(List<String> followedMatchIds) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return Stream.value([]);
 
     return _firestore
         .collection('matches')
-        .where('status', isEqualTo: 'Scheduled')
+        .where('status', whereIn: ['Scheduled', 'Confirmed', 'Preparing', 'Started', 'Pending'])
         .snapshots()
         .map((snapshot) {
       final matches = snapshot.docs.map((doc) {
@@ -303,7 +303,11 @@ class FirestoreMatchRepository implements MatchRepository {
           player1Confirmed: data['player1Confirmed'] as bool? ?? false,
           player2Confirmed: data['player2Confirmed'] as bool? ?? false,
         );
-      }).where((match) => match.player1Id == user.uid || match.player2Id == user.uid).toList().cast<TennisMatch>();
+      }).where((match) => 
+          match.player1Id == user.uid || 
+          match.player2Id == user.uid || 
+          followedMatchIds.contains(match.id)
+      ).toList().cast<TennisMatch>();
       
       matches.sort((a, b) => a.time.compareTo(b.time));
       return matches;
@@ -516,6 +520,41 @@ class FirestoreMatchRepository implements MatchRepository {
       return _matchFromData(doc.id, data);
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<List<TennisMatch>> getMatchesByIds(List<String> matchIds) async {
+    if (matchIds.isEmpty) return [];
+    
+    // Firestore limited to 10 in 'whereIn', so we should chunk it if needed.
+    // For now, let's assume we might have <= 10 or do simple fetching.
+    // Actually FieldPath.documentId whereIn is supported.
+    // But let's just do individual gets for simplicity and avoiding limitation for now (parallel).
+    // Or simpler: just parallel usage.
+
+    try {
+        if (matchIds.length <= 10) {
+            final snapshot = await _firestore.collection('matches')
+              .where(FieldPath.documentId, whereIn: matchIds)
+              .get();
+            return snapshot.docs.map((d) => _matchFromData(d.id, d.data())).toList();
+        } else {
+            // Naive chunking
+            List<TennisMatch> allMatches = [];
+            for (var i = 0; i < matchIds.length; i += 10) {
+                 final end = (i + 10 < matchIds.length) ? i + 10 : matchIds.length;
+                 final chunk = matchIds.sublist(i, end);
+                 final snapshot = await _firestore.collection('matches')
+                    .where(FieldPath.documentId, whereIn: chunk)
+                    .get();
+                 allMatches.addAll(snapshot.docs.map((d) => _matchFromData(d.id, d.data())));
+            }
+            return allMatches;
+        }
+
+    } catch (e) {
+      return [];
     }
   }
 

@@ -22,7 +22,7 @@ abstract class MatchRepository {
   Future<List<TennisMatch>> getMatchesForTournament(String tournamentId);
   Stream<List<TennisMatch>> watchMatchesForTournament(String tournamentId);
   Future<List<TennisMatch>> getUpcomingMatches();
-  Stream<List<TennisMatch>> watchUpcomingMatches();
+  Stream<List<TennisMatch>> watchUpcomingMatches(List<String> followedMatchIds);
   Future<void> createMatches(List<TennisMatch> matches);
   Future<void> updateMatch(TennisMatch match);
   Future<void> updateMatchScore(String matchId, String score, String winnerName);
@@ -30,5 +30,6 @@ abstract class MatchRepository {
   Future<void> confirmMatch(String matchId, String playerId);
   Future<void> deleteMatchesForTournament(String tournamentId);
   Future<TennisMatch?> getMatch(String matchId);
+  Future<List<TennisMatch>> getMatchesByIds(List<String> matchIds);
   Stream<TennisMatch?> watchMatch(String matchId);
 }

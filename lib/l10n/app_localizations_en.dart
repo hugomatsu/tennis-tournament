@@ -227,4 +227,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get size => 'Size';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account? Sign Up';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get pleaseEnterEmail => 'Please enter your email';
+
+  @override
+  String get pleaseEnterPassword => 'Please enter your password';
+
+  @override
+  String get player => 'Player';
+
+  @override
+  String get upcoming => 'Upcoming';
+
+  @override
+  String get rank => 'Rank';
+
+  @override
+  String get wins => 'Wins';
+
+  @override
+  String get losses => 'Losses';
+
+  @override
+  String get loses => 'Losses';
+
+  @override
+  String get points => 'Points';
+
+  @override
+  String get createTournament => 'Create Tournament';
+
+  @override
+  String get adminDashboard => 'Admin Dashboard';
+
+  @override
+  String get manageLocations => 'Manage Locations';
+
+  @override
+  String get manageCategories => 'Manage Categories';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get tournamentName => 'Tournament Name';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get startDate => 'Start Date';
+
+  @override
+  String get endDate => 'End Date';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get unfollow => 'Unfollow';
+
+  @override
+  String get titleBeginner => 'Beginner';
+
+  @override
+  String get titleNovice => 'Novice';
+
+  @override
+  String get titleIntermediate => 'Intermediate';
+
+  @override
+  String get titleClubPlayer => 'Club Player';
+
+  @override
+  String get titleAdvanced => 'Advanced';
+
+  @override
+  String get titleSemiPro => 'Semi-Pro';
+
+  @override
+  String get titlePro => 'Pro';
+
+  @override
+  String get titleCoach => 'Coach';
+
+  @override
+  String get titleEnthusiast => 'Enthusiast';
+
+  @override
+  String get titleWeekendWarrior => 'Weekend Warrior';
+
+  @override
+  String errorOccurred(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get pleaseEnterName => 'Please enter a name';
+
+  @override
+  String get pleaseSelectTitle => 'Please select or enter a title';
+
+  @override
+  String get create => 'Create';
 }

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
+import 'package:tennis_tournament/features/players/domain/player.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -212,6 +214,25 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     }
   }
 
+  Future<void> _toggleFollow(Player user, String matchId) async {
+    final currentFollowed = List<String>.from(user.followedMatchIds);
+    if (currentFollowed.contains(matchId)) {
+      currentFollowed.remove(matchId);
+    } else {
+      currentFollowed.add(matchId);
+    }
+
+    // Update user in repository
+    // We need to create a slightly modified copy of Player because User is immutable generated
+    final updatedUser = user.copyWith(followedMatchIds: currentFollowed);
+    
+    // We use ref.read(playerRepositoryProvider) but we need to ensure it's imported (added in previous step)
+    await ref.read(playerRepositoryProvider).updateUser(updatedUser);
+    
+    // Invalidate currentUserProvider to trigger UI rebuild
+    ref.invalidate(currentUserProvider);
+  }
+
   Future<bool> _checkForConflicts(DateTime start, String court, String matchId, String tournamentId, int durationMinutes) async {
     final matches = await ref.read(matchRepositoryProvider).getMatchesForTournament(tournamentId);
     final end = start.add(Duration(minutes: durationMinutes));
@@ -266,6 +287,21 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           appBar: AppBar(
             title: Text(loc.matchDetails),
             actions: [
+              if (userAsync.value != null)
+                IconButton(
+                  icon: Icon(
+                    userAsync.value!.followedMatchIds.contains(match.id)
+                        ? Icons.star
+                        : Icons.star_border,
+                    color: userAsync.value!.followedMatchIds.contains(match.id)
+                        ? Colors.amber
+                        : null,
+                  ),
+                  tooltip: userAsync.value!.followedMatchIds.contains(match.id)
+                      ? loc.unfollow
+                      : loc.follow,
+                  onPressed: () => _toggleFollow(userAsync.value!, match.id),
+                ),
               if (isAdmin && !_isEditing)
                 IconButton(
                   icon: const Icon(Icons.edit),
