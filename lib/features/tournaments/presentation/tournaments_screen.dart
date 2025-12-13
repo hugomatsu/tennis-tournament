@@ -5,6 +5,8 @@ import 'package:tennis_tournament/features/home/presentation/widgets/live_tourna
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
+import 'package:tennis_tournament/l10n/app_localizations.dart';
+
 class TournamentsScreen extends ConsumerStatefulWidget {
   const TournamentsScreen({super.key});
 
@@ -18,17 +20,14 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     // We need to update the provider to accept a category, or just filter locally if the list is small.
-    // However, the repo method supports filtering, so let's use a family provider or just watch a future.
-    // Since liveTournamentsProvider is a simple Provider/FutureProvider, we might need to change how we call it.
-    // But liveTournamentsProvider in home_screen.dart might be a simple provider.
-    // Let's check where liveTournamentsProvider is defined. It's likely in home_screen.dart or a shared file.
-    // Assuming we can't easily change the global provider without affecting Home, let's use a new FutureProvider here or just call the repo.
+    // ...
     
     final tournamentsAsync = ref.watch(filteredTournamentsProvider(_selectedCategory));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tournaments')),
+      appBar: AppBar(title: Text(loc.tournaments)),
       body: Column(
         children: [
           SingleChildScrollView(

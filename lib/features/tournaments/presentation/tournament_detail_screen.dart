@@ -18,6 +18,7 @@ import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_calendar_tab.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -30,13 +31,14 @@ class TournamentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final tournamentAsync = ref.watch(tournamentDetailProvider(id));
     final userAsync = ref.watch(currentUserProvider);
 
     return tournamentAsync.when(
       data: (tournament) {
         if (tournament == null) {
-          return const Scaffold(body: Center(child: Text('Tournament not found')));
+          return const Scaffold(body: Center(child: Text('Tournament not found'))); // TODO: Localize
         }
         return DefaultTabController(
           length: 3,
@@ -307,11 +309,11 @@ class TournamentDetailScreen extends ConsumerWidget {
                   ),
                   SliverPersistentHeader(
                     delegate: _SliverAppBarDelegate(
-                      const TabBar(
+                      TabBar(
                         tabs: [
-                          Tab(text: 'Info'),
-                          Tab(text: 'Bracket'),
-                          Tab(text: 'Calendar'),
+                          Tab(text: loc.info),
+                          Tab(text: loc.bracket),
+                          Tab(text: loc.calendar),
                         ],
                       ),
                     ),
@@ -610,6 +612,7 @@ class _InfoTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserProvider);
     final participantsAsync = ref.watch(participantsProvider(tournament.id));
     final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournament.id));
@@ -618,14 +621,14 @@ class _InfoTab extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'Description',
+          'Description', // TODO: Localize
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(tournament.description),
         const SizedBox(height: 24),
         Text(
-          'Details',
+          loc.info,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -705,7 +708,7 @@ class _InfoTab extends ConsumerWidget {
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 32),
         Text(
-          'Participants',
+          loc.participants,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),

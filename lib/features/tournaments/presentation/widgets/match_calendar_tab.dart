@@ -7,6 +7,7 @@ import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class MatchCalendarTab extends ConsumerWidget {
   final Tournament tournament;
@@ -16,11 +17,12 @@ class MatchCalendarTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final matchesAsync = ref.watch(matchListProvider(tournament.id));
+    final loc = AppLocalizations.of(context)!;
 
     return matchesAsync.when(
       data: (matches) {
         if (matches.isEmpty) {
-          return const Center(child: Text('No matches scheduled yet.'));
+          return Center(child: Text(loc.noMatchesScheduled));
         }
 
         // Group matches by date
@@ -154,7 +156,7 @@ class _MatchCard extends ConsumerWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      match.court.isNotEmpty ? match.court : 'Location TBD',
+                      match.court.isNotEmpty ? match.court : AppLocalizations.of(context)!.locationTBD,
                       style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -188,6 +190,7 @@ class _PlayerInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final avatar = CircleAvatar(
       radius: 20,
       backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
@@ -195,7 +198,7 @@ class _PlayerInfo extends StatelessWidget {
     );
 
     final nameText = Text(
-      name + (isMe ? ' (You)' : ''),
+      name + (isMe ? loc.youSuffix : ''),
       style: TextStyle(
         fontWeight: isWinner || isMe ? FontWeight.bold : FontWeight.normal,
         color: isWinner 
@@ -234,7 +237,17 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     Color color;
+    String label = status;
+
+    if (status == 'Finished') label = loc.statusFinished;
+    else if (status == 'Preparing') label = loc.statusPreparing;
+    else if (status == 'Scheduled') label = loc.statusScheduled;
+    else if (status == 'Confirmed') label = loc.statusConfirmed;
+    else if (status == 'Started') label = loc.statusStarted;
+    else if (status == 'Completed') label = loc.statusCompleted;
+
     switch (status) {
       case 'Preparing':
         color = Colors.orange;
@@ -264,7 +277,7 @@ class _StatusChip extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
-        status,
+        label,
         style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );

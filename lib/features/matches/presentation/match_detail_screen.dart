@@ -7,6 +7,7 @@ import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final matchDetailProvider = StreamProvider.family<TennisMatch?, String>((ref, matchId) {
   return ref.watch(matchRepositoryProvider).watchMatch(matchId);
@@ -230,11 +231,24 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return false;
   }
 
+  String _getLocalizedStatus(AppLocalizations loc, String status) {
+    if (status == 'Finished') return loc.statusFinished;
+    switch (status) {
+      case 'Preparing': return loc.statusPreparing;
+      case 'Scheduled': return loc.statusScheduled;
+      case 'Confirmed': return loc.statusConfirmed;
+      case 'Started': return loc.statusStarted;
+      case 'Completed': return loc.statusCompleted;
+      default: return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final matchAsync = ref.watch(matchDetailProvider(widget.matchId));
     final userAsync = ref.watch(currentUserProvider);
     final isAdmin = userAsync.value?.userType == 'admin';
+    final loc = AppLocalizations.of(context)!;
 
     return matchAsync.when(
       data: (match) {
@@ -250,7 +264,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Match Details'),
+            title: Text(loc.matchDetails),
             actions: [
               if (isAdmin && !_isEditing)
                 IconButton(
@@ -271,7 +285,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             child: Column(
               children: [
                 // Header (Status & Time)
-                _buildHeader(match),
+                _buildHeader(match, loc),
                 const SizedBox(height: 24),
                 
                 // Players VS View
@@ -280,12 +294,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 const SizedBox(height: 32),
                 
                 // Location & Details
-                _buildInfoSection(match),
+                _buildInfoSection(match, loc),
 
                  const SizedBox(height: 32),
 
                 // Admin Controls
-                if (_isEditing) _buildAdminControls(match),
+                if (_isEditing) _buildAdminControls(match, loc),
               ],
             ),
           ),
@@ -296,7 +310,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  Widget _buildHeader(TennisMatch match) {
+  Widget _buildHeader(TennisMatch match, AppLocalizations loc) {
     Color statusColor;
     switch (match.status) {
       case 'Preparing': statusColor = Colors.orange; break;
@@ -318,7 +332,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             border: Border.all(color: statusColor.withValues(alpha: 0.5)),
           ),
           child: Text(
-            match.status.toUpperCase(),
+            _getLocalizedStatus(loc, match.status).toUpperCase(),
             style: TextStyle(
               color: statusColor,
               fontWeight: FontWeight.bold,
@@ -388,7 +402,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  Widget _buildInfoSection(TennisMatch match) {
+  Widget _buildInfoSection(TennisMatch match, AppLocalizations loc) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -400,10 +414,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     future: ref.watch(locationRepositoryProvider).getLocation(match.locationId!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                         final loc = snapshot.data!;
+                         final place = snapshot.data!;
                          return InkWell(
                            onTap: () async {
-                              final uri = Uri.parse(loc.googleMapsUrl);
+                               final uri = Uri.parse(place.googleMapsUrl);
                              if (await canLaunchUrl(uri)) {
                                await launchUrl(uri);
                              }
@@ -416,8 +430,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                                  child: Column(
                                    crossAxisAlignment: CrossAxisAlignment.start,
                                    children: [
-                                     Text(loc.name, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.blue)),
-                                      Text('${loc.numberOfCourts} Courts available', style: Theme.of(context).textTheme.bodySmall),
+                                     Text(place.name, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.blue)),
+                                      Text('${place.numberOfCourts} Courts available', style: Theme.of(context).textTheme.bodySmall),
                                    ],
                                  ),
                                ),
@@ -459,14 +473,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              ),
 
              const Divider(height: 24),
-             _buildPlayerActions(match),
+             _buildPlayerActions(match, loc),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlayerActions(TennisMatch match) {
+  Widget _buildPlayerActions(TennisMatch match, AppLocalizations loc) {
     final userAsync = ref.watch(currentUserProvider);
     final user = userAsync.value;
     if (user == null) return const SizedBox.shrink();
@@ -484,7 +498,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          isConfirmed ? 'You have confirmed attendance.' : 'Please confirm your attendance.',
+          isConfirmed ? loc.youHaveConfirmed : loc.pleaseConfirm,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: isConfirmed ? Colors.green : Colors.orange,
@@ -499,7 +513,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _handleDecline(match, user.id),
                   icon: const Icon(Icons.close, color: Colors.red),
-                  label: const Text('Decline'),
+                  label: Text(loc.decline),
                   style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                 ),
               ),
@@ -508,7 +522,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 child: FilledButton.icon(
                   onPressed: () => _handleConfirm(match, user.id),
                   icon: const Icon(Icons.check),
-                  label: const Text('Confirm'),
+                  label: Text(loc.confirm),
                   style: FilledButton.styleFrom(backgroundColor: Colors.green),
                 ),
               ),
@@ -518,7 +532,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  Widget _buildAdminControls(TennisMatch match) {
+  Widget _buildAdminControls(TennisMatch match, AppLocalizations loc) {
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Padding(
@@ -529,11 +543,11 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              Row(
                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                children: [
-                 Text('Admin Controls', style: Theme.of(context).textTheme.titleMedium),
+                 Text(loc.adminControls, style: Theme.of(context).textTheme.titleMedium),
                  TextButton.icon(
                    onPressed: () => _showRescheduleDialog(match),
                    icon: const Icon(Icons.calendar_month),
-                   label: const Text('Reschedule'),
+                   label: Text(loc.reschedule),
                  ),
                ],
              ),
@@ -581,12 +595,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              DropdownButtonFormField<String>(
                value: _pendingStatus,
                decoration: const InputDecoration(labelText: 'Status'),
-               items: const [
-                 DropdownMenuItem(value: 'Preparing', child: Text('Preparing')),
-                 DropdownMenuItem(value: 'Scheduled', child: Text('Scheduled')),
-                 DropdownMenuItem(value: 'Confirmed', child: Text('Confirmed')),
-                 DropdownMenuItem(value: 'Started', child: Text('Started')),
-                 DropdownMenuItem(value: 'Completed', child: Text('Finished/Completed')),
+               items: [
+                 DropdownMenuItem(value: 'Preparing', child: Text(loc.statusPreparing)),
+                 DropdownMenuItem(value: 'Scheduled', child: Text(loc.statusScheduled)),
+                 DropdownMenuItem(value: 'Confirmed', child: Text(loc.statusConfirmed)),
+                 DropdownMenuItem(value: 'Started', child: Text(loc.statusStarted)),
+                 DropdownMenuItem(value: 'Completed', child: Text(loc.statusCompleted)),
                ],
                onChanged: (val) => setState(() => _pendingStatus = val),
              ),
@@ -595,14 +609,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              
              TextField(
                controller: _scoreController,
-               decoration: const InputDecoration(labelText: 'Score (e.g. 6-4, 6-2)'),
+               decoration: InputDecoration(labelText: loc.score),
              ),
-             // ... the rest (Winner selection)
-
              
              const SizedBox(height: 16),
              
-             const Text('Winner'),
+             Text(loc.winner),
              RadioListTile<String>(
                 title: Text(match.player1Name),
                 value: match.player1Name,
@@ -623,14 +635,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                  Expanded(
                    child: OutlinedButton(
                      onPressed: () => setState(() => _isEditing = false),
-                     child: const Text('Cancel'),
+                     child: Text(loc.cancel),
                    ),
                  ),
                  const SizedBox(width: 16),
                  Expanded(
                    child: FilledButton(
                      onPressed: _saveChanges,
-                     child: const Text('Save Changes'),
+                     child: Text(loc.saveChanges),
                    ),
                  ),
                ],

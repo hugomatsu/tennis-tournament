@@ -6,6 +6,7 @@ import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -50,6 +51,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
+    final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -59,7 +61,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         maxChildSize: 0.9,
         expand: false,
         builder: (context, scrollController) => Scaffold(
-          appBar: AppBar(title: const Text('Select Image')),
+          appBar: AppBar(title: Text(loc.changePhoto)),
           body: MediaLibraryPicker(
             onImageSelected: (asset) {
               setState(() => _avatarUrl = asset.url);
@@ -92,9 +94,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: Text(loc.editProfile)),
       body: userAsync.when(
         data: (user) {
           // Initialize controllers if not already done (and if user exists)
@@ -127,37 +130,44 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    validator: (v) => v!.isEmpty ? 'Required' : null,
+                    decoration: InputDecoration(labelText: loc.name),
+                    validator: (value) => value!.isEmpty ? 'Please enter a name' : null,
                   ),
                   const SizedBox(height: 16),
                   
                   DropdownButtonFormField<String>(
                     value: _titleSuggestions.contains(_titleController.text) ? _titleController.text : null,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                    hint: const Text('Select Title'),
+                    decoration: InputDecoration(labelText: loc.title),
                     items: [
-                      ..._titleSuggestions.map((t) => DropdownMenuItem(value: t, child: Text(t))),
+                      // Add current value if it's custom/not in list (handled by logic above partially?)
+                      // If text is not empty and not in list, we might want to show it?
+                      // The previous logic was: if text is not in suggestions, add it.
                       if (_titleController.text.isNotEmpty && !_titleSuggestions.contains(_titleController.text))
-                        DropdownMenuItem(value: _titleController.text, child: Text(_titleController.text)),
+                        DropdownMenuItem(
+                          value: _titleController.text,
+                          child: Text(_titleController.text),
+                        ),
+                      ..._titleSuggestions.map((title) => DropdownMenuItem(
+                        value: title,
+                        child: Text(title),
+                      )),
                     ],
                     onChanged: (val) {
-                      if (val != null) {
-                         _titleController.text = val;
-                      }
+                      if (val != null) setState(() => _titleController.text = val);
                     },
+                    validator: (val) => val == null || val.isEmpty ? 'Please select or enter a title' : null,
                   ),
                   
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _bioController,
-                    decoration: const InputDecoration(labelText: 'Bio'),
+                    decoration: InputDecoration(labelText: loc.bio),
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _categoryController,
-                    decoration: const InputDecoration(labelText: 'Category (e.g. A, B, C)'),
+                    decoration: InputDecoration(labelText: loc.category),
                   ),
                   const SizedBox(height: 16),
                   
@@ -166,9 +176,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: AbsorbPointer(
                       child: TextFormField(
                         controller: _playingSinceController,
-                        decoration: const InputDecoration(
-                          labelText: 'Playing Since',
-                          suffixIcon: Icon(Icons.calendar_today),
+                        decoration: InputDecoration(
+                          labelText: loc.playingSince,
+                          suffixIcon: const Icon(Icons.calendar_today),
                         ),
                       ),
                     ),
@@ -179,7 +189,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     onPressed: _isLoading ? null : () => _saveProfile(user),
                     child: _isLoading
                         ? const CircularProgressIndicator()
-                        : const Text('Save Profile'),
+                        : Text(loc.saveProfile),
                   ),
                 ],
               ),

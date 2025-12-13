@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tennis_tournament/features/media/domain/media_asset.dart';
 import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class MediaLibraryScreen extends ConsumerStatefulWidget {
   const MediaLibraryScreen({super.key});
@@ -18,20 +19,21 @@ class _MediaLibraryScreenState extends ConsumerState<MediaLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Media Library'),
+        title: Text(loc.myMediaLibrary),
       ),
       body: MediaLibraryPicker(
         onImageSelected: (asset) {
           // Instead of returning, show details
-          _showImageDetails(context, asset);
+          _showImageDetails(context, asset, loc);
         },
       ),
     );
   }
 
-  void _showImageDetails(BuildContext context, MediaAsset asset) {
+  void _showImageDetails(BuildContext context, MediaAsset asset, AppLocalizations loc) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -49,13 +51,13 @@ class _MediaLibraryScreenState extends ConsumerState<MediaLibraryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('File Name:', style: Theme.of(context).textTheme.titleSmall),
+                    Text('${loc.fileName}:', style: Theme.of(context).textTheme.titleSmall),
                     Text(asset.fileName ?? 'Unknown'),
                     const SizedBox(height: 12),
-                    Text('Uploaded At:', style: Theme.of(context).textTheme.titleSmall),
+                    Text('${loc.uploadedAt}:', style: Theme.of(context).textTheme.titleSmall),
                     Text(asset.uploadedAt.toLocal().toString().split('.')[0]),
                     const SizedBox(height: 12),
-                    Text('Size:', style: Theme.of(context).textTheme.titleSmall),
+                    Text('${loc.size}:', style: Theme.of(context).textTheme.titleSmall),
                     Text(_formatBytes(asset.size)),
                     const SizedBox(height: 12),
                     Text('Metadata (JSON):', style: Theme.of(context).textTheme.titleSmall),
@@ -63,7 +65,7 @@ class _MediaLibraryScreenState extends ConsumerState<MediaLibraryScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
+                      child: Text(loc.close),
                     ),
                   ],
                 ),

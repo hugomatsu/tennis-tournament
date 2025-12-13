@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final scheduleProvider = StreamProvider<List<TennisMatch>>((ref) {
   return ref.watch(matchRepositoryProvider).watchUpcomingMatches();
@@ -14,9 +15,10 @@ class ScheduleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheduleAsync = ref.watch(scheduleProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Schedule')),
+      appBar: AppBar(title: Text(loc.mySchedule)),
       body: scheduleAsync.when(
         data: (matches) {
           // Group matches by date
@@ -66,6 +68,12 @@ class _MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    String statusLabel = match.status;
+    if (match.status == 'Scheduled') statusLabel = loc.statusScheduled;
+    else if (match.status == 'Confirmed') statusLabel = loc.statusConfirmed;
+    else if (match.status == 'Preparing') statusLabel = loc.statusPreparing;
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -80,7 +88,7 @@ class _MatchCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  match.status,
+                  statusLabel,
                   style: TextStyle(
                     fontSize: 12,
                     color: match.status == 'Scheduled' ? Colors.green : Colors.orange,

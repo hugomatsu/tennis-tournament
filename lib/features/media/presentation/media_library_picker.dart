@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:tennis_tournament/features/media/data/media_repository.dart';
 import 'package:tennis_tournament/features/media/domain/media_asset.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart'; // For currentUserProvider
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final userMediaProvider = FutureProvider.family<List<MediaAsset>, String>((ref, userId) {
   return ref.watch(mediaRepositoryProvider).getUserMedia(userId);
@@ -104,9 +105,10 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserProvider);
     final userId = userAsync.value?.id;
+    final loc = AppLocalizations.of(context)!;
 
     if (userId == null) {
-      return const Center(child: Text('Please log in to access library'));
+      return Center(child: Text(loc.pleaseLogIn));
     }
 
     final mediaFuture = ref.watch(userMediaProvider(userId));
@@ -122,9 +124,9 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('My Library', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(loc.myLibrary, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   usageFuture.when(
-                    data: (usage) => Text('Storage used: ${_formatBytes(usage)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    data: (usage) => Text('${loc.storageUsed}: ${_formatBytes(usage)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                     loading: () => const SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2)),
                     error: (_, __) => const Text('Error loading usage'),
                   ),
@@ -135,7 +137,7 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
                 icon: _isUploading 
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.upload),
-                label: const Text('Upload'),
+                label: Text(loc.upload),
               ),
             ],
           ),
@@ -144,7 +146,7 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
           child: mediaFuture.when(
             data: (assets) {
               if (assets.isEmpty) {
-                return const Center(child: Text('No images in library'));
+                return Center(child: Text(loc.noImages));
               }
               return GridView.builder(
                 padding: const EdgeInsets.all(8),

@@ -8,6 +8,7 @@ import 'package:tennis_tournament/features/tournaments/application/tournament_pr
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
 class ParticipantManagementScreen extends ConsumerWidget {
@@ -18,10 +19,11 @@ class ParticipantManagementScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final participantsAsync = ref.watch(participantsProvider(tournamentId));
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Players'),
+        title: Text(loc.managePlayers),
       ),
       body: participantsAsync.when(
         data: (participants) {
@@ -33,7 +35,7 @@ class ParticipantManagementScreen extends ConsumerWidget {
             children: [
               if (pending.isNotEmpty) ...[
                 Text(
-                  'Pending Requests (${pending.length})',
+                  '${loc.pendingRequests} (${pending.length})',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.orange,
@@ -48,7 +50,7 @@ class ParticipantManagementScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
               ],
               Text(
-                'Approved Players (${approved.length})',
+                '${loc.approvedPlayers} (${approved.length})',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
@@ -56,9 +58,9 @@ class ParticipantManagementScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               if (approved.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('No approved players yet.'),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(loc.noApprovedPlayers),
                 ),
               ...approved.map((p) => _ParticipantTile(
                     participant: p,
@@ -100,6 +102,7 @@ class _ParticipantTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(tournamentId);
+    final loc = AppLocalizations.of(context)!;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -116,7 +119,7 @@ class _ParticipantTile extends ConsumerWidget {
         subtitle: FutureBuilder(
           future: categoriesAsync,
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return Text('Joined: ${_formatDate(participant.joinedAt)}');
+            if (!snapshot.hasData) return Text('${loc.joined}: ${_formatDate(participant.joinedAt)}');
             final category = snapshot.data!.firstWhere(
               (c) => c.id == participant.categoryId,
               orElse: () => TournamentCategory(id: '', tournamentId: '', name: 'Unknown', type: ''),
@@ -124,8 +127,8 @@ class _ParticipantTile extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Category: ${category.name}'),
-                Text('Joined: ${_formatDate(participant.joinedAt)}'),
+                Text('${loc.category}: ${category.name}'),
+                Text('${loc.joined}: ${_formatDate(participant.joinedAt)}'),
               ],
             );
           },
@@ -137,18 +140,18 @@ class _ParticipantTile extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.check, color: Colors.green),
                 onPressed: () => _updateStatus(ref, 'approved'),
-                tooltip: 'Accept',
+                tooltip: loc.accept,
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.red),
                 onPressed: () => _updateStatus(ref, 'rejected'),
-                tooltip: 'Deny',
+                tooltip: loc.deny,
               ),
             ] else
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.grey),
                 onPressed: () => _updateStatus(ref, 'rejected'), // Or delete
-                tooltip: 'Remove',
+                tooltip: loc.remove,
               ),
           ],
         ),
@@ -193,9 +196,10 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(widget.tournamentId);
+    final loc = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: const Text('Add Participant'),
+      title: Text(loc.addParticipant),
       content: FutureBuilder(
         future: categoriesAsync,
         builder: (context, snapshot) {
@@ -212,16 +216,16 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
             children: [
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name (e.g. Hugo or Hugo & Arthur)',
-                  hintText: 'Enter participant name',
+                decoration: InputDecoration(
+                  labelText: loc.name,
+                  hintText: 'e.g. Hugo or Hugo & Arthur',
                 ),
                 autofocus: true,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedCategoryId,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: InputDecoration(labelText: loc.category),
                 items: categories.map((c) => DropdownMenuItem(
                   value: c.id,
                   child: Text(c.name),
@@ -239,11 +243,11 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(loc.cancel),
         ),
         ElevatedButton(
           onPressed: _submit,
-          child: const Text('Add'),
+          child: Text(loc.add),
         ),
       ],
     );
