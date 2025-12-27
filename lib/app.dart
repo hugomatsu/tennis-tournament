@@ -20,8 +20,10 @@ import 'package:tennis_tournament/features/media/presentation/media_library_scre
 import 'package:tennis_tournament/features/availability/presentation/availability_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/participant_management_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/schedule_settings_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
 import 'package:tennis_tournament/features/debug/presentation/simulation_screen.dart';
+import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -94,12 +96,20 @@ final routerProvider = Provider<GoRouter>((ref) {
                           return ParticipantManagementScreen(tournamentId: id);
                         },
                       ),
+                      GoRoute(
+                        path: 'schedule-settings',
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          return ScheduleSettingsScreen(tournamentId: id);
+                        },
+                      ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+                ],
+              ),
+
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -156,6 +166,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters['id']!;
           return MatchDetailScreen(matchId: id);
         },
+      ),
+      GoRoute(
+        path: '/help',
+        builder: (context, state) => const HelpScreen(),
       ),
     ],
   );

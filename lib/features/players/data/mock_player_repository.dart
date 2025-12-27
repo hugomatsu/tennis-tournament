@@ -48,4 +48,26 @@ class MockPlayerRepository implements PlayerRepository {
       ),
     );
   }
+
+  @override
+  Future<List<Player>> getAllPlayers() async {
+     await Future.delayed(const Duration(milliseconds: 500));
+     return List.generate(
+      10,
+      (index) => Player(
+        id: 'mock_user_$index',
+        name: 'User ${index + 1}',
+        title: 'Ranking $index',
+        category: 'A',
+        playingSince: '2023',
+        wins: index * 2,
+        losses: index,
+        rank: index + 1,
+        bio: 'Bio',
+        avatarUrl: 'https://via.placeholder.com/150',
+        userType: 'player',
+        followedMatchIds: [],
+      ),
+    );
+  }
 }

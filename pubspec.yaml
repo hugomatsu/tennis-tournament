@@ -52,6 +52,7 @@ dependencies:
   firebase_storage: ^13.0.4
   url_launcher: ^6.3.2
   sticky_headers: ^0.3.0+2
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +89,7 @@ flutter:
   assets:
     - assets/env
     - assets/images/
+    - docs/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

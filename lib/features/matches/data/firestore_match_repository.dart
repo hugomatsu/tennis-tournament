@@ -566,6 +566,16 @@ class FirestoreMatchRepository implements MatchRepository {
     });
   }
 
+  @override
+  Future<void> updateMatchesStatus(List<String> matchIds, String status) async {
+    final batch = _firestore.batch();
+    for (final id in matchIds) {
+      final docRef = _firestore.collection('matches').doc(id);
+      batch.update(docRef, {'status': status});
+    }
+    await batch.commit();
+  }
+
   TennisMatch _matchFromData(String id, Map<String, dynamic> data) {
     DateTime parsedTime;
     final timeData = data['time'];

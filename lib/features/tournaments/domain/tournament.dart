@@ -17,8 +17,22 @@ abstract class Tournament with _$Tournament {
     required String description,
     required String dateRange,
     @Default('Open') String category,
+    @Default([]) List<DailySchedule> scheduleRules,
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>
       _$TournamentFromJson(json);
+}
+
+@freezed
+abstract class DailySchedule with _$DailySchedule {
+  const factory DailySchedule({
+    required String date,
+    required String startTime,
+    required String endTime,
+    @Default(1) int courtCount,
+  }) = _DailySchedule;
+
+  factory DailySchedule.fromJson(Map<String, dynamic> json) =>
+      _$DailyScheduleFromJson(json);
 }

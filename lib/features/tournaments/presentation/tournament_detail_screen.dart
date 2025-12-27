@@ -235,6 +235,13 @@ class TournamentDetailScreen extends ConsumerWidget {
                           },
                         ),
                         IconButton(
+                          icon: const Icon(Icons.calendar_month),
+                          tooltip: 'Schedule Settings',
+                          onPressed: () {
+                            context.go('/tournaments/${tournament.id}/schedule-settings');
+                          },
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.people),
                           tooltip: 'Manage Players',
                           onPressed: () {

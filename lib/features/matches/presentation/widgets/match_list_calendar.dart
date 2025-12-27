@@ -15,7 +15,16 @@ class MatchListCalendar extends ConsumerWidget {
     super.key,
     required this.matches,
     this.emptyState,
+    this.selectionMode = false,
+    this.selectedIds = const {},
+    this.onToggleSelection,
+    this.onLongPressMatch,
   });
+
+  final bool selectionMode;
+  final Set<String> selectedIds;
+  final Function(String)? onToggleSelection;
+  final Function(String)? onLongPressMatch;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +67,13 @@ class MatchListCalendar extends ConsumerWidget {
             ),
           ),
           content: Column(
-            children: dayMatches.map((match) => MatchCard(match: match)).toList(),
+            children: dayMatches.map((match) => MatchCard(
+              match: match,
+              selectionMode: selectionMode,
+              isSelected: selectedIds.contains(match.id),
+              onToggle: onToggleSelection != null ? () => onToggleSelection!(match.id) : null,
+              onLongPress: onLongPressMatch != null ? () => onLongPressMatch!(match.id) : null,
+            )).toList(),
           ),
         );
       },
@@ -68,8 +83,19 @@ class MatchListCalendar extends ConsumerWidget {
 
 class MatchCard extends ConsumerWidget {
   final TennisMatch match;
+  final bool selectionMode;
+  final bool isSelected;
+  final VoidCallback? onToggle;
+  final VoidCallback? onLongPress;
 
-  const MatchCard({super.key, required this.match});
+  const MatchCard({
+    super.key,
+    required this.match,
+    this.selectionMode = false,
+    this.isSelected = false,
+    this.onToggle,
+    this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,15 +118,27 @@ class MatchCard extends ConsumerWidget {
             : BorderSide.none,
       ),
       child: InkWell(
-        onTap: () {
+        onTap: selectionMode ? onToggle : () {
           context.push('/matches/${match.id}');
         },
+        onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              if (selectionMode)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (_) => onToggle?.call(),
+                  ),
+                ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     DateFormat('HH:mm').format(match.time),
@@ -158,6 +196,9 @@ class MatchCard extends ConsumerWidget {
                     ),
                   ),
                 ],
+              ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -31,5 +31,7 @@ abstract class MatchRepository {
   Future<void> deleteMatchesForTournament(String tournamentId);
   Future<TennisMatch?> getMatch(String matchId);
   Future<List<TennisMatch>> getMatchesByIds(List<String> matchIds);
+
   Stream<TennisMatch?> watchMatch(String matchId);
+  Future<void> updateMatchesStatus(List<String> matchIds, String status);
 }

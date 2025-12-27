@@ -8,3 +8,7 @@ final currentUserProvider = FutureProvider<Player?>((ref) {
   ref.watch(authStateChangesProvider);
   return ref.watch(playerRepositoryProvider).getCurrentUser();
 });
+
+final allPlayersProvider = FutureProvider<List<Player>>((ref) {
+  return ref.watch(playerRepositoryProvider).getAllPlayers();
+});

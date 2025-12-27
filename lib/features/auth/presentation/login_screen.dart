@@ -88,6 +88,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _signIn(),
                   validator: (value) {
                     if (value == null || value.isEmpty) return loc.pleaseEnterPassword;
                     return null;

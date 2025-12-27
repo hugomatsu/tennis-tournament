@@ -105,4 +105,9 @@ class MockMatchRepository implements MatchRepository {
   Stream<TennisMatch?> watchMatch(String matchId) {
     return Stream.value(null);
   }
+
+  @override
+  Future<void> updateMatchesStatus(List<String> matchIds, String status) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 }

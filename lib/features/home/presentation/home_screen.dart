@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/home/presentation/widgets/live_tournament_card.dart';
 import 'package:tennis_tournament/features/home/presentation/widgets/next_match_card.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
@@ -27,6 +28,10 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => context.push('/help'),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
