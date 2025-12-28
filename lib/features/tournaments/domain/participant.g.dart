@@ -10,8 +10,14 @@ _Participant _$ParticipantFromJson(Map<String, dynamic> json) => _Participant(
   id: json['id'] as String,
   name: json['name'] as String,
   categoryId: json['categoryId'] as String,
-  userId: json['userId'] as String?,
-  avatarUrl: json['avatarUrl'] as String?,
+  userIds:
+      (json['userIds'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  avatarUrls:
+      (json['avatarUrls'] as List<dynamic>?)
+          ?.map((e) => e as String?)
+          .toList() ??
+      const [],
   status: json['status'] as String? ?? 'pending',
   joinedAt: DateTime.parse(json['joinedAt'] as String),
 );
@@ -21,8 +27,8 @@ Map<String, dynamic> _$ParticipantToJson(_Participant instance) =>
       'id': instance.id,
       'name': instance.name,
       'categoryId': instance.categoryId,
-      'userId': instance.userId,
-      'avatarUrl': instance.avatarUrl,
+      'userIds': instance.userIds,
+      'avatarUrls': instance.avatarUrls,
       'status': instance.status,
       'joinedAt': instance.joinedAt.toIso8601String(),
     };

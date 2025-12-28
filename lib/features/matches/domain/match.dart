@@ -17,12 +17,14 @@ abstract class TennisMatch with _$TennisMatch {
     required String status, // 'Preparing', 'Scheduled', 'Confirmed', 'Started', 'Finished'
     @Default(90) int durationMinutes,
     String? locationId,
-    required String player1Id,
-    required String player1Name,
-    String? player1AvatarUrl,
-    String? player2Id,
-    String? player2Name,
-    String? player2AvatarUrl,
+    required String player1Id, // Participant ID
+    required String player1Name, // Team Name
+    @Default([]) List<String> player1UserIds,
+    @Default([]) List<String?> player1AvatarUrls,
+    String? player2Id, // Participant ID
+    String? player2Name, // Team Name
+    @Default([]) List<String> player2UserIds,
+    @Default([]) List<String?> player2AvatarUrls,
     String? opponentName, // Deprecated, kept for backward compatibility if needed, or remove
     String? score,
     String? winner,

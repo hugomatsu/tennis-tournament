@@ -18,7 +18,7 @@ abstract class TournamentRepository {
   Future<List<Tournament>> getLiveTournaments({String? category});
   Future<Tournament?> getTournament(String id);
   Future<void> createTournament(Tournament tournament);
-  Future<void> joinTournament(String tournamentId, String userId, String categoryId);
+  Future<void> joinTournament(String tournamentId, List<String> userIds, String categoryId);
   Future<void> leaveTournament(String tournamentId, String userId, String categoryId);
   Future<bool> isPlayerRegistered(String tournamentId, String userId);
   

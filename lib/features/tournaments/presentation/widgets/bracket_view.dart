@@ -107,13 +107,16 @@ class _SingleBracketView extends ConsumerWidget {
                   spacing: 8,
                   runSpacing: 8,
                   alignment: WrapAlignment.center,
-                  children: categoryParticipants.map((p) => Chip(
+                  children: categoryParticipants.map((p) {
+                    final url = p.avatarUrls.firstOrNull;
+                    return Chip(
                     avatar: CircleAvatar(
-                      backgroundImage: p.avatarUrl != null ? NetworkImage(p.avatarUrl!) : null,
-                      child: p.avatarUrl == null ? Text(p.name[0]) : null,
+                      backgroundImage: url != null ? NetworkImage(url) : null,
+                      child: url == null ? Text(p.name.isNotEmpty ? p.name[0] : '?') : null,
                     ),
                     label: Text(p.name),
-                  )).toList(),
+                  );
+                  }).toList(),
                 ),
               ],
             ),

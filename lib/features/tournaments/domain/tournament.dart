@@ -17,6 +17,7 @@ abstract class Tournament with _$Tournament {
     required String description,
     required String dateRange,
     @Default('Open') String category,
+    @Default('singles') String format, // 'singles', 'doubles'
     @Default([]) List<DailySchedule> scheduleRules,
   }) = _Tournament;
 

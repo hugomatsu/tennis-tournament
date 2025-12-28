@@ -770,6 +770,12 @@ abstract class AppLocalizations {
   /// **'Por favor, selecione ou insira um título'**
   String get pleaseSelectTitle;
 
+  /// No description provided for @round.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rodada'**
+  String get round;
+
   /// No description provided for @create.
   ///
   /// In pt, this message translates to:

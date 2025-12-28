@@ -19,10 +19,28 @@ _TennisMatch _$TennisMatchFromJson(Map<String, dynamic> json) => _TennisMatch(
   locationId: json['locationId'] as String?,
   player1Id: json['player1Id'] as String,
   player1Name: json['player1Name'] as String,
-  player1AvatarUrl: json['player1AvatarUrl'] as String?,
+  player1UserIds:
+      (json['player1UserIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  player1AvatarUrls:
+      (json['player1AvatarUrls'] as List<dynamic>?)
+          ?.map((e) => e as String?)
+          .toList() ??
+      const [],
   player2Id: json['player2Id'] as String?,
   player2Name: json['player2Name'] as String?,
-  player2AvatarUrl: json['player2AvatarUrl'] as String?,
+  player2UserIds:
+      (json['player2UserIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  player2AvatarUrls:
+      (json['player2AvatarUrls'] as List<dynamic>?)
+          ?.map((e) => e as String?)
+          .toList() ??
+      const [],
   opponentName: json['opponentName'] as String?,
   score: json['score'] as String?,
   winner: json['winner'] as String?,
@@ -50,10 +68,12 @@ Map<String, dynamic> _$TennisMatchToJson(_TennisMatch instance) =>
       'locationId': instance.locationId,
       'player1Id': instance.player1Id,
       'player1Name': instance.player1Name,
-      'player1AvatarUrl': instance.player1AvatarUrl,
+      'player1UserIds': instance.player1UserIds,
+      'player1AvatarUrls': instance.player1AvatarUrls,
       'player2Id': instance.player2Id,
       'player2Name': instance.player2Name,
-      'player2AvatarUrl': instance.player2AvatarUrl,
+      'player2UserIds': instance.player2UserIds,
+      'player2AvatarUrls': instance.player2AvatarUrls,
       'opponentName': instance.opponentName,
       'score': instance.score,
       'winner': instance.winner,

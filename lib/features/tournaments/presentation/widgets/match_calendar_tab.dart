@@ -5,7 +5,6 @@ import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/features/matches/presentation/widgets/match_list_calendar.dart';
-import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 
 class MatchCalendarTab extends ConsumerStatefulWidget {

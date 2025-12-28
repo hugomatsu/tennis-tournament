@@ -118,5 +118,6 @@
   "errorOccurred": "Error: {error}",
   "pleaseEnterName": "Please enter a name",
   "pleaseSelectTitle": "Please select or enter a title",
+  "round": "Round",
   "create": "Create"
 }

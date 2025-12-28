@@ -275,18 +275,19 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
         final player = players.firstWhere((p) => p.id == userId);
         
         for (final catId in _selectedCategoryIds) {
-           // Avoid duplicates: check if this user is already in this category
-           final alreadyIn = participants.any((p) => p.userId == userId && p.categoryId == catId);
+            // _AddExistingUsersDialog _submit
+            // Avoid duplicates: check if this user is already in this category
+           final alreadyIn = participants.any((p) => p.userIds.contains(userId) && p.categoryId == catId);
            if (alreadyIn) continue;
 
            final participant = Participant(
              id: const Uuid().v4(),
              name: player.name,
-             userId: player.id,
+             userIds: [player.id],
              categoryId: catId,
              status: 'approved',
              joinedAt: DateTime.now(),
-             avatarUrl: player.avatarUrl,
+             avatarUrls: [player.avatarUrl],
            );
            futures.add(repo.addParticipant(widget.tournamentId, participant));
            addedCount++;
@@ -327,16 +328,19 @@ class _ParticipantTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(tournamentId);
     final loc = AppLocalizations.of(context)!;
+    
+    // Simple display for now: Show first avatar or default
+    final firstAvatar = participant.avatarUrls.isNotEmpty ? participant.avatarUrls.first : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: participant.avatarUrl != null
-              ? NetworkImage(participant.avatarUrl!)
+          backgroundImage: firstAvatar != null
+              ? NetworkImage(firstAvatar)
               : null,
-          child: participant.avatarUrl == null
-              ? Text(participant.name[0].toUpperCase())
+          child: firstAvatar == null
+              ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?')
               : null,
         ),
         title: Text(participant.name),
@@ -484,10 +488,11 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
     final participant = Participant(
       id: _uuid.v4(),
       name: name,
-      userId: null, // Manual entry
+      userIds: [], // Manual entry, no user IDs
       categoryId: _selectedCategoryId!,
       status: 'approved', // Auto-approve manual entries
       joinedAt: DateTime.now(),
+      avatarUrls: [],
     );
 
     await ref.read(tournamentRepositoryProvider).addParticipant(

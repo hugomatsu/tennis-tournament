@@ -42,7 +42,7 @@ class MockTournamentRepository implements TournamentRepository {
   }
 
   @override
-  Future<void> joinTournament(String tournamentId, String userId, String categoryId) async {
+  Future<void> joinTournament(String tournamentId, List<String> userIds, String categoryId) async {
     // Mock implementation
     await Future.delayed(const Duration(milliseconds: 500));
   }
@@ -94,7 +94,7 @@ class MockTournamentRepository implements TournamentRepository {
       Participant(
         id: '1',
         name: 'John Doe',
-        userId: 'user1',
+        userIds: ['user1'],
         categoryId: 'cat1',
         status: 'approved',
         joinedAt: DateTime.now().subtract(const Duration(days: 1)),
@@ -102,7 +102,7 @@ class MockTournamentRepository implements TournamentRepository {
       Participant(
         id: '2',
         name: 'Jane Smith',
-        userId: 'user2',
+        userIds: ['user2'],
         categoryId: 'cat1',
         status: 'pending',
         joinedAt: DateTime.now(),

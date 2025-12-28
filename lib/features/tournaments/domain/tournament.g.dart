@@ -17,6 +17,7 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
   description: json['description'] as String,
   dateRange: json['dateRange'] as String,
   category: json['category'] as String? ?? 'Open',
+  format: json['format'] as String? ?? 'singles',
   scheduleRules:
       (json['scheduleRules'] as List<dynamic>?)
           ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
@@ -36,6 +37,7 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'description': instance.description,
       'dateRange': instance.dateRange,
       'category': instance.category,
+      'format': instance.format,
       'scheduleRules': instance.scheduleRules,
     };
 

@@ -9,8 +9,8 @@ abstract class Participant with _$Participant {
     required String id,
     required String name,
     required String categoryId,
-    String? userId, // Nullable for manual entries
-    String? avatarUrl,
+    @Default([]) List<String> userIds, // Changed from userId
+    @Default([]) List<String?> avatarUrls, // Changed from avatarUrl
     @Default('pending') String status, // 'pending', 'approved', 'rejected'
     required DateTime joinedAt,
   }) = _Participant;

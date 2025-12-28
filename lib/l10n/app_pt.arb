@@ -121,5 +121,6 @@
   "errorOccurred": "Erro: {error}",
   "pleaseEnterName": "Por favor, insira um nome",
   "pleaseSelectTitle": "Por favor, selecione ou insira um título",
+  "round": "Rodada",
   "create": "Criar"
 }

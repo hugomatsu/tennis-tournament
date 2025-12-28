@@ -102,11 +102,7 @@ class MatchCard extends ConsumerWidget {
     final currentUserAsync = ref.watch(currentUserProvider);
     final currentUserId = currentUserAsync.value?.id;
     final isParticipant = currentUserId != null &&
-        (match.player1Id == currentUserId || match.player2Id == currentUserId);
-
-    // Highlight color/style
-    // final borderColor = isParticipant ? Theme.of(context).colorScheme.primary : null;
-    // final borderWidth = isParticipant ? 2.0 : 0.0;
+        (match.player1UserIds.contains(currentUserId) || match.player2UserIds.contains(currentUserId));
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -139,64 +135,64 @@ class MatchCard extends ConsumerWidget {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    DateFormat('HH:mm').format(match.time),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      children: [
+                        Text(
+                          DateFormat('HH:mm').format(match.time),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        StatusChip(status: match.status),
+                      ],
                     ),
-                  ),
-                  StatusChip(status: match.status),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: PlayerInfo(
-                      name: match.player1Name,
-                      avatarUrl: match.player1AvatarUrl,
-                      isWinner: match.winner == match.player1Name,
-                      isMe: currentUserId != null && match.player1Id == currentUserId,
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PlayerInfo(
+                            name: match.player1Name,
+                            avatarUrls: match.player1AvatarUrls,
+                            isWinner: match.winner == match.player1Name,
+                            isMe: currentUserId != null && match.player1UserIds.contains(currentUserId),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            'VS',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: PlayerInfo(
+                            name: match.player2Name ?? 'TBD',
+                            avatarUrls: match.player2AvatarUrls,
+                            isWinner: match.winner != null && match.winner == match.player2Name,
+                            isRightAligned: true,
+                            isMe: currentUserId != null && match.player2UserIds.contains(currentUserId),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      'VS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[400],
-                      ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            match.court.isNotEmpty ? match.court : AppLocalizations.of(context)!.locationTBD,
+                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Expanded(
-                    child: PlayerInfo(
-                      name: match.player2Name ?? 'TBD',
-                      avatarUrl: match.player2AvatarUrl,
-                      isWinner: match.winner != null && match.winner == match.player2Name,
-                      isRightAligned: true,
-                      isMe: currentUserId != null && match.player2Id == currentUserId,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      match.court.isNotEmpty ? match.court : AppLocalizations.of(context)!.locationTBD,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
                   ],
                 ),
               ),
@@ -210,7 +206,7 @@ class MatchCard extends ConsumerWidget {
 
 class PlayerInfo extends StatelessWidget {
   final String name;
-  final String? avatarUrl;
+  final List<String?> avatarUrls;
   final bool isWinner;
   final bool isRightAligned;
   final bool isMe;
@@ -218,7 +214,7 @@ class PlayerInfo extends StatelessWidget {
   const PlayerInfo({
     super.key,
     required this.name,
-    this.avatarUrl,
+    this.avatarUrls = const [],
     this.isWinner = false,
     this.isRightAligned = false,
     this.isMe = false,
@@ -227,14 +223,44 @@ class PlayerInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final avatar = CircleAvatar(
-      radius: 20,
-      backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-      child: avatarUrl == null
-          ? Text(name.isNotEmpty ? name[0] : '?',
-              style: const TextStyle(fontSize: 14))
-          : null,
-    );
+    
+    // Create avatar widget
+    Widget avatarWidget;
+    if (avatarUrls.isEmpty) {
+       avatarWidget = CircleAvatar(
+          radius: 20,
+          child: Text(name.isNotEmpty ? name[0] : '?',
+              style: const TextStyle(fontSize: 14)),
+        );
+    } else if (avatarUrls.length == 1) {
+       final url = avatarUrls.first;
+       avatarWidget = CircleAvatar(
+         radius: 20,
+         backgroundImage: url != null ? NetworkImage(url) : null,
+         child: url == null ? Text(name.isNotEmpty ? name[0] : '?') : null,
+       );
+    } else {
+       // Multiple avatars
+       avatarWidget = SizedBox(
+         width: 50,
+         height: 40,
+         child: Stack(
+           children: [
+             for (int i = 0; i < avatarUrls.length && i < 2; i++)
+               Positioned(
+                 left: i * 20.0,
+                 child: CircleAvatar(
+                   radius: 18,
+                   backgroundImage: avatarUrls[i] != null ? NetworkImage(avatarUrls[i]!) : null,
+                   backgroundColor: Theme.of(context).cardColor,
+                   child: avatarUrls[i] == null ? Text('?') : null,
+                 ),
+               ),
+           ],
+         ),
+       );
+    }
+
 
     final nameText = Text(
       name + (isMe ? loc.youSuffix : ''),
@@ -254,13 +280,13 @@ class PlayerInfo extends StatelessWidget {
         children: [
           Expanded(child: nameText),
           const SizedBox(width: 8),
-          avatar,
+          avatarWidget,
         ],
       );
     } else {
       return Row(
         children: [
-          avatar,
+          avatarWidget,
           const SizedBox(width: 8),
           Expanded(child: nameText),
         ],

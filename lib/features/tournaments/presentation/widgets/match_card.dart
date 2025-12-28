@@ -68,7 +68,7 @@ class MatchCard extends ConsumerWidget {
                     matchId: match.id,
                     playerId: match.player1Id,
                     name: match.player1Name,
-                    avatarUrl: match.player1AvatarUrl,
+                    avatarUrls: match.player1AvatarUrls,
                     isWinner: isCompleted && winnerName == match.player1Name,
                     isTop: true,
                     cheers: match.player1Cheers,
@@ -81,7 +81,7 @@ class MatchCard extends ConsumerWidget {
                     matchId: match.id,
                     playerId: match.player2Id ?? '',
                     name: match.player2Name ?? 'Bye',
-                    avatarUrl: match.player2AvatarUrl,
+                    avatarUrls: match.player2AvatarUrls,
                     isWinner: isCompleted && winnerName == match.player2Name,
                     isTop: false,
                     cheers: match.player2Cheers,
@@ -141,7 +141,7 @@ class PlayerRow extends ConsumerStatefulWidget {
   final String matchId;
   final String playerId;
   final String name;
-  final String? avatarUrl;
+  final List<String?> avatarUrls;
   final bool isWinner;
   final bool isTop;
   final int cheers;
@@ -154,7 +154,7 @@ class PlayerRow extends ConsumerStatefulWidget {
     required this.matchId,
     required this.playerId,
     required this.name,
-    required this.avatarUrl,
+    required this.avatarUrls,
     required this.isWinner,
     required this.isTop,
     required this.cheers,
@@ -190,12 +190,6 @@ class _PlayerRowState extends ConsumerState<PlayerRow> with SingleTickerProvider
   void didUpdateWidget(PlayerRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.cheers != oldWidget.cheers) {
-      // If server count is higher than local (someone else cheered), sync up.
-      // If server count matches what we expect (our cheer confirmed), sync up.
-      // Basically always sync, but maybe keep local if it's ahead?
-      // For simplicity, always sync to server source of truth, 
-      // but if we just tapped, we might be ahead.
-      // Let's just sync. The optimistic update is for instant feedback.
       if (widget.cheers > _cheers) {
          _cheers = widget.cheers;
       }
@@ -213,10 +207,6 @@ class _PlayerRowState extends ConsumerState<PlayerRow> with SingleTickerProvider
       _cheers++;
     });
     _controller.forward(from: 0.0);
-    
-    // Haptic feedback
-    // HapticFeedback.lightImpact(); // Requires services import, skipping for now to avoid errors
-
     ref.read(matchRepositoryProvider).cheerForMatch(widget.matchId, widget.playerId);
   }
 
@@ -226,6 +216,54 @@ class _PlayerRowState extends ConsumerState<PlayerRow> with SingleTickerProvider
     final colorScheme = theme.colorScheme;
     final isMe = widget.currentUserId != null && widget.playerId == widget.currentUserId;
     final showConfirmButton = isMe && !widget.isConfirmed && widget.matchStatus == 'Scheduled';
+
+    Widget avatarWidget;
+    if (widget.avatarUrls.isEmpty) {
+        avatarWidget = CircleAvatar(
+          radius: 12,
+          backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+          backgroundColor: colorScheme.primary,
+          child: Text(
+              widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
+              style: const TextStyle(fontSize: 10, color: Colors.white),
+            )
+        );
+    } else if (widget.avatarUrls.length == 1) {
+        final url = widget.avatarUrls.first;
+        avatarWidget = CircleAvatar(
+          radius: 12,
+          backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+          foregroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null,
+          backgroundColor: colorScheme.primary,
+          child: (url == null || url.isEmpty)
+              ? Text(
+                  widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
+                )
+              : null,
+        );
+    } else {
+       // Team avatars
+       avatarWidget = SizedBox(
+         width: 30, 
+         height: 24,
+         child: Stack(
+           children: [
+             for (int i = 0; i < widget.avatarUrls.length && i < 2; i++)
+               Positioned(
+                 left: i * 10.0,
+                 child: CircleAvatar(
+                   radius: 10,
+                   backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                   foregroundImage: widget.avatarUrls[i] != null && widget.avatarUrls[i]!.isNotEmpty 
+                      ? NetworkImage(widget.avatarUrls[i]!) : null,
+                   backgroundColor: theme.cardColor,
+                 ),
+               ),
+           ],
+         ),
+       );
+    }
 
     return Expanded(
       child: Container(
@@ -246,19 +284,7 @@ class _PlayerRowState extends ConsumerState<PlayerRow> with SingleTickerProvider
           children: [
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 12,
-                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                  foregroundImage: widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty ? NetworkImage(widget.avatarUrl!) : null,
-                  onForegroundImageError: widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty ? (exception, stackTrace) {} : null,
-                  backgroundColor: colorScheme.primary,
-                  child: widget.avatarUrl == null
-                      ? Text(
-                          widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
-                          style: const TextStyle(fontSize: 10, color: Colors.white),
-                        )
-                      : null,
-                ),
+                avatarWidget,
                 if (widget.isConfirmed)
                   Positioned(
                     right: -2,

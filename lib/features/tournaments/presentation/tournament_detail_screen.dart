@@ -760,7 +760,51 @@ class _InfoTab extends ConsumerWidget {
                           ...categoryParticipants.asMap().entries.map((entry) {
                             final index = entry.key;
                             final participant = entry.value;
-                            final isCurrentUser = participant.userId == userAsync.asData?.value?.id;
+                            final isCurrentUser = userAsync.asData?.value != null && 
+                                participant.userIds.contains(userAsync.asData!.value!.id);
+
+                            // Build Avatar logic similar to MatchCard/PlayerInfo
+                            Widget avatarWidget;
+                            if (participant.avatarUrls.isEmpty) {
+                               avatarWidget = CircleAvatar(
+                                  radius: 12,
+                                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                  child: Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', 
+                                    style: const TextStyle(fontSize: 10)),
+                               );
+                            } else if (participant.avatarUrls.length == 1) {
+                               final url = participant.avatarUrls.first;
+                               avatarWidget = CircleAvatar(
+                                  radius: 12,
+                                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                  foregroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null, 
+                                  onForegroundImageError: url != null && url.isNotEmpty ? (_, __) {} : null,
+                                  child: (url == null || url.isEmpty)
+                                      ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)) 
+                                      : null,
+                               );
+                            } else {
+                               // Team avatars
+                               avatarWidget = SizedBox(
+                                 width: 30, // Slightly wider for overlap
+                                 height: 24,
+                                 child: Stack(
+                                   children: [
+                                     for (int i = 0; i < participant.avatarUrls.length && i < 2; i++)
+                                       Positioned(
+                                         left: i * 10.0,
+                                         child: CircleAvatar(
+                                           radius: 10,
+                                           backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                           foregroundImage: participant.avatarUrls[i] != null && participant.avatarUrls[i]!.isNotEmpty 
+                                              ? NetworkImage(participant.avatarUrls[i]!) : null,
+                                           backgroundColor: Theme.of(context).cardColor,
+                                         ),
+                                       ),
+                                   ],
+                                 ),
+                               );
+                            }
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -776,17 +820,7 @@ class _InfoTab extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  CircleAvatar(
-                                    radius: 12,
-                                    backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                                    foregroundImage: participant.avatarUrl != null && participant.avatarUrl!.isNotEmpty 
-                                        ? NetworkImage(participant.avatarUrl!) 
-                                        : null,
-                                    onForegroundImageError: participant.avatarUrl != null && participant.avatarUrl!.isNotEmpty ? (_, __) {} : null,
-                                    child: (participant.avatarUrl == null || participant.avatarUrl!.isEmpty) 
-                                        ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)) 
-                                        : null,
-                                  ),
+                                  avatarWidget,
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -981,13 +1015,43 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
       // Determine additions and removals
       final toAdd = selectedCategories.difference(_joinedCategoryIds.toSet());
       final toRemove = _joinedCategoryIds.toSet().difference(selectedCategories);
+      
+      // Fetch categories to check types
+      final categories = await repo.getCategories(tournamentId);
 
       // Execute changes
       for (final categoryId in toAdd) {
-        await repo.joinTournament(tournamentId, userId, categoryId);
+        final category = categories.firstWhere((c) => c.id == categoryId, orElse: () => throw Exception('Category not found'));
+        List<String> userIdsToJoin = [userId];
+
+        if (category.type == 'doubles' || category.type == 'team') {
+           // Prompt for partner
+           if (mounted) {
+             final partnerId = await showDialog<String>(
+               context: context, 
+               builder: (ctx) => _PartnerSelectionDialog(currentUserId: userId),
+             );
+             
+             if (partnerId != null) {
+               userIdsToJoin.add(partnerId);
+             } else {
+               // Must have partner for doubles? 
+               // For now, abort joining this category if no partner selected
+               ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(content: Text('Partner required for ${category.name}. Skipped.')),
+               );
+               continue;
+             }
+           }
+        }
+        
+        await repo.joinTournament(tournamentId, userIdsToJoin, categoryId);
       }
 
       for (final categoryId in toRemove) {
+        // Leaving logic - if we are in a team, does leaving remove the whole team?
+        // Repo.leaveTournament implementation needs check.
+        // Usually assume yes.
         await repo.leaveTournament(tournamentId, userId, categoryId);
       }
 
@@ -1169,14 +1233,47 @@ class _ManualBracketOrderingDialogState extends State<_ManualBracketOrderingDial
                   for (int i = 0; i < _items.length; i++)
                     ListTile(
                       key: ValueKey(_items[i].id),
-                      leading: CircleAvatar(
-                        radius: 12,
-                        backgroundImage: _items[i].avatarUrl != null 
-                            ? NetworkImage(_items[i].avatarUrl!) 
-                            : null,
-                        child: _items[i].avatarUrl == null 
-                            ? Text(_items[i].name[0].toUpperCase(), style: const TextStyle(fontSize: 10)) 
-                            : null,
+                      leading: Builder(
+                        builder: (context) {
+                          final urls = _items[i].avatarUrls;
+                          if (urls.isEmpty) {
+                            return CircleAvatar(
+                              radius: 12,
+                              backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                              child: Text(_items[i].name.isNotEmpty ? _items[i].name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)),
+                            );
+                          } else if (urls.length == 1) {
+                             final url = urls.first;
+                             return CircleAvatar(
+                                radius: 12,
+                                backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                foregroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null,
+                                child: (url == null || url.isEmpty) 
+                                   ? Text(_items[i].name.isNotEmpty ? _items[i].name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)) 
+                                   : null,
+                             );
+                          } else {
+                             return SizedBox(
+                               width: 30,
+                               height: 24,
+                               child: Stack(
+                                 children: [
+                                   for (int k = 0; k < urls.length && k < 2; k++)
+                                     Positioned(
+                                       left: k * 10.0,
+                                       child: CircleAvatar(
+                                         radius: 10,
+                                         backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                         foregroundImage: urls[k] != null && urls[k]!.isNotEmpty 
+                                            ? NetworkImage(urls[k]!) : null,
+                                         backgroundColor: Theme.of(context).cardColor,
+                                       ),
+                                     ),
+                                 ],
+                               ),
+                             );
+                          }
+                        }
                       ),
                       title: Text(_items[i].name),
                       trailing: const Icon(Icons.drag_handle),
@@ -1202,6 +1299,82 @@ class _ManualBracketOrderingDialogState extends State<_ManualBracketOrderingDial
         FilledButton(
           onPressed: () => Navigator.pop(context, _items),
           child: const Text('Confirm Order'),
+        ),
+      ],
+    );
+  }
+}
+
+class _PartnerSelectionDialog extends ConsumerStatefulWidget {
+  final String currentUserId;
+
+  const _PartnerSelectionDialog({required this.currentUserId});
+
+  @override
+  ConsumerState<_PartnerSelectionDialog> createState() => _PartnerSelectionDialogState();
+}
+
+class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final allPlayersAsync = ref.watch(allPlayersProvider);
+
+    return AlertDialog(
+      title: const Text('Select Partner'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search Players',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: allPlayersAsync.when(
+                data: (players) {
+                  final filtered = players.where((p) {
+                    if (p.id == widget.currentUserId) return false;
+                    return p.name.toLowerCase().contains(_searchQuery);
+                  }).toList();
+
+                  if (filtered.isEmpty) {
+                    return const Center(child: Text('No players found'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final player = filtered[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: player.avatarUrl.isNotEmpty 
+                             ? NetworkImage(player.avatarUrl) 
+                             : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
+                        ),
+                        title: Text(player.name),
+                        onTap: () => Navigator.pop(context, player.id),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, s) => Center(child: Text('Error: $e')),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context), // Return null
+          child: const Text('Cancel'),
         ),
       ],
     );

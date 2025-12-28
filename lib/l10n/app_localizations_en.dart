@@ -348,5 +348,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectTitle => 'Please select or enter a title';
 
   @override
+  String get round => 'Round';
+
+  @override
   String get create => 'Create';
 }
