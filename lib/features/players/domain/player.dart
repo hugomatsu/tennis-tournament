@@ -19,6 +19,7 @@ abstract class Player with _$Player {
     required String avatarUrl,
     @Default('player') String userType,
     @Default([]) List<String> followedMatchIds,
+    @Default([]) List<String> following,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);

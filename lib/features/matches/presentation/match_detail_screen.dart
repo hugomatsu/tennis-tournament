@@ -58,12 +58,33 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                // Share feature
             },
           ),
-          if (_isEditing)
-             IconButton(
-               icon: const Icon(Icons.save),
-               onPressed: _saveChanges,
-             )
-          // Add admin edit button check here if needed
+          FutureBuilder<Player?>(
+            future: ref.watch(currentUserProvider.future), // Ensure we check current user
+            builder: (context, snapshot) {
+               final user = snapshot.data;
+               if (user != null && user.userType == 'admin') {
+                 if (_isEditing) {
+                   return IconButton(
+                     icon: const Icon(Icons.save),
+                     onPressed: _saveChanges,
+                   );
+                 } else {
+                   return IconButton(
+                     icon: const Icon(Icons.edit),
+                     onPressed: () {
+                       final matchAsync = ref.read(matchDetailProvider(widget.matchId));
+                       final match = matchAsync.value;
+                       if (match != null) {
+                         _initializeEditing(match);
+                         setState(() => _isEditing = true);
+                       }
+                     },
+                   );
+                 }
+               }
+               return const SizedBox.shrink();
+            },
+          ),
         ],
       ),
       body: matchAsync.when(
@@ -237,7 +258,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               DropdownButtonFormField<String>(
                 value: _pendingStatus,
                 decoration: const InputDecoration(labelText: 'Status'),
-                items: ['Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
+                items: ['Preparing', 'Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                     .toList(),
                 onChanged: (val) => setState(() => _pendingStatus = val),
@@ -300,6 +321,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           child: _PlayerCard(
             name: match.player1Name,
             avatarUrls: match.player1AvatarUrls,
+            userIds: match.player1UserIds,
             isWinner: match.winner == match.player1Name,
             isLeft: true,
           ),
@@ -326,6 +348,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           child: _PlayerCard(
             name: match.player2Name ?? 'TBD',
             avatarUrls: match.player2AvatarUrls,
+            userIds: match.player2UserIds,
             isWinner: match.winner != null && match.winner == match.player2Name,
             isLeft: false,
           ),
@@ -392,21 +415,23 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
 }
 
-class _PlayerCard extends StatelessWidget {
+class _PlayerCard extends ConsumerWidget {
   final String name;
   final List<String?> avatarUrls;
+  final List<String> userIds;
   final bool isWinner;
   final bool isLeft;
 
   const _PlayerCard({
     required this.name,
     this.avatarUrls = const [],
+    this.userIds = const [],
     required this.isWinner,
     required this.isLeft,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Create avatar widget
     Widget avatarWidget;
     if (avatarUrls.isEmpty) {
@@ -462,21 +487,95 @@ class _PlayerCard extends StatelessWidget {
       ),
       child: Container(
         padding: const EdgeInsets.all(16),
-        height: 140, // Fixed height for alignment
+        height: 180, // Increased height for member list
         child: Column(
           children: [
-            avatarWidget,
-            const Spacer(),
-            Text(
-              name, 
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isWinner ? Theme.of(context).colorScheme.primary : null,
+            GestureDetector(
+              onTap: () {
+                 if (userIds.isNotEmpty) {
+                   // If team, maybe show list or pick first? 
+                   // Ideally prompt. For MVP, go to first user or show specific logic.
+                   // If explicit userIds present, we might want to show a bottom sheet of members to visit.
+                   if (userIds.length == 1) {
+                      context.push('/players/${userIds.first}');
+                   } else {
+                      // Team: Show bottom sheet
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => ListView(
+                          shrinkWrap: true,
+                          children: userIds.map((uid) => ListTile(
+                            title: FutureBuilder<Player?>(
+                              future: ref.read(allPlayersProvider.future).then((players) => players.firstWhere((p) => p.id == uid)),
+                              builder: (context, snapshot) => Text(snapshot.data?.name ?? 'Loading...'),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.push('/players/$uid');
+                            },
+                          )).toList(),
+                        ),
+                      );
+                   }
+                 }
+              },
+              child: Column(
+                children: [
+                  avatarWidget,
+                  const SizedBox(height: 8),
+                  Text(
+                    name, 
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isWinner ? Theme.of(context).colorScheme.primary : null,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
+             if (userIds.length > 1) ...[
+                const SizedBox(height: 4),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        for (final uid in userIds)
+                          FutureBuilder<Player?>(
+                            // Naive fetch for now, assuming provider caching helps or simple future
+                            future: ref.watch(allPlayersProvider.future).then((players) => 
+                              players.firstWhere((p) => p.id == uid, orElse: () => Player(
+                                id: uid, 
+                                name: 'Unknown', 
+                                avatarUrl: '', 
+                                userType: 'player',
+                                title: 'N/A',
+                                category: 'N/A',
+                                playingSince: 'N/A',
+                                wins: 0,
+                                losses: 0,
+                                rank: 0,
+                                bio: '',
+                              ))
+                            ),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return const SizedBox.shrink();
+                              return Text(
+                                snapshot.data!.name,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10, color: Theme.of(context).hintColor),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+             ] else 
+               const Spacer(),
             if (isWinner) 
               const Icon(Icons.emoji_events, size: 16, color: Colors.amber)
           ],

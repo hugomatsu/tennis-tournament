@@ -23,6 +23,9 @@ _Player _$PlayerFromJson(Map<String, dynamic> json) => _Player(
           ?.map((e) => e as String)
           .toList() ??
       const [],
+  following:
+      (json['following'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
@@ -38,4 +41,5 @@ Map<String, dynamic> _$PlayerToJson(_Player instance) => <String, dynamic>{
   'avatarUrl': instance.avatarUrl,
   'userType': instance.userType,
   'followedMatchIds': instance.followedMatchIds,
+  'following': instance.following,
 };

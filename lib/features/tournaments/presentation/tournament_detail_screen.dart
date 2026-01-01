@@ -1320,6 +1320,8 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
   @override
   Widget build(BuildContext context) {
     final allPlayersAsync = ref.watch(allPlayersProvider);
+    final userAsync = ref.watch(currentUserProvider);
+    final currentUser = userAsync.value;
 
     return AlertDialog(
       title: const Text('Select Partner'),
@@ -1344,6 +1346,17 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
                     return p.name.toLowerCase().contains(_searchQuery);
                   }).toList();
 
+                  // Sort: Friends first, then alphabetical
+                  if (currentUser != null) {
+                    filtered.sort((a, b) {
+                      final aIsFriend = currentUser.following.contains(a.id);
+                      final bIsFriend = currentUser.following.contains(b.id);
+                      if (aIsFriend && !bIsFriend) return -1;
+                      if (!aIsFriend && bIsFriend) return 1;
+                      return a.name.compareTo(b.name);
+                    });
+                  }
+
                   if (filtered.isEmpty) {
                     return const Center(child: Text('No players found'));
                   }
@@ -1352,6 +1365,8 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final player = filtered[index];
+                      final isFriend = currentUser?.following.contains(player.id) ?? false;
+
                       return ListTile(
                         leading: CircleAvatar(
                           backgroundImage: player.avatarUrl.isNotEmpty 
@@ -1359,6 +1374,10 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
                              : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
                         ),
                         title: Text(player.name),
+                        trailing: isFriend 
+                            ? const Icon(Icons.star, size: 16, color: Colors.amber) 
+                            : null,
+                        subtitle: isFriend ? const Text('Friend', style: TextStyle(fontSize: 10, color: Colors.amber)) : null,
                         onTap: () => Navigator.pop(context, player.id),
                       );
                     },

@@ -314,6 +314,19 @@ class _PlayerRowState extends ConsumerState<PlayerRow> with SingleTickerProvider
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (widget.avatarUrls.length > 1) 
+                     // Ideally fetch members here, but for Bracket View (collapsed), 
+                     // just showing team name is standard.
+                     // The user requested: "display all the players and the team name".
+                     // So we should try to list names if space permits.
+                     // Since space is very tight in MatchCard (height ~50 per player block), we might skip detailed names here 
+                     // or show them very small. 
+                     // Let's rely on Team Name being descriptive or add subtitle "2 players"
+                     Text(
+                       '${widget.avatarUrls.length} players',
+                       style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, color: theme.hintColor),
+                     ),
+
                   if (showConfirmButton)
                     InkWell(
                       onTap: () {

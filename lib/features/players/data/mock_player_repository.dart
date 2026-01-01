@@ -19,6 +19,7 @@ class MockPlayerRepository implements PlayerRepository {
       bio: data['bio'] as String,
       avatarUrl: data['avatar'] as String,
       followedMatchIds: [],
+      following: [],
     );
   }
   @override
@@ -45,6 +46,7 @@ class MockPlayerRepository implements PlayerRepository {
         avatarUrl: 'https://via.placeholder.com/150',
         userType: 'player',
         followedMatchIds: [],
+        following: [],
       ),
     );
   }
@@ -67,7 +69,18 @@ class MockPlayerRepository implements PlayerRepository {
         avatarUrl: 'https://via.placeholder.com/150',
         userType: 'player',
         followedMatchIds: [],
+        following: [],
       ),
     );
+  }
+
+  @override
+  Future<void> followPlayer(String currentUserId, String targetUserId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+  }
+
+  @override
+  Future<void> unfollowPlayer(String currentUserId, String targetUserId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
   }
 }

@@ -17,4 +17,6 @@ abstract class PlayerRepository {
   Future<void> updateUser(Player player);
   Future<List<Player>> getPlayersForTournament(String tournamentId);
   Future<List<Player>> getAllPlayers();
+  Future<void> followPlayer(String currentUserId, String targetUserId);
+  Future<void> unfollowPlayer(String currentUserId, String targetUserId);
 }

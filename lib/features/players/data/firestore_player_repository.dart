@@ -30,6 +30,7 @@ class FirestorePlayerRepository implements PlayerRepository {
         avatarUrl: data['avatarUrl'] as String? ?? user.photoURL ?? 'https://via.placeholder.com/150',
         userType: data['userType'] as String? ?? 'player',
         followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
+        following: List<String>.from(data['following'] ?? []),
       );
     } catch (e) {
       return null;
@@ -54,6 +55,7 @@ class FirestorePlayerRepository implements PlayerRepository {
       'rank': player.rank,
       // userType is NOT updated here to prevent self-promotion
       'followedMatchIds': player.followedMatchIds,
+      'following': player.following,
     }, SetOptions(merge: true));
   }
   @override
@@ -90,6 +92,7 @@ class FirestorePlayerRepository implements PlayerRepository {
           avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
           userType: data['userType'] as String? ?? 'player',
           followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
+          following: List<String>.from(data['following'] ?? []),
         );
       });
 
@@ -119,10 +122,25 @@ class FirestorePlayerRepository implements PlayerRepository {
           avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
           userType: data['userType'] as String? ?? 'player',
           followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
+          following: List<String>.from(data['following'] ?? []),
         );
       }).toList();
     } catch (e) {
       return [];
     }
+  }
+
+  @override
+  Future<void> followPlayer(String currentUserId, String targetUserId) async {
+    await _firestore.collection('users').doc(currentUserId).update({
+      'following': FieldValue.arrayUnion([targetUserId])
+    });
+  }
+
+  @override
+  Future<void> unfollowPlayer(String currentUserId, String targetUserId) async {
+    await _firestore.collection('users').doc(currentUserId).update({
+      'following': FieldValue.arrayRemove([targetUserId])
+    });
   }
 }

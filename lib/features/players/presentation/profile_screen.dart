@@ -5,6 +5,7 @@ import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/features/players/presentation/widgets/user_search_dialog.dart';
 
 
 
@@ -110,6 +111,83 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.calendar_today_outlined,
                         label: loc.playingSince,
                         value: user.playingSince,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Friends Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardTheme.color,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Following',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.person_search),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const UserSearchDialog(),
+                              );
+                            },
+                            tooltip: 'Find Friends',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Consumer(
+                        builder: (context, ref, _) {
+                           final friendsAsync = ref.watch(friendsProvider);
+                           return friendsAsync.when(
+                             data: (friends) {
+                               if (friends.isEmpty) return const Text('Not following anyone yet.');
+                               
+                               return SizedBox(
+                                 height: 90,
+                                 child: ListView.separated(
+                                   scrollDirection: Axis.horizontal,
+                                   itemCount: friends.length,
+                                   separatorBuilder: (_, __) => const SizedBox(width: 12),
+                                   itemBuilder: (context, index) {
+                                     final friend = friends[index];
+                                     return Column(
+                                       mainAxisSize: MainAxisSize.min,
+                                       children: [
+                                          CircleAvatar(
+                                            radius: 24,
+                                            backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                            foregroundImage: friend.avatarUrl.isNotEmpty ? NetworkImage(friend.avatarUrl) : null,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            friend.name.split(' ').first,
+                                            style: const TextStyle(fontSize: 11),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                       ],
+                                     );
+                                   },
+                                 ),
+                               );
+                             },
+                             loading: () => const LinearProgressIndicator(),
+                             error: (e,s) => Text('Error: $e'), 
+                           );
+                        },
                       ),
                     ],
                   ),
