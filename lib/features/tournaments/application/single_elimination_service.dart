@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/scheduling_service.dart';
@@ -7,6 +8,13 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament_categor
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:tennis_tournament/features/locations/domain/location.dart';
 import 'package:uuid/uuid.dart';
+
+class _MatchSlot {
+  final DateTime time;
+  final String court;
+  
+  _MatchSlot(this.time, this.court);
+}
 
 final schedulingServiceProvider = Provider<SchedulingService>((ref) {
   return SingleEliminationService(ref);
@@ -68,15 +76,40 @@ class SingleEliminationService implements SchedulingService {
     int matchesInRound = bracketSize ~/ 2;
     int playerIndex = 0;
 
-    for (int r = 1; r <= totalRounds; r++) {
-      final roundDate = startDate.add(Duration(days: r - 1));
+    // 3. Generate Slots from Rules (or fallback)
+    List<_MatchSlot> slots = [];
+    if (tournament.scheduleRules.isNotEmpty) {
+      slots = _generateSlots(tournament.scheduleRules, matchDuration);
+    } 
+    
+    // If no slots generated (or no rules), fallback to default: tomorrow 9am, 1 court (or tournament location courts)
+    if (slots.isEmpty) {
+       // Fallback logic matches original behavior but slotified
+       slots = _generateFallbackSlots(startDate, numberOfCourts, matchDuration, bracketSize); // Generate enough for max likely matches
+    }
 
+    int slotIndex = 0;
+
+    for (int r = 1; r <= totalRounds; r++) {
+      
       for (int i = 0; i < matchesInRound; i++) {
         final matchId = _uuid.v4();
         
         // Calculate Time and Court
-        final matchTime = roundDate.add(Duration(minutes: (i * matchDuration)));
-        final courtName = 'Court ${(i % numberOfCourts) + 1}';
+        // Default to TBD if run out of slots
+        DateTime matchTime = startDate.add(Duration(days: 365)); // Far future fallback
+        String courtName = 'Stack Overflow Court';
+
+        if (slotIndex < slots.length) {
+            matchTime = slots[slotIndex].time;
+            courtName = slots[slotIndex].court;
+            slotIndex++;
+        } else {
+             // Dynamic expansion fallback if we ran out of pre-calculated slots
+             // Just add on to the last slot's time + duration
+             // This is a safety valve
+             matchTime = matchTime.add(Duration(minutes: matchDuration * (slotIndex - slots.length)));
+        }
 
         // Determine players for Round 1
         String player1Id = '';
@@ -109,6 +142,13 @@ class SingleEliminationService implements SchedulingService {
             score = 'Bye';
             opponentName = 'BYE';
             // Player 2 stays empty/null
+            
+            // Note: Byes effectively consume a slot technically in this loop structure, 
+            // but usually Byes don't have a time. 
+            // However for simplicity we let them take a slot or we could skip incrementing slotIndex for Byes.
+            // Let's SKIP slot index for Byes so they don't consume real court time.
+            if (slotIndex > 0) slotIndex--; 
+            
           } else {
             final p2 = shuffledPlayers[playerIndex++];
             player2Id = p2.id;
@@ -242,4 +282,65 @@ class SingleEliminationService implements SchedulingService {
     }
     return 1 << count;
   }
+
+  List<_MatchSlot> _generateSlots(List<DailySchedule> rules, int matchDurationMinutes) {
+    List<_MatchSlot> slots = [];
+    
+    // Sort rules by date just in case
+    // We assume rules are valid and no overlap for now
+    
+    for (var rule in rules) {
+      DateTime? start = _parseTime(rule.date, rule.startTime);
+      DateTime? end = _parseTime(rule.date, rule.endTime);
+      
+      if (start == null || end == null) continue;
+      
+      // Calculate how many matches fit per court
+      // We iterate by time steps
+      DateTime current = start;
+      while (current.add(Duration(minutes: matchDurationMinutes)).isBefore(end) || 
+             current.add(Duration(minutes: matchDurationMinutes)).isAtSameMomentAs(end)) {
+        
+        for (int c = 1; c <= rule.courtCount; c++) {
+          slots.add(_MatchSlot(current, 'Court $c'));
+        }
+        current = current.add(Duration(minutes: matchDurationMinutes));
+      }
+    }
+    
+    return slots;
+  }
+
+  List<_MatchSlot> _generateFallbackSlots(DateTime startDate, int numberOfCourts, int durationMinutes, int totalMatchesEstimate) {
+    List<_MatchSlot> slots = [];
+    DateTime current = startDate;
+    int matchesGenerated = 0;
+    
+    // Generate enough slots for a reasonable number of matches (e.g. 100 or totalMatches)
+    // We'll generate 200 to be safe
+    while (matchesGenerated < 200) {
+       for (int c = 1; c <= numberOfCourts; c++) {
+          slots.add(_MatchSlot(current, 'Court $c'));
+          matchesGenerated++;
+       }
+       current = current.add(Duration(minutes: durationMinutes));
+       
+       // If too late (e.g. 8pm), move to next day 9am 
+       if (current.hour >= 20) {
+         current = DateTime(current.year, current.month, current.day + 1, 9, 0);
+       }
+    }
+    return slots;
+  }
+  
+  DateTime? _parseTime(String dateStr, String timeStr) {
+    try {
+      // dateStr: yyyy-MM-dd
+      // timeStr: HH:mm
+      return DateFormat('yyyy-MM-dd HH:mm').parse('$dateStr $timeStr');
+    } catch (e) {
+      return null;
+    }
+  }
+
 }

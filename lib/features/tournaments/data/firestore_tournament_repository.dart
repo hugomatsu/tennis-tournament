@@ -31,6 +31,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
           category: data['category'] as String? ?? 'Open',
           format: data['format'] as String? ?? 'singles',
           locationId: data['locationId'] as String?,
+          scheduleRules: (data['scheduleRules'] as List<dynamic>?)
+              ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
         );
       }).toList();
     } catch (e) {
@@ -56,6 +59,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
         category: data['category'] as String? ?? 'Open',
         format: data['format'] as String? ?? 'singles',
         locationId: data['locationId'] as String?,
+        scheduleRules: (data['scheduleRules'] as List<dynamic>?)
+            ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
       );
     } catch (e) {
       return null;
@@ -75,6 +81,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'playersCount': tournament.playersCount,
       'category': tournament.category,
       'format': tournament.format,
+      'scheduleRules': tournament.scheduleRules.map((e) => e.toJson()).toList(),
     });
   }
 
@@ -88,7 +95,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'imageUrl': tournament.imageUrl,
       'description': tournament.description,
       'format': tournament.format,
-      // 'status': tournament.status, // Status might be handled separately
+      'scheduleRules': tournament.scheduleRules.map((e) => e.toJson()).toList(),
     });
   }
 

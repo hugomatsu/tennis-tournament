@@ -249,7 +249,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       if (!_isEditing) return const SizedBox.shrink();
       
       return Card(
-        color: Colors.orange.shade50,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         margin: const EdgeInsets.only(bottom: 16),
         child: Padding(
           padding: const EdgeInsets.all(16),

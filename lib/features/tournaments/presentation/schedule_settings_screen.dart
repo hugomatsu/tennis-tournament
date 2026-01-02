@@ -44,6 +44,11 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
               ),
             ],
           ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: _addNewDay,
+            label: const Text('Add Date'),
+            icon: const Icon(Icons.add),
+          ),
           body: Column(
             children: [
               Padding(
@@ -74,7 +79,19 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                     return ListTile(
                       title: Text(DateFormat('EEEE, MMM d, y').format(date)),
                       subtitle: Text('${schedule.startTime} - ${schedule.endTime} • ${schedule.courtCount} Courts'),
-                      trailing: const Icon(Icons.edit),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _editDaySchedule(index),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteDaySchedule(index),
+                          ),
+                        ],
+                      ),
                       onTap: () => _editDaySchedule(index),
                     );
                   },
@@ -231,6 +248,43 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
         )).toList();
       });
     }
+  }
+
+  Future<void> _addNewDay() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    
+    if (picked != null) {
+      final dateStr = DateFormat('yyyy-MM-dd').format(picked);
+      // Check if already exists
+      if (_schedules.any((s) => s.date == dateStr)) {
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date already exists')));
+        }
+        return;
+      }
+
+      setState(() {
+        _schedules.add(DailySchedule(
+          date: dateStr,
+          startTime: '09:00',
+          endTime: '18:00',
+          courtCount: 1,
+        ));
+        // Sort by date
+        _schedules.sort((a, b) => a.date.compareTo(b.date));
+      });
+    }
+  }
+
+  void _deleteDaySchedule(int index) {
+    setState(() {
+      _schedules.removeAt(index);
+    });
   }
 
   Future<void> _saveSettings(Tournament tournament) async {
