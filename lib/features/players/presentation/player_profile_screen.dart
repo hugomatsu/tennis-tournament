@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class PlayerProfileScreen extends ConsumerWidget {
   final String playerId;
@@ -12,10 +13,11 @@ class PlayerProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUserAsync = ref.watch(currentUserProvider);
     final allPlayersAsync = ref.watch(allPlayersProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Player Profile'),
+        title: Text(loc.playerProfile),
       ),
       body: allPlayersAsync.when(
         data: (players) {
@@ -37,7 +39,7 @@ class PlayerProfileScreen extends ConsumerWidget {
           );
 
           if (player.id == 'unknown') {
-            return const Center(child: Text('Player not found'));
+            return Center(child: Text(loc.playerNotFound));
           }
 
           final currentUser = currentUserAsync.value;
@@ -78,23 +80,23 @@ class PlayerProfileScreen extends ConsumerWidget {
                         }
                       },
                       icon: Icon(isFollowing ? Icons.check : Icons.person_add),
-                      label: Text(isFollowing ? 'Following' : 'Follow'),
+                      label: Text(isFollowing ? loc.following : loc.follow),
                       style: isFollowing 
                           ? FilledButton.styleFrom(backgroundColor: Colors.grey)
                           : null,
                     ),
                   ),
                 const SizedBox(height: 32),
-                _StatRow(label: 'Category', value: player.category),
-                _StatRow(label: 'Rank', value: '#${player.rank}'),
-                _StatRow(label: 'Wins', value: '${player.wins}'),
-                _StatRow(label: 'Losses', value: '${player.losses}'),
+                _StatRow(label: loc.category, value: player.category),
+                _StatRow(label: loc.rank, value: '#${player.rank}'),
+                _StatRow(label: loc.wins, value: '${player.wins}'),
+                _StatRow(label: loc.losses, value: '${player.losses}'),
                 const SizedBox(height: 24),
                 if (player.bio.isNotEmpty) ...[
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Bio',
+                      loc.bio,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
@@ -106,7 +108,7 @@ class PlayerProfileScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Error: $e')),
+        error: (e, s) => Center(child: Text(loc.errorOccurred(e.toString()))),
       ),
     );
   }

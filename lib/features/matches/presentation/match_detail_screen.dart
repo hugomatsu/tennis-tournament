@@ -89,7 +89,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       ),
       body: matchAsync.when(
         data: (match) {
-           if (match == null) return const Center(child: Text('Match not found'));
+           if (match == null) return Center(child: Text(loc.matchNotFound));
 
            // Use local _initializeEditing once if needed, or rely on state
            // Since we use a provider, valid to just read data.
@@ -162,21 +162,27 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     final controller = TextEditingController();
     final justified = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Decline & Justify'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Reason for unavailability'),
-          maxLines: 2,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Submit'),
+      builder: (context) {
+        final loc = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(loc.declineJustify),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(labelText: loc.reasonForUnavailability),
+            maxLines: 2,
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), 
+              child: Text(loc.cancel)
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: Text(loc.submit),
+            ),
+          ],
+        );
+      },
     );
 
     if (justified != null && justified.isNotEmpty) {
@@ -190,7 +196,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
        );
        await ref.read(matchRepositoryProvider).updateMatch(updated);
        if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Response submitted. Admin notified.')));
+         final loc = AppLocalizations.of(context)!;
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.responseSubmitted)));
        }
     }
   }
@@ -210,7 +217,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
       await ref.read(matchRepositoryProvider).updateMatch(finalMatch);
       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance confirmed!')));
+         final loc = AppLocalizations.of(context)!;
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.attendanceConfirmed)));
       }
   }
 
@@ -248,25 +256,31 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Admin Controls', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                AppLocalizations.of(context)!.adminControls, 
+                style: const TextStyle(fontWeight: FontWeight.bold)
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: _scoreController,
-                decoration: const InputDecoration(labelText: 'Score', border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.score, 
+                  border: const OutlineInputBorder()
+                ),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _pendingStatus,
-                decoration: const InputDecoration(labelText: 'Status'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.status),
                 items: ['Preparing', 'Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .map((s) => DropdownMenuItem(value: s, child: Text(_getLocalizedStatus(s, AppLocalizations.of(context)!))))
                     .toList(),
                 onChanged: (val) => setState(() => _pendingStatus = val),
               ),
               const SizedBox(height: 8),
                DropdownButtonFormField<String>(
                 value: _pendingWinner,
-                decoration: const InputDecoration(labelText: 'Winner'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.winner),
                 items: [
                   match.player1Name, 
                   if (match.player2Name != null) match.player2Name!
@@ -290,7 +304,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              ListTile(
                leading: const Icon(Icons.calendar_today),
                title: Text(dateFormat.format(match.time)),
-               subtitle: Text(match.status),
+               subtitle: Text(_getLocalizedStatus(match.status, loc)),
              ),
              const Divider(),
              ListTile(
@@ -302,7 +316,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.location_on),
-                  title: const Text('View Location'), // Placeholder for location name lookup
+                  title: Text(loc.viewLocation), // Placeholder for location name lookup
                   onTap: () {
                      // Launch map logic
                   },
@@ -335,7 +349,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 color: Theme.of(context).colorScheme.primaryContainer,
               ),
               child: Text(
-                'VS',
+                AppLocalizations.of(context)!.vs,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -413,6 +427,18 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   
   // ... (keep _buildAdminControls)
 
+  String _getLocalizedStatus(String status, AppLocalizations loc) {
+    switch (status) {
+      case 'Preparing': return loc.statusPreparing;
+      case 'Scheduled': return loc.statusScheduled;
+      case 'Confirmed': return loc.statusConfirmed;
+      case 'Live': return loc.statusLive;
+      case 'Completed': return loc.statusCompleted;
+      case 'Finished': return loc.statusCompleted; // Handle legacy/alternate
+      case 'Cancelled': return loc.statusCancelled;
+      default: return status;
+    }
+  }
 }
 
 class _PlayerCard extends ConsumerWidget {
@@ -507,7 +533,7 @@ class _PlayerCard extends ConsumerWidget {
                           children: userIds.map((uid) => ListTile(
                             title: FutureBuilder<Player?>(
                               future: ref.read(allPlayersProvider.future).then((players) => players.firstWhere((p) => p.id == uid)),
-                              builder: (context, snapshot) => Text(snapshot.data?.name ?? 'Loading...'),
+                              builder: (context, snapshot) => Text(snapshot.data?.name ?? AppLocalizations.of(context)!.loading),
                             ),
                             onTap: () {
                               Navigator.pop(context);
@@ -548,7 +574,7 @@ class _PlayerCard extends ConsumerWidget {
                             future: ref.watch(allPlayersProvider.future).then((players) => 
                               players.firstWhere((p) => p.id == uid, orElse: () => Player(
                                 id: uid, 
-                                name: 'Unknown', 
+                                name: AppLocalizations.of(context)!.unknownPlayer, 
                                 avatarUrl: '', 
                                 userType: 'player',
                                 title: 'N/A',

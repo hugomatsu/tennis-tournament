@@ -306,18 +306,16 @@ class StatusChip extends StatelessWidget {
     Color color;
     String label = status;
 
-    if (status == 'Finished')
-      label = loc.statusFinished;
+    if (status == 'Finished' || status == 'Completed')
+      label = loc.statusCompleted;
     else if (status == 'Preparing')
       label = loc.statusPreparing;
     else if (status == 'Scheduled')
       label = loc.statusScheduled;
     else if (status == 'Confirmed')
       label = loc.statusConfirmed;
-    else if (status == 'Started')
-      label = loc.statusStarted;
-    else if (status == 'Completed')
-      label = loc.statusCompleted;
+    else if (status == 'Started' || status == 'Live')
+      label = loc.statusLive;
 
     switch (status) {
       case 'Preparing':

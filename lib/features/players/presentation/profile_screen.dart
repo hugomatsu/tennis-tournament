@@ -36,11 +36,11 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Profile not found'), // TODO: Localize
+                  Text(loc.profileNotFound),
                   const SizedBox(height: 16),
                   FilledButton(
                     onPressed: () => context.push('/profile/edit'),
-                    child: const Text('Create Profile'), // TODO: Localize
+                    child: Text(loc.createProfile),
                   ),
                 ],
               ),
@@ -73,9 +73,9 @@ class ProfileScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _StatItem(label: 'Wins', value: user.wins.toString()),
-                    _StatItem(label: 'Losses', value: user.losses.toString()),
-                    _StatItem(label: 'Rank', value: '#${user.rank}'),
+                    _StatItem(label: loc.wins, value: user.wins.toString()),
+                    _StatItem(label: loc.losses, value: user.losses.toString()),
+                    _StatItem(label: loc.rank, value: '#${user.rank}'),
                   ],
                 ),
                 const SizedBox(height: 32),
@@ -90,7 +90,7 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'About',
+                        loc.about,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -131,7 +131,7 @@ class ProfileScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Following',
+                            loc.following,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -144,7 +144,7 @@ class ProfileScreen extends ConsumerWidget {
                                 builder: (context) => const UserSearchDialog(),
                               );
                             },
-                            tooltip: 'Find Friends',
+                            tooltip: loc.findPlayers,
                           ),
                         ],
                       ),
@@ -154,7 +154,7 @@ class ProfileScreen extends ConsumerWidget {
                            final friendsAsync = ref.watch(friendsProvider);
                            return friendsAsync.when(
                              data: (friends) {
-                               if (friends.isEmpty) return const Text('Not following anyone yet.');
+                               if (friends.isEmpty) return Text(loc.notFollowingAnyone);
                                
                                return SizedBox(
                                  height: 90,
@@ -210,7 +210,7 @@ class ProfileScreen extends ConsumerWidget {
                             width: double.infinity,
                             child: FilledButton.tonal(
                               onPressed: () => context.push('/admin'),
-                              child: const Text('Admin Dashboard'),
+                              child: Text(loc.adminDashboard),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -219,7 +219,7 @@ class ProfileScreen extends ConsumerWidget {
                             child: OutlinedButton.icon(
                               onPressed: () => context.push('/admin/simulation'),
                               icon: const Icon(Icons.bug_report),
-                              label: const Text('Simulation & Debug'),
+                              label: Text(loc.simulationDebug),
                             ),
                           ),
                         ],
@@ -240,7 +240,7 @@ class ProfileScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
       ),
     );
   }

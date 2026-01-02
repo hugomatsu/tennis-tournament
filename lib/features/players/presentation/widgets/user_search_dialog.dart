@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class UserSearchDialog extends ConsumerStatefulWidget {
   const UserSearchDialog({super.key});
@@ -17,18 +18,19 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
   Widget build(BuildContext context) {
     final allPlayersAsync = ref.watch(allPlayersProvider);
     final currentUserAsync = ref.watch(currentUserProvider);
+    final loc = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: const Text('Find Players'),
+      title: Text(loc.findPlayers),
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
         child: Column(
           children: [
             TextField(
-              decoration: const InputDecoration(
-                labelText: 'Search by name',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                labelText: loc.searchByName,
+                prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
             ),
@@ -45,7 +47,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
                   }).toList();
 
                   if (filtered.isEmpty) {
-                    return const Center(child: Text('No players found'));
+                    return Center(child: Text(loc.noPlayersFound));
                   }
 
                   return ListView.builder(
@@ -74,7 +76,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => Center(child: Text('Error: $e')),
+                error: (e, s) => Center(child: Text(loc.errorOccurred(e.toString()))), // localized error
               ),
             ),
           ],
@@ -83,7 +85,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(loc.close),
         ),
       ],
     );

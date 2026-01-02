@@ -48,13 +48,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusConfirmed => 'Confirmed';
 
   @override
-  String get statusStarted => 'Started';
-
-  @override
-  String get statusFinished => 'Finished';
+  String get statusLive => 'Live';
 
   @override
   String get statusCompleted => 'Completed';
+
+  @override
+  String get statusCancelled => 'Cancelled';
 
   @override
   String get matchDetails => 'Match Details';
@@ -352,4 +352,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get create => 'Create';
+
+  @override
+  String get findPlayers => 'Find Players';
+
+  @override
+  String get searchByName => 'Search by name';
+
+  @override
+  String get noPlayersFound => 'No players found';
+
+  @override
+  String get playerProfile => 'Player Profile';
+
+  @override
+  String get playerNotFound => 'Player not found';
+
+  @override
+  String get profileNotFound => 'Profile not found';
+
+  @override
+  String get createProfile => 'Create Profile';
+
+  @override
+  String get following => 'Following';
+
+  @override
+  String get unknownPlayer => 'Unknown Player';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get notFollowingAnyone => 'Not following anyone yet.';
+
+  @override
+  String get simulationDebug => 'Simulation & Debug';
+
+  @override
+  String get matchNotFound => 'Match not found';
+
+  @override
+  String get reasonForUnavailability => 'Reason for unavailability';
+
+  @override
+  String get declineJustify => 'Decline & Justify';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get responseSubmitted => 'Response submitted. Admin notified.';
+
+  @override
+  String get attendanceConfirmed => 'Attendance confirmed!';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get viewLocation => 'View Location';
+
+  @override
+  String get vs => 'VS';
+
+  @override
+  String get loading => 'Loading...';
 }

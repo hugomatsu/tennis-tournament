@@ -98,689 +98,821 @@ abstract class AppLocalizations {
     Locale('pt'),
   ];
 
-  /// O título principal da aplicação
+  /// No description provided for @appTitle.
   ///
-  /// In pt, this message translates to:
-  /// **'Torneios de Tênis'**
+  /// In en, this message translates to:
+  /// **'Tennis Tournaments'**
   String get appTitle;
 
   /// No description provided for @home.
   ///
-  /// In pt, this message translates to:
-  /// **'Início'**
+  /// In en, this message translates to:
+  /// **'Home'**
   String get home;
 
   /// No description provided for @schedule.
   ///
-  /// In pt, this message translates to:
-  /// **'Agenda'**
+  /// In en, this message translates to:
+  /// **'Schedule'**
   String get schedule;
 
   /// No description provided for @tournaments.
   ///
-  /// In pt, this message translates to:
-  /// **'Torneios'**
+  /// In en, this message translates to:
+  /// **'Tournaments'**
   String get tournaments;
 
   /// No description provided for @matches.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogos'**
+  /// In en, this message translates to:
+  /// **'Matches'**
   String get matches;
 
   /// No description provided for @noMatchesScheduled.
   ///
-  /// In pt, this message translates to:
-  /// **'Nenhum jogo agendado ainda.'**
+  /// In en, this message translates to:
+  /// **'No matches scheduled yet.'**
   String get noMatchesScheduled;
 
   /// No description provided for @locationTBD.
   ///
-  /// In pt, this message translates to:
-  /// **'Local a definir'**
+  /// In en, this message translates to:
+  /// **'Location TBD'**
   String get locationTBD;
 
   /// No description provided for @youSuffix.
   ///
-  /// In pt, this message translates to:
-  /// **' (Você)'**
+  /// In en, this message translates to:
+  /// **' (You)'**
   String get youSuffix;
 
   /// No description provided for @profile.
   ///
-  /// In pt, this message translates to:
-  /// **'Perfil'**
+  /// In en, this message translates to:
+  /// **'Profile'**
   String get profile;
 
   /// No description provided for @mySchedule.
   ///
-  /// In pt, this message translates to:
-  /// **'Minha Agenda'**
+  /// In en, this message translates to:
+  /// **'My Schedule'**
   String get mySchedule;
 
   /// No description provided for @statusPreparing.
   ///
-  /// In pt, this message translates to:
-  /// **'Preparando'**
+  /// In en, this message translates to:
+  /// **'Preparing'**
   String get statusPreparing;
 
   /// No description provided for @statusScheduled.
   ///
-  /// In pt, this message translates to:
-  /// **'Agendado'**
+  /// In en, this message translates to:
+  /// **'Scheduled'**
   String get statusScheduled;
 
   /// No description provided for @statusConfirmed.
   ///
-  /// In pt, this message translates to:
-  /// **'Confirmado'**
+  /// In en, this message translates to:
+  /// **'Confirmed'**
   String get statusConfirmed;
 
-  /// No description provided for @statusStarted.
+  /// No description provided for @statusLive.
   ///
-  /// In pt, this message translates to:
-  /// **'Iniciado'**
-  String get statusStarted;
-
-  /// No description provided for @statusFinished.
-  ///
-  /// In pt, this message translates to:
-  /// **'Finalizado'**
-  String get statusFinished;
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get statusLive;
 
   /// No description provided for @statusCompleted.
   ///
-  /// In pt, this message translates to:
-  /// **'Concluído'**
+  /// In en, this message translates to:
+  /// **'Completed'**
   String get statusCompleted;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
 
   /// No description provided for @matchDetails.
   ///
-  /// In pt, this message translates to:
-  /// **'Detalhes do Jogo'**
+  /// In en, this message translates to:
+  /// **'Match Details'**
   String get matchDetails;
 
   /// No description provided for @adminControls.
   ///
-  /// In pt, this message translates to:
-  /// **'Controles de Admin'**
+  /// In en, this message translates to:
+  /// **'Admin Controls'**
   String get adminControls;
 
   /// No description provided for @confirmAttendance.
   ///
-  /// In pt, this message translates to:
-  /// **'Confirmar Presença'**
+  /// In en, this message translates to:
+  /// **'Confirm Attendance'**
   String get confirmAttendance;
 
   /// No description provided for @decline.
   ///
-  /// In pt, this message translates to:
-  /// **'Recusar'**
+  /// In en, this message translates to:
+  /// **'Decline'**
   String get decline;
 
   /// No description provided for @confirm.
   ///
-  /// In pt, this message translates to:
-  /// **'Confirmar'**
+  /// In en, this message translates to:
+  /// **'Confirm'**
   String get confirm;
 
   /// No description provided for @reschedule.
   ///
-  /// In pt, this message translates to:
-  /// **'Reagendar'**
+  /// In en, this message translates to:
+  /// **'Reschedule'**
   String get reschedule;
 
   /// No description provided for @score.
   ///
-  /// In pt, this message translates to:
-  /// **'Placar'**
+  /// In en, this message translates to:
+  /// **'Score'**
   String get score;
 
   /// No description provided for @winner.
   ///
-  /// In pt, this message translates to:
-  /// **'Vencedor'**
+  /// In en, this message translates to:
+  /// **'Winner'**
   String get winner;
 
   /// No description provided for @saveChanges.
   ///
-  /// In pt, this message translates to:
-  /// **'Salvar Alterações'**
+  /// In en, this message translates to:
+  /// **'Save Changes'**
   String get saveChanges;
 
   /// No description provided for @cancel.
   ///
-  /// In pt, this message translates to:
-  /// **'Cancelar'**
+  /// In en, this message translates to:
+  /// **'Cancel'**
   String get cancel;
 
   /// No description provided for @save.
   ///
-  /// In pt, this message translates to:
-  /// **'Salvar'**
+  /// In en, this message translates to:
+  /// **'Save'**
   String get save;
 
   /// No description provided for @edit.
   ///
-  /// In pt, this message translates to:
-  /// **'Editar'**
+  /// In en, this message translates to:
+  /// **'Edit'**
   String get edit;
 
   /// No description provided for @delete.
   ///
-  /// In pt, this message translates to:
-  /// **'Excluir'**
+  /// In en, this message translates to:
+  /// **'Delete'**
   String get delete;
 
   /// No description provided for @player1Present.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogador 1 Presente'**
+  /// In en, this message translates to:
+  /// **'Player 1 Present'**
   String get player1Present;
 
   /// No description provided for @player2Present.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogador 2 Presente'**
+  /// In en, this message translates to:
+  /// **'Player 2 Present'**
   String get player2Present;
 
   /// No description provided for @youHaveConfirmed.
   ///
-  /// In pt, this message translates to:
-  /// **'Você confirmou presença.'**
+  /// In en, this message translates to:
+  /// **'You have confirmed attendance.'**
   String get youHaveConfirmed;
 
   /// No description provided for @pleaseConfirm.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor confirme sua presença.'**
+  /// In en, this message translates to:
+  /// **'Please confirm your attendance.'**
   String get pleaseConfirm;
 
   /// No description provided for @editProfile.
   ///
-  /// In pt, this message translates to:
-  /// **'Editar Perfil'**
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
   String get editProfile;
 
   /// No description provided for @changePhoto.
   ///
-  /// In pt, this message translates to:
-  /// **'Alterar Foto'**
+  /// In en, this message translates to:
+  /// **'Change Photo'**
   String get changePhoto;
 
   /// No description provided for @name.
   ///
-  /// In pt, this message translates to:
-  /// **'Nome'**
+  /// In en, this message translates to:
+  /// **'Name'**
   String get name;
 
   /// No description provided for @title.
   ///
-  /// In pt, this message translates to:
-  /// **'Título'**
+  /// In en, this message translates to:
+  /// **'Title'**
   String get title;
 
   /// No description provided for @bio.
   ///
-  /// In pt, this message translates to:
+  /// In en, this message translates to:
   /// **'Bio'**
   String get bio;
 
   /// No description provided for @category.
   ///
-  /// In pt, this message translates to:
-  /// **'Categoria'**
+  /// In en, this message translates to:
+  /// **'Category'**
   String get category;
 
   /// No description provided for @playingSince.
   ///
-  /// In pt, this message translates to:
-  /// **'Joga Desde'**
+  /// In en, this message translates to:
+  /// **'Playing Since'**
   String get playingSince;
 
   /// No description provided for @saveProfile.
   ///
-  /// In pt, this message translates to:
-  /// **'Salvar Perfil'**
+  /// In en, this message translates to:
+  /// **'Save Profile'**
   String get saveProfile;
 
   /// No description provided for @bracket.
   ///
-  /// In pt, this message translates to:
-  /// **'Chave'**
+  /// In en, this message translates to:
+  /// **'Bracket'**
   String get bracket;
 
   /// No description provided for @calendar.
   ///
-  /// In pt, this message translates to:
-  /// **'Calendário'**
+  /// In en, this message translates to:
+  /// **'Calendar'**
   String get calendar;
 
   /// No description provided for @participants.
   ///
-  /// In pt, this message translates to:
-  /// **'Participantes'**
+  /// In en, this message translates to:
+  /// **'Participants'**
   String get participants;
 
   /// No description provided for @info.
   ///
-  /// In pt, this message translates to:
-  /// **'Informações'**
+  /// In en, this message translates to:
+  /// **'Info'**
   String get info;
 
   /// No description provided for @generateBracket.
   ///
-  /// In pt, this message translates to:
-  /// **'Gerar Chave'**
+  /// In en, this message translates to:
+  /// **'Generate Bracket'**
   String get generateBracket;
 
   /// No description provided for @automatic.
   ///
-  /// In pt, this message translates to:
-  /// **'Automático'**
+  /// In en, this message translates to:
+  /// **'Automatic'**
   String get automatic;
 
   /// No description provided for @manual.
   ///
-  /// In pt, this message translates to:
+  /// In en, this message translates to:
   /// **'Manual'**
   String get manual;
 
   /// No description provided for @generationMethod.
   ///
-  /// In pt, this message translates to:
-  /// **'Método de Geração'**
+  /// In en, this message translates to:
+  /// **'Generation Method'**
   String get generationMethod;
 
   /// No description provided for @randomlyShuffle.
   ///
-  /// In pt, this message translates to:
-  /// **'Embaralhar aleatoriamente'**
+  /// In en, this message translates to:
+  /// **'Randomly shuffle players'**
   String get randomlyShuffle;
 
   /// No description provided for @reorderManually.
   ///
-  /// In pt, this message translates to:
-  /// **'Reordenar manualmente'**
+  /// In en, this message translates to:
+  /// **'Reorder players manually'**
   String get reorderManually;
 
   /// No description provided for @deleteBracket.
   ///
-  /// In pt, this message translates to:
-  /// **'Excluir Chave'**
+  /// In en, this message translates to:
+  /// **'Delete Bracket'**
   String get deleteBracket;
 
   /// No description provided for @deleteBracketConfirm.
   ///
-  /// In pt, this message translates to:
-  /// **'Tem certeza que deseja excluir a chave? Isso apagará todos os jogos gerados.'**
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the bracket? This will wipe all generated matches.'**
   String get deleteBracketConfirm;
 
   /// No description provided for @managePlayers.
   ///
-  /// In pt, this message translates to:
-  /// **'Gerenciar Jogadores'**
+  /// In en, this message translates to:
+  /// **'Manage Players'**
   String get managePlayers;
 
   /// No description provided for @pendingRequests.
   ///
-  /// In pt, this message translates to:
-  /// **'Solicitações Pendentes'**
+  /// In en, this message translates to:
+  /// **'Pending Requests'**
   String get pendingRequests;
 
   /// No description provided for @approvedPlayers.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogadores Aprovados'**
+  /// In en, this message translates to:
+  /// **'Approved Players'**
   String get approvedPlayers;
 
   /// No description provided for @noApprovedPlayers.
   ///
-  /// In pt, this message translates to:
-  /// **'Nenhum jogador aprovado ainda.'**
+  /// In en, this message translates to:
+  /// **'No approved players yet.'**
   String get noApprovedPlayers;
 
   /// No description provided for @addParticipant.
   ///
-  /// In pt, this message translates to:
-  /// **'Adicionar Participante'**
+  /// In en, this message translates to:
+  /// **'Add Participant'**
   String get addParticipant;
 
   /// No description provided for @myMediaLibrary.
   ///
-  /// In pt, this message translates to:
-  /// **'Minha Biblioteca de Mídia'**
+  /// In en, this message translates to:
+  /// **'My Media Library'**
   String get myMediaLibrary;
 
   /// No description provided for @myLibrary.
   ///
-  /// In pt, this message translates to:
-  /// **'Minha Biblioteca'**
+  /// In en, this message translates to:
+  /// **'My Library'**
   String get myLibrary;
 
   /// No description provided for @storageUsed.
   ///
-  /// In pt, this message translates to:
-  /// **'Armazenamento usado'**
+  /// In en, this message translates to:
+  /// **'Storage used'**
   String get storageUsed;
 
   /// No description provided for @upload.
   ///
-  /// In pt, this message translates to:
+  /// In en, this message translates to:
   /// **'Upload'**
   String get upload;
 
   /// No description provided for @noImages.
   ///
-  /// In pt, this message translates to:
-  /// **'Nenhuma imagem na biblioteca'**
+  /// In en, this message translates to:
+  /// **'No images in library'**
   String get noImages;
 
   /// No description provided for @pleaseLogIn.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor, faça login'**
+  /// In en, this message translates to:
+  /// **'Please log in'**
   String get pleaseLogIn;
 
   /// No description provided for @joined.
   ///
-  /// In pt, this message translates to:
-  /// **'Entrou'**
+  /// In en, this message translates to:
+  /// **'Joined'**
   String get joined;
 
   /// No description provided for @accept.
   ///
-  /// In pt, this message translates to:
-  /// **'Aceitar'**
+  /// In en, this message translates to:
+  /// **'Accept'**
   String get accept;
 
   /// No description provided for @deny.
   ///
-  /// In pt, this message translates to:
-  /// **'Recusar'**
+  /// In en, this message translates to:
+  /// **'Deny'**
   String get deny;
 
   /// No description provided for @remove.
   ///
-  /// In pt, this message translates to:
-  /// **'Remover'**
+  /// In en, this message translates to:
+  /// **'Remove'**
   String get remove;
 
   /// No description provided for @add.
   ///
-  /// In pt, this message translates to:
-  /// **'Adicionar'**
+  /// In en, this message translates to:
+  /// **'Add'**
   String get add;
 
   /// No description provided for @close.
   ///
-  /// In pt, this message translates to:
-  /// **'Fechar'**
+  /// In en, this message translates to:
+  /// **'Close'**
   String get close;
 
   /// No description provided for @fileName.
   ///
-  /// In pt, this message translates to:
-  /// **'Nome do Arquivo'**
+  /// In en, this message translates to:
+  /// **'File Name'**
   String get fileName;
 
   /// No description provided for @uploadedAt.
   ///
-  /// In pt, this message translates to:
-  /// **'Enviado em'**
+  /// In en, this message translates to:
+  /// **'Uploaded At'**
   String get uploadedAt;
 
   /// No description provided for @size.
   ///
-  /// In pt, this message translates to:
-  /// **'Tamanho'**
+  /// In en, this message translates to:
+  /// **'Size'**
   String get size;
 
   /// No description provided for @welcomeBack.
   ///
-  /// In pt, this message translates to:
-  /// **'Bem-vindo de volta'**
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
   String get welcomeBack;
 
   /// No description provided for @email.
   ///
-  /// In pt, this message translates to:
+  /// In en, this message translates to:
   /// **'Email'**
   String get email;
 
   /// No description provided for @password.
   ///
-  /// In pt, this message translates to:
-  /// **'Senha'**
+  /// In en, this message translates to:
+  /// **'Password'**
   String get password;
 
   /// No description provided for @signIn.
   ///
-  /// In pt, this message translates to:
-  /// **'Entrar'**
+  /// In en, this message translates to:
+  /// **'Sign In'**
   String get signIn;
 
   /// No description provided for @dontHaveAccount.
   ///
-  /// In pt, this message translates to:
-  /// **'Não tem uma conta? Cadastre-se'**
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Sign Up'**
   String get dontHaveAccount;
 
   /// No description provided for @register.
   ///
-  /// In pt, this message translates to:
-  /// **'Cadastro'**
+  /// In en, this message translates to:
+  /// **'Register'**
   String get register;
 
   /// No description provided for @pleaseEnterEmail.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor, insira seu email'**
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
   String get pleaseEnterEmail;
 
   /// No description provided for @pleaseEnterPassword.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor, insira sua senha'**
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
   String get pleaseEnterPassword;
 
   /// No description provided for @player.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogador'**
+  /// In en, this message translates to:
+  /// **'Player'**
   String get player;
 
   /// No description provided for @upcoming.
   ///
-  /// In pt, this message translates to:
-  /// **'Próximos'**
+  /// In en, this message translates to:
+  /// **'Upcoming'**
   String get upcoming;
 
   /// No description provided for @rank.
   ///
-  /// In pt, this message translates to:
-  /// **'Ranking'**
+  /// In en, this message translates to:
+  /// **'Rank'**
   String get rank;
 
   /// No description provided for @wins.
   ///
-  /// In pt, this message translates to:
-  /// **'Vitórias'**
+  /// In en, this message translates to:
+  /// **'Wins'**
   String get wins;
 
   /// No description provided for @losses.
   ///
-  /// In pt, this message translates to:
-  /// **'Derrotas'**
+  /// In en, this message translates to:
+  /// **'Losses'**
   String get losses;
 
   /// No description provided for @loses.
   ///
-  /// In pt, this message translates to:
-  /// **'Derrotas'**
+  /// In en, this message translates to:
+  /// **'Losses'**
   String get loses;
 
   /// No description provided for @points.
   ///
-  /// In pt, this message translates to:
-  /// **'Pontos'**
+  /// In en, this message translates to:
+  /// **'Points'**
   String get points;
 
   /// No description provided for @createTournament.
   ///
-  /// In pt, this message translates to:
-  /// **'Criar Torneio'**
+  /// In en, this message translates to:
+  /// **'Create Tournament'**
   String get createTournament;
 
   /// No description provided for @adminDashboard.
   ///
-  /// In pt, this message translates to:
-  /// **'Painel do Administrador'**
+  /// In en, this message translates to:
+  /// **'Admin Dashboard'**
   String get adminDashboard;
 
   /// No description provided for @manageLocations.
   ///
-  /// In pt, this message translates to:
-  /// **'Gerenciar Locais'**
+  /// In en, this message translates to:
+  /// **'Manage Locations'**
   String get manageLocations;
 
   /// No description provided for @manageCategories.
   ///
-  /// In pt, this message translates to:
-  /// **'Gerenciar Categorias'**
+  /// In en, this message translates to:
+  /// **'Manage Categories'**
   String get manageCategories;
 
   /// No description provided for @description.
   ///
-  /// In pt, this message translates to:
-  /// **'Descrição'**
+  /// In en, this message translates to:
+  /// **'Description'**
   String get description;
 
   /// No description provided for @tournamentName.
   ///
-  /// In pt, this message translates to:
-  /// **'Nome do Torneio'**
+  /// In en, this message translates to:
+  /// **'Tournament Name'**
   String get tournamentName;
 
   /// No description provided for @location.
   ///
-  /// In pt, this message translates to:
-  /// **'Local'**
+  /// In en, this message translates to:
+  /// **'Location'**
   String get location;
 
   /// No description provided for @startDate.
   ///
-  /// In pt, this message translates to:
-  /// **'Data de Início'**
+  /// In en, this message translates to:
+  /// **'Start Date'**
   String get startDate;
 
   /// No description provided for @endDate.
   ///
-  /// In pt, this message translates to:
-  /// **'Data de Fim'**
+  /// In en, this message translates to:
+  /// **'End Date'**
   String get endDate;
 
   /// No description provided for @follow.
   ///
-  /// In pt, this message translates to:
-  /// **'Seguir'**
+  /// In en, this message translates to:
+  /// **'Follow'**
   String get follow;
 
   /// No description provided for @unfollow.
   ///
-  /// In pt, this message translates to:
-  /// **'Deixar de Seguir'**
+  /// In en, this message translates to:
+  /// **'Unfollow'**
   String get unfollow;
 
   /// No description provided for @titleBeginner.
   ///
-  /// In pt, this message translates to:
-  /// **'Iniciante'**
+  /// In en, this message translates to:
+  /// **'Beginner'**
   String get titleBeginner;
 
   /// No description provided for @titleNovice.
   ///
-  /// In pt, this message translates to:
-  /// **'Novato'**
+  /// In en, this message translates to:
+  /// **'Novice'**
   String get titleNovice;
 
   /// No description provided for @titleIntermediate.
   ///
-  /// In pt, this message translates to:
-  /// **'Intermediário'**
+  /// In en, this message translates to:
+  /// **'Intermediate'**
   String get titleIntermediate;
 
   /// No description provided for @titleClubPlayer.
   ///
-  /// In pt, this message translates to:
-  /// **'Jogador de Clube'**
+  /// In en, this message translates to:
+  /// **'Club Player'**
   String get titleClubPlayer;
 
   /// No description provided for @titleAdvanced.
   ///
-  /// In pt, this message translates to:
-  /// **'Avançado'**
+  /// In en, this message translates to:
+  /// **'Advanced'**
   String get titleAdvanced;
 
   /// No description provided for @titleSemiPro.
   ///
-  /// In pt, this message translates to:
-  /// **'Semi-Profissional'**
+  /// In en, this message translates to:
+  /// **'Semi-Pro'**
   String get titleSemiPro;
 
   /// No description provided for @titlePro.
   ///
-  /// In pt, this message translates to:
-  /// **'Profissional'**
+  /// In en, this message translates to:
+  /// **'Pro'**
   String get titlePro;
 
   /// No description provided for @titleCoach.
   ///
-  /// In pt, this message translates to:
-  /// **'Treinador'**
+  /// In en, this message translates to:
+  /// **'Coach'**
   String get titleCoach;
 
   /// No description provided for @titleEnthusiast.
   ///
-  /// In pt, this message translates to:
-  /// **'Entusiasta'**
+  /// In en, this message translates to:
+  /// **'Enthusiast'**
   String get titleEnthusiast;
 
   /// No description provided for @titleWeekendWarrior.
   ///
-  /// In pt, this message translates to:
-  /// **'Guerreiro de Fim de Semana'**
+  /// In en, this message translates to:
+  /// **'Weekend Warrior'**
   String get titleWeekendWarrior;
 
   /// No description provided for @errorOccurred.
   ///
-  /// In pt, this message translates to:
-  /// **'Erro: {error}'**
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
   String errorOccurred(Object error);
 
   /// No description provided for @pleaseEnterName.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor, insira um nome'**
+  /// In en, this message translates to:
+  /// **'Please enter a name'**
   String get pleaseEnterName;
 
   /// No description provided for @pleaseSelectTitle.
   ///
-  /// In pt, this message translates to:
-  /// **'Por favor, selecione ou insira um título'**
+  /// In en, this message translates to:
+  /// **'Please select or enter a title'**
   String get pleaseSelectTitle;
 
   /// No description provided for @round.
   ///
-  /// In pt, this message translates to:
-  /// **'Rodada'**
+  /// In en, this message translates to:
+  /// **'Round'**
   String get round;
 
   /// No description provided for @create.
   ///
-  /// In pt, this message translates to:
-  /// **'Criar'**
+  /// In en, this message translates to:
+  /// **'Create'**
   String get create;
+
+  /// No description provided for @findPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Players'**
+  String get findPlayers;
+
+  /// No description provided for @searchByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get searchByName;
+
+  /// No description provided for @noPlayersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No players found'**
+  String get noPlayersFound;
+
+  /// No description provided for @playerProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Profile'**
+  String get playerProfile;
+
+  /// No description provided for @playerNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Player not found'**
+  String get playerNotFound;
+
+  /// No description provided for @profileNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile not found'**
+  String get profileNotFound;
+
+  /// No description provided for @createProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Profile'**
+  String get createProfile;
+
+  /// No description provided for @following.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get following;
+
+  /// No description provided for @unknownPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Player'**
+  String get unknownPlayer;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @notFollowingAnyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not following anyone yet.'**
+  String get notFollowingAnyone;
+
+  /// No description provided for @simulationDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation & Debug'**
+  String get simulationDebug;
+
+  /// No description provided for @matchNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Match not found'**
+  String get matchNotFound;
+
+  /// No description provided for @reasonForUnavailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for unavailability'**
+  String get reasonForUnavailability;
+
+  /// No description provided for @declineJustify.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline & Justify'**
+  String get declineJustify;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @responseSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Response submitted. Admin notified.'**
+  String get responseSubmitted;
+
+  /// No description provided for @attendanceConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance confirmed!'**
+  String get attendanceConfirmed;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @viewLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'View Location'**
+  String get viewLocation;
+
+  /// No description provided for @vs.
+  ///
+  /// In en, this message translates to:
+  /// **'VS'**
+  String get vs;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate
