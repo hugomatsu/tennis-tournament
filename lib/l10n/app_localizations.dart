@@ -913,6 +913,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading...'**
   String get loading;
+
+  /// No description provided for @upgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get upgradeToPremium;
+
+  /// No description provided for @premiumBenefits.
+  ///
+  /// In en, this message translates to:
+  /// **'Create unlimited tournaments and access exclusive features.'**
+  String get premiumBenefits;
+
+  /// No description provided for @freeLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Limit Reached'**
+  String get freeLimitReached;
+
+  /// No description provided for @freeLimitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the limit of 2 free tournaments. Upgrade to Premium to create more!'**
+  String get freeLimitMessage;
+
+  /// No description provided for @manageAdmins.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Admins'**
+  String get manageAdmins;
+
+  /// No description provided for @addAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Admin'**
+  String get addAdmin;
+
+  /// No description provided for @adminAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin added successfully'**
+  String get adminAdded;
+
+  /// No description provided for @adminRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin removed successfully'**
+  String get adminRemoved;
+
+  /// No description provided for @subscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get subscribe;
+
+  /// No description provided for @subscribedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribed successfully!'**
+  String get subscribedSuccessfully;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @admins.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins'**
+  String get admins;
+
+  /// No description provided for @owner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get owner;
+
+  /// No description provided for @removeAdminConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this admin?'**
+  String get removeAdminConfirm;
+
+  /// No description provided for @premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premium;
+
+  /// No description provided for @free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free;
+
+  /// No description provided for @cancelSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Subscription'**
+  String get cancelSubscription;
+
+  /// No description provided for @subscriptionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription cancelled'**
+  String get subscriptionCancelled;
+
+  /// No description provided for @freeTournamentsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Tournaments: {count}/{limit}'**
+  String freeTournamentsUsed(Object count, Object limit);
+
+  /// No description provided for @limitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit Reached'**
+  String get limitReached;
 }
 
 class _AppLocalizationsDelegate

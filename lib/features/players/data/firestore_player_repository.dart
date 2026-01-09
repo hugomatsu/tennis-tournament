@@ -29,6 +29,8 @@ class FirestorePlayerRepository implements PlayerRepository {
         bio: data['bio'] as String? ?? 'No bio yet.',
         avatarUrl: data['avatarUrl'] as String? ?? user.photoURL ?? 'https://via.placeholder.com/150',
         userType: data['userType'] as String? ?? 'player',
+        isPremium: data['isPremium'] as bool? ?? false,
+        subscriptionStatus: data['subscriptionStatus'] as String? ?? 'none',
         followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
         following: List<String>.from(data['following'] ?? []),
       );
@@ -142,5 +144,53 @@ class FirestorePlayerRepository implements PlayerRepository {
     await _firestore.collection('users').doc(currentUserId).update({
       'following': FieldValue.arrayRemove([targetUserId])
     });
+  }
+
+  @override
+  Future<void> setPremiumStatus(String userId, bool isPremium) async {
+    await _firestore.collection('users').doc(userId).update({
+      'isPremium': isPremium,
+      'subscriptionStatus': isPremium ? 'active' : 'none',
+    });
+  }
+
+  @override
+  Future<void> cancelSubscription(String userId) async {
+    await _firestore.collection('users').doc(userId).update({
+      'isPremium': false,
+      'subscriptionStatus': 'canceled', // Or 'none'
+    });
+  }
+
+  @override
+  Future<List<Player>> getPlayersByIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+    try {
+      final futures = ids.map((id) => _firestore.collection('users').doc(id).get());
+      final snapshots = await Future.wait(futures);
+      
+      return snapshots
+          .where((doc) => doc.exists)
+          .map((doc) {
+            final data = doc.data()!;
+            return Player(
+              id: doc.id,
+              name: data['name'] as String? ?? 'Player',
+              title: data['title'] as String? ?? '',
+              category: data['category'] as String? ?? '',
+              playingSince: data['playingSince'] as String? ?? '',
+              wins: data['wins'] as int? ?? 0,
+              losses: data['losses'] as int? ?? 0,
+              rank: data['rank'] as int? ?? 0,
+              bio: data['bio'] as String? ?? '',
+              avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
+              userType: data['userType'] as String? ?? 'player',
+              followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
+              following: List<String>.from(data['following'] ?? []),
+            );
+          }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/home/presentation/widgets/live_tournament_card.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
 
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
@@ -77,6 +78,70 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final userAsync = ref.watch(currentUserProvider);
+          return userAsync.when(
+            data: (user) {
+              if (user == null) return const SizedBox.shrink();
+              
+              // We need the tournament count. This implies we need a provider or to fetch it.
+              // We'll use a FutureBuilder here for simplicity or create a provider if needed.
+              // For better UX with FAB, let's use a provider so it doesn't flicker too much.
+              // But we don't have a provider for count exposed yet.
+              // Let's assume we can watch a future provider for count.
+              
+              return FutureBuilder<int>(
+                future: ref.read(tournamentRepositoryProvider).getUserTournamentCount(user.id),
+                builder: (context, snapshot) {
+                  // Default to 0 if loading, or maybe show loading state on FAB?
+                  // Be conservative: disable if loading.
+                  if (!snapshot.hasData) return const FloatingActionButton(onPressed: null, child: Icon(Icons.add));
+                  
+                  final count = snapshot.data!;
+                  final isPremium = user.isPremium;
+                  final limit = 2;
+                  final canCreate = isPremium || count < limit;
+                  
+                  if (canCreate) {
+                     return FloatingActionButton.extended(
+                      onPressed: () => context.go('/admin/create-tournament'),
+                      icon: const Icon(Icons.add),
+                      label: Text(isPremium ? loc.createTournament : '${loc.createTournament} (${count}/$limit)'),
+                    );
+                  } else {
+                     // Limit reached
+                     return Column(
+                       mainAxisSize: MainAxisSize.min,
+                       crossAxisAlignment: CrossAxisAlignment.end,
+                       children: [
+                         FloatingActionButton.extended(
+                           heroTag: 'premium_fab',
+                           backgroundColor: Colors.amber,
+                           foregroundColor: Colors.black,
+                           onPressed: () => context.push('/subscription'),
+                           icon: const Icon(Icons.star),
+                           label: Text(loc.upgradeToPremium),
+                         ),
+                         const SizedBox(height: 16),
+                         FloatingActionButton.extended(
+                           heroTag: 'create_fab', // Unique tag
+                           backgroundColor: Colors.grey,
+                           onPressed: null, // "turn the button gray and not interactable"
+                           icon: const Icon(Icons.block),
+                           label: Text(loc.limitReached),
+                         ),
+                       ],
+                     );
+                  }
+                },
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_,__) => const SizedBox.shrink(),
+          );
+        }, 
       ),
     );
   }

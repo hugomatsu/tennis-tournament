@@ -58,21 +58,46 @@ class TournamentDetailScreen extends ConsumerWidget {
                           ref.invalidate(tournamentCategoriesProvider(id));
                         },
                       ),
-                      if (userAsync.asData?.value?.userType == 'admin') ...[
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          tooltip: 'Edit Tournament',
-                          onPressed: () {
-                            _showEditTournamentDialog(context, ref, tournament);
-                          },
+
+                      if (userAsync.asData?.value != null) ...[
+                        Builder(
+                          builder: (context) {
+                            final user = userAsync.asData!.value!;
+                            final isOwner = tournament.ownerId == user.id;
+                            final isAdmin = isOwner || tournament.adminIds.contains(user.id);
+
+                            if (!isAdmin) return const SizedBox.shrink();
+
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  tooltip: 'Edit Tournament',
+                                  onPressed: () {
+                                    _showEditTournamentDialog(context, ref, tournament);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.category),
+                                  tooltip: 'Manage Categories',
+                                  onPressed: () {
+                                    _showManageCategoriesDialog(context, ref, tournament.id);
+                                  },
+                                ),
+                                if (isOwner)
+                                  IconButton(
+                                    icon: const Icon(Icons.admin_panel_settings),
+                                    tooltip: 'Manage Admins',
+                                    onPressed: () {
+                                      context.go('/tournaments/${tournament.id}/manage-admins', extra: tournament);
+                                    },
+                                  ),
+                              ],
+                            );
+                          }
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.category),
-                          tooltip: 'Manage Categories',
-                          onPressed: () {
-                            _showManageCategoriesDialog(context, ref, tournament.id);
-                          },
-                        ),
+                        if (tournament.ownerId == userAsync.asData!.value!.id) // Allow delete for owner only 
                         IconButton(
                           icon: const Icon(Icons.delete_sweep),
                           tooltip: 'Delete Bracket',
@@ -111,6 +136,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                             }
                           },
                         ),
+                        if (tournament.ownerId == userAsync.asData!.value!.id || tournament.adminIds.contains(userAsync.asData!.value!.id)) ...[
                         IconButton(
                           icon: const Icon(Icons.shuffle),
                           tooltip: 'Generate Bracket',
@@ -248,6 +274,8 @@ class TournamentDetailScreen extends ConsumerWidget {
                             context.go('/tournaments/${tournament.id}/participants');
                           },
                         ),
+                        ],
+                        if (tournament.ownerId == userAsync.asData!.value!.id)
                         IconButton(
                           icon: const Icon(Icons.delete),
                           tooltip: 'Delete Tournament',
@@ -712,8 +740,67 @@ class _InfoTab extends ConsumerWidget {
         else
           _InfoRow(icon: Icons.location_on, text: tournament.location),
         const SizedBox(height: 12),
+        // Owner and Admins Display
+        Consumer(
+          builder: (context, ref, child) {
+            final adminsAsync = ref.watch(tournamentAdminsProvider(tournament));
+            return adminsAsync.when(
+              data: (admins) {
+                 if (admins.isEmpty) return const SizedBox.shrink();
+                 // Find owner
+                 final owner = admins.firstWhere(
+                   (p) => p.id == tournament.ownerId, 
+                   orElse: () => admins.firstWhere((p) => p.id == tournament.adminIds.firstOrNull, orElse: () => admins.first),
+                 );
+                 final actualAdmins = admins.where((p) => p.id != owner.id).toList();
+                 
+                 return Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     _InfoRow(icon: Icons.manage_accounts, text: 'Owner: ${owner.name}'),
+                     const SizedBox(height: 12),
+                     if (actualAdmins.isNotEmpty) ...[
+                        _InfoRow(icon: Icons.security, text: 'Admins: ${actualAdmins.map((a) => a.name).join(", ")}'),
+                        const SizedBox(height: 12),
+                     ],
+                   ],
+                 );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            );
+          },
+        ),
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
+        if (userAsync.value != null)
+          Builder(
+            builder: (context) {
+              final user = userAsync.value!;
+              final isOwner = tournament.ownerId == user.id;
+              final isAdmin = isOwner || tournament.adminIds.contains(user.id);
+
+              if (!isAdmin) return const SizedBox.shrink();
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => _ManageCategoriesDialog(tournamentId: tournament.id),
+                      );
+                    },
+                    icon: const Icon(Icons.category),
+                    label: const Text('Manage Categories'), // TODO: Localize
+                  ),
+                ),
+              );
+            }
+          ),
+        const SizedBox(height: 8),
         Text(
           loc.participants,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

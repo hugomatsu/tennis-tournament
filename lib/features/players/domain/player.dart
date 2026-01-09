@@ -12,6 +12,8 @@ abstract class Player with _$Player {
     required String title,
     required String category,
     required String playingSince,
+    @Default(false) bool isPremium,
+    @Default('none') String subscriptionStatus,
     required int wins,
     required int losses,
     required int rank,

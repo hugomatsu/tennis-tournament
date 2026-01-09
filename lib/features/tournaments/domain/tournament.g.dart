@@ -13,6 +13,10 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
   playersCount: (json['playersCount'] as num).toInt(),
   location: json['location'] as String,
   locationId: json['locationId'] as String?,
+  ownerId: json['ownerId'] as String?,
+  adminIds:
+      (json['adminIds'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
   imageUrl: json['imageUrl'] as String,
   description: json['description'] as String,
   dateRange: json['dateRange'] as String,
@@ -33,6 +37,8 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'playersCount': instance.playersCount,
       'location': instance.location,
       'locationId': instance.locationId,
+      'ownerId': instance.ownerId,
+      'adminIds': instance.adminIds,
       'imageUrl': instance.imageUrl,
       'description': instance.description,
       'dateRange': instance.dateRange,

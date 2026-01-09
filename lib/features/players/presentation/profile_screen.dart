@@ -5,6 +5,7 @@ import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/presentation/widgets/user_search_dialog.dart';
 
 
@@ -63,6 +64,31 @@ class ProfileScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
+                if (user.isPremium) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.amber,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.workspace_premium, size: 16, color: Colors.black),
+                        const SizedBox(width: 4),
+                        Text(
+                          loc.premium,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Text(
                   user.title,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -197,6 +223,59 @@ class ProfileScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
+                        if (!user.isPremium) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.amber,
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: () => context.push('/subscription'),
+                              icon: const Icon(Icons.star),
+                              label: Text(loc.upgradeToPremium),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ] else ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(color: Colors.red),
+                              ),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(loc.cancelSubscription),
+                                    content: const Text('Are you sure? used features will be lost.'), // TODO: Localize detail if needed
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.close)),
+                                      FilledButton(
+                                        style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: Text(loc.confirm),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                
+                                if (confirm == true) {
+                                  await ref.read(playerRepositoryProvider).cancelSubscription(user.id);
+                                  // Refresh user provider
+                                  ref.invalidate(currentUserProvider);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.subscriptionCancelled)));
+                                  }
+                                }
+                              },
+                              child: Text(loc.cancelSubscription),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(

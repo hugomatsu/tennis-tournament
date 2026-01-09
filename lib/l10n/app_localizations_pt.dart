@@ -418,4 +418,69 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loading => 'Loading...';
+
+  @override
+  String get upgradeToPremium => 'Seja Premium';
+
+  @override
+  String get premiumBenefits =>
+      'Crie torneios ilimitados e acesse recursos exclusivos.';
+
+  @override
+  String get freeLimitReached => 'Limite Gratuito Atingido';
+
+  @override
+  String get freeLimitMessage =>
+      'Você atingiu o limite de 2 torneios gratuitos. Seja Premium para criar mais!';
+
+  @override
+  String get manageAdmins => 'Gerenciar Admins';
+
+  @override
+  String get addAdmin => 'Adicionar Admin';
+
+  @override
+  String get adminAdded => 'Admin adicionado com sucesso';
+
+  @override
+  String get adminRemoved => 'Admin removido com sucesso';
+
+  @override
+  String get subscribe => 'Assinar';
+
+  @override
+  String get subscribedSuccessfully => 'Assinatura realizada com sucesso!';
+
+  @override
+  String get restorePurchases => 'Restaurar Compras';
+
+  @override
+  String get admins => 'Administradores';
+
+  @override
+  String get owner => 'Dono';
+
+  @override
+  String get removeAdminConfirm =>
+      'Tem certeza que deseja remover este administrador?';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get free => 'Grátis';
+
+  @override
+  String get cancelSubscription => 'Cancelar Assinatura';
+
+  @override
+  String get subscriptionCancelled => 'Assinatura cancelada';
+
+  @override
+  String freeTournamentsUsed(Object count, Object limit) {
+    return 'Torneios Grátis: $count/$limit';
+  }
+
+  @override
+  String get limitReached => 'Limite Atingido';
 }

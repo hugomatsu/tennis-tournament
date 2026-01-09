@@ -19,4 +19,7 @@ abstract class PlayerRepository {
   Future<List<Player>> getAllPlayers();
   Future<void> followPlayer(String currentUserId, String targetUserId);
   Future<void> unfollowPlayer(String currentUserId, String targetUserId);
+  Future<void> setPremiumStatus(String userId, bool isPremium);
+  Future<void> cancelSubscription(String userId);
+  Future<List<Player>> getPlayersByIds(List<String> ids);
 }

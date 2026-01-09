@@ -33,6 +33,23 @@ To run the app on Chrome (Web), ensure you specify the web port if needed for au
 flutter run -d chrome --web-port 8080
 ```
 
+## Building
+
+For detailed instructions on configuring signing keys and publishing to stores, see [docs/publish.md](docs/publish.md).
+
+### Android
+```bash
+flutter build apk --release
+# or
+flutter build appbundle --release
+```
+
+### iOS
+```bash
+flutter build ios --release
+# Then open ios/Runner.xcworkspace in Xcode and Archive
+```
+
 ## Testing
 
 This project uses the standard Flutter testing framework.

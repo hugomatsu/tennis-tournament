@@ -418,4 +418,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading...';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get premiumBenefits =>
+      'Create unlimited tournaments and access exclusive features.';
+
+  @override
+  String get freeLimitReached => 'Free Limit Reached';
+
+  @override
+  String get freeLimitMessage =>
+      'You have reached the limit of 2 free tournaments. Upgrade to Premium to create more!';
+
+  @override
+  String get manageAdmins => 'Manage Admins';
+
+  @override
+  String get addAdmin => 'Add Admin';
+
+  @override
+  String get adminAdded => 'Admin added successfully';
+
+  @override
+  String get adminRemoved => 'Admin removed successfully';
+
+  @override
+  String get subscribe => 'Subscribe';
+
+  @override
+  String get subscribedSuccessfully => 'Subscribed successfully!';
+
+  @override
+  String get restorePurchases => 'Restore Purchases';
+
+  @override
+  String get admins => 'Admins';
+
+  @override
+  String get owner => 'Owner';
+
+  @override
+  String get removeAdminConfirm =>
+      'Are you sure you want to remove this admin?';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get cancelSubscription => 'Cancel Subscription';
+
+  @override
+  String get subscriptionCancelled => 'Subscription cancelled';
+
+  @override
+  String freeTournamentsUsed(Object count, Object limit) {
+    return 'Free Tournaments: $count/$limit';
+  }
+
+  @override
+  String get limitReached => 'Limit Reached';
 }

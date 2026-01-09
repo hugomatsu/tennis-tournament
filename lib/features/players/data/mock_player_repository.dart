@@ -83,4 +83,35 @@ class MockPlayerRepository implements PlayerRepository {
   Future<void> unfollowPlayer(String currentUserId, String targetUserId) async {
     await Future.delayed(const Duration(milliseconds: 200));
   }
+
+  @override
+  Future<void> setPremiumStatus(String userId, bool isPremium) async {
+    // No-op for mock, or could update a local list if needed
+  }
+
+  @override
+  Future<void> cancelSubscription(String userId) async {
+    // No-op
+  }
+
+  @override
+  Future<List<Player>> getPlayersByIds(List<String> ids) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Return dummy players for the requested IDs
+    return ids.map((id) => Player(
+      id: id,
+      name: 'User $id',
+      title: 'Member',
+      category: 'B',
+      playingSince: '2024',
+      wins: 0,
+      losses: 0,
+      rank: 0,
+      bio: 'Mock Bio',
+      avatarUrl: 'https://via.placeholder.com/150',
+      userType: 'player',
+      followedMatchIds: [],
+      following: [],
+    )).toList();
+  }
 }

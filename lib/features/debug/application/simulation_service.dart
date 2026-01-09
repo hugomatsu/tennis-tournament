@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
@@ -53,6 +54,9 @@ class SimulationService {
     }
 
     // 1. Create Tournament
+    final currentUser = await _ref.read(playerRepositoryProvider).getCurrentUser();
+    final ownerId = currentUser?.id ?? const Uuid().v4();
+
     final tournamentId = const Uuid().v4();
     final tournament = Tournament(
       id: tournamentId,
@@ -61,6 +65,8 @@ class SimulationService {
       playersCount: playerCount * categoryCount,
       location: locationName,
       locationId: locationId,
+      ownerId: ownerId,
+      adminIds: [ownerId],
       imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80&w=2070&auto=format&fit=crop',
       description: 'Simulated tournament for testing purposes.',
       dateRange: 'Dec 1 - Dec 5',
@@ -176,6 +182,9 @@ class SimulationService {
     String locationName = existingLocations.isNotEmpty ? existingLocations.first.name : 'Simulation Court';
 
     // 1. Create Tournament
+    final currentUser = await _ref.read(playerRepositoryProvider).getCurrentUser();
+    final ownerId = currentUser?.id ?? const Uuid().v4();
+
     final tournamentId = const Uuid().v4();
     final tournament = Tournament(
       id: tournamentId,
@@ -184,6 +193,8 @@ class SimulationService {
       playersCount: teamCount * 2, // 2 players per team
       location: locationName,
       locationId: locationId,
+      ownerId: ownerId,
+      adminIds: [ownerId],
       imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80',
       description: 'Simulated Team Tournament',
       dateRange: 'Dec 10 - Dec 15',

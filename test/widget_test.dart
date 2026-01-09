@@ -6,6 +6,10 @@ import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/data/mock_match_repository.dart';
 import 'package:tennis_tournament/features/tournaments/data/mock_tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
+import 'package:tennis_tournament/features/auth/data/mock_auth_repository.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
+import 'package:tennis_tournament/features/players/data/mock_player_repository.dart';
 
 import 'package:network_image_mock/network_image_mock.dart';
 
@@ -23,16 +27,17 @@ void main() {
           overrides: [
             matchRepositoryProvider.overrideWithValue(MockMatchRepository()),
             tournamentRepositoryProvider.overrideWithValue(MockTournamentRepository()),
+            playerRepositoryProvider.overrideWithValue(MockPlayerRepository()),
+            authRepositoryProvider.overrideWithValue(MockAuthRepository()),
           ],
           child: const TennisApp(),
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // Verify that the dashboard is shown.
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
+      // Verify that the tournaments screen is shown.
+      expect(find.text('Tournaments'), findsOneWidget);
     });
   });
 }

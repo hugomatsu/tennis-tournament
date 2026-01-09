@@ -130,6 +130,12 @@ class MockTournamentRepository implements TournamentRepository {
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
+  @override
+  Future<int> getUserTournamentCount(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return 0; // Mock implementation
+  }
+
   Tournament _mapToTournament(Map<String, dynamic> data) {
     return Tournament(
       id: data['id'] as String,

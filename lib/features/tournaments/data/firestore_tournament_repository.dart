@@ -31,6 +31,8 @@ class FirestoreTournamentRepository implements TournamentRepository {
           category: data['category'] as String? ?? 'Open',
           format: data['format'] as String? ?? 'singles',
           locationId: data['locationId'] as String?,
+          ownerId: data['ownerId'] as String?,
+          adminIds: List<String>.from(data['adminIds'] ?? []),
           scheduleRules: (data['scheduleRules'] as List<dynamic>?)
               ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
               .toList() ?? [],
@@ -59,6 +61,8 @@ class FirestoreTournamentRepository implements TournamentRepository {
         category: data['category'] as String? ?? 'Open',
         format: data['format'] as String? ?? 'singles',
         locationId: data['locationId'] as String?,
+        ownerId: data['ownerId'] as String?,
+        adminIds: List<String>.from(data['adminIds'] ?? []),
         scheduleRules: (data['scheduleRules'] as List<dynamic>?)
             ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
             .toList() ?? [],
@@ -75,6 +79,8 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'dateRange': tournament.dateRange,
       'location': tournament.location,
       'locationId': tournament.locationId,
+      'ownerId': tournament.ownerId,
+      'adminIds': tournament.adminIds,
       'imageUrl': tournament.imageUrl,
       'status': tournament.status,
       'description': tournament.description,
@@ -95,6 +101,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'imageUrl': tournament.imageUrl,
       'description': tournament.description,
       'format': tournament.format,
+      'adminIds': tournament.adminIds, // Persist admins
       'scheduleRules': tournament.scheduleRules.map((e) => e.toJson()).toList(),
     });
   }
@@ -107,6 +114,16 @@ class FirestoreTournamentRepository implements TournamentRepository {
     // For now we just delete the document, or we'd rely on a Cloud Function.
     // Let's at least delete what we can or just the main doc.
     await ref.delete();
+  }
+
+  @override
+  Future<int> getUserTournamentCount(String userId) async {
+    final snapshot = await _firestore
+        .collection('tournaments')
+        .where('ownerId', isEqualTo: userId)
+        .count()
+        .get();
+    return snapshot.count ?? 0;
   }
 
   @override

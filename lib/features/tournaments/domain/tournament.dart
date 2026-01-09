@@ -13,6 +13,8 @@ abstract class Tournament with _$Tournament {
     required int playersCount,
     required String location,
     String? locationId, // Added to link to Location entity
+    String? ownerId, // Added for monetization/ownership
+    @Default([]) List<String> adminIds, // Added for shared administration
     required String imageUrl,
     required String description,
     required String dateRange,

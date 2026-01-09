@@ -23,6 +23,9 @@ import 'package:tennis_tournament/features/tournaments/presentation/participant_
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/schedule_settings_screen.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/manage_admins_screen.dart';
+import 'package:tennis_tournament/features/monetization/presentation/subscription_screen.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/debug/presentation/simulation_screen.dart';
 import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
 
@@ -104,6 +107,22 @@ final routerProvider = Provider<GoRouter>((ref) {
                           return ScheduleSettingsScreen(tournamentId: id);
                         },
                       ),
+                      GoRoute(
+                        path: 'manage-admins',
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          // We need the tournament object or fetch it. 
+                          // Since we are traversing, we might not have it passed easily.
+                          // It's better if the screen fetches it or we pass it via extra.
+                          // For now, let's fetch it in the screen or pass via extra. 
+                          // The screen I wrote takes `Tournament`. 
+                          // Let's change the screen to take ID and fetch it? Or pass properties?
+                          // Standardize: Screen takes ID and refetches or we pass extra. 
+                          // Let's pass extra for now as it is eager.
+                          final tournament = state.extra as Tournament; 
+                          return ManageAdminsScreen(tournament: tournament);
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -138,6 +157,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+
+      GoRoute(
+        path: '/subscription',
+        builder: (context, state) => const SubscriptionScreen(),
       ),
       GoRoute(
         path: '/admin',

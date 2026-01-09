@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/locations/presentation/location_picker.dart';
 import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateTournamentScreen extends ConsumerStatefulWidget {
@@ -138,6 +140,32 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     setState(() => _isLoading = true);
 
     try {
+      final playerRepo = ref.read(playerRepositoryProvider);
+      final tournamentRepo = ref.read(tournamentRepositoryProvider);
+      final l10n = AppLocalizations.of(context)!;
+      
+      final currentUser = await playerRepo.getCurrentUser();
+      if (currentUser == null) {
+         if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please log in to create a tournament')),
+          );
+         }
+         return;
+      }
+
+      // Check limits
+      if (!currentUser.isPremium) {
+        final count = await tournamentRepo.getUserTournamentCount(currentUser.id);
+        if (count >= 2) { // Configurable limit
+          if (mounted) {
+            _showUpsellDialog(context, l10n);
+            setState(() => _isLoading = false);
+            return;
+          }
+        }
+      }
+
       final dateFormat = DateFormat('MMMM d, y');
       final dateRangeString = '${dateFormat.format(_startDate!)} - ${dateFormat.format(_endDate!)}';
 
@@ -146,6 +174,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         name: _nameController.text.trim(),
         location: _locationController.text.trim(),
         locationId: _selectedLocationId,
+        ownerId: currentUser.id,
+        adminIds: [currentUser.id],
         description: _descriptionController.text.trim(),
         dateRange: dateRangeString,
         imageUrl: _imageUrlController.text.trim().isNotEmpty
@@ -155,13 +185,13 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         playersCount: 0,
       );
 
-      await ref.read(tournamentRepositoryProvider).createTournament(tournament);
+      await tournamentRepo.createTournament(tournament);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tournament Created!')),
         );
-        context.pop();
+        context.go('/tournaments/${tournament.id}');
       }
     } catch (e) {
       if (mounted) {
@@ -172,6 +202,29 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showUpsellDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.freeLimitReached),
+        content: Text(l10n.freeLimitMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/subscription'); // Assuming route exists or will be added
+            },
+            child: Text(l10n.upgradeToPremium),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
