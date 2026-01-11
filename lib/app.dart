@@ -27,7 +27,9 @@ import 'package:tennis_tournament/features/tournaments/presentation/manage_admin
 import 'package:tennis_tournament/features/monetization/presentation/subscription_screen.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/debug/presentation/simulation_screen.dart';
+
 import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
+import 'package:tennis_tournament/features/splash/presentation/splash_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -37,11 +39,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/tournaments',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final isLoading = authState.isLoading;
       final hasError = authState.hasError;
       final isAuthenticated = authState.asData?.value != null;
+
+      final isSplash = state.uri.toString() == '/splash';
+      if (isSplash) return null;
 
       final isLogin = state.uri.toString() == '/login';
       final isRegister = state.uri.toString() == '/register';
@@ -59,6 +64,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
