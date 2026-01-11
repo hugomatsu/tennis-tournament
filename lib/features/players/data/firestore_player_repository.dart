@@ -193,4 +193,32 @@ class FirestorePlayerRepository implements PlayerRepository {
       return [];
     }
   }
+  @override
+  Future<Player?> getPlayer(String id) async {
+    try {
+      final doc = await _firestore.collection('users').doc(id).get();
+      if (!doc.exists) return null;
+      
+      final data = doc.data()!;
+      return Player(
+        id: doc.id,
+        name: data['name'] as String? ?? 'Player',
+        title: data['title'] as String? ?? '',
+        category: data['category'] as String? ?? '',
+        playingSince: data['playingSince'] as String? ?? '',
+        wins: data['wins'] as int? ?? 0,
+        losses: data['losses'] as int? ?? 0,
+        rank: data['rank'] as int? ?? 0,
+        bio: data['bio'] as String? ?? '',
+        avatarUrl: data['avatarUrl'] as String? ?? 'https://via.placeholder.com/150',
+        userType: data['userType'] as String? ?? 'player',
+        followedMatchIds: List<String>.from(data['followedMatchIds'] ?? []),
+        following: List<String>.from(data['following'] ?? []),
+        isPremium: data['isPremium'] as bool? ?? false,
+        subscriptionStatus: data['subscriptionStatus'] as String? ?? 'none',
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }

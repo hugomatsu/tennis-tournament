@@ -20,6 +20,7 @@ mixin _$Tournament {
  String? get ownerId;// Added for monetization/ownership
  List<String> get adminIds;// Added for shared administration
  String get imageUrl; String get description; String get dateRange; String get category; String get format;// 'singles', 'doubles'
+ String get subscriptionTier;// 'Free', 'Premium'
  List<DailySchedule> get scheduleRules;
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
@@ -33,16 +34,16 @@ $TournamentCopyWith<Tournament> get copyWith => _$TournamentCopyWithImpl<Tournam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.locationId, locationId) || other.locationId == locationId)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&const DeepCollectionEquality().equals(other.adminIds, adminIds)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category)&&(identical(other.format, format) || other.format == format)&&const DeepCollectionEquality().equals(other.scheduleRules, scheduleRules));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.locationId, locationId) || other.locationId == locationId)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&const DeepCollectionEquality().equals(other.adminIds, adminIds)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category)&&(identical(other.format, format) || other.format == format)&&(identical(other.subscriptionTier, subscriptionTier) || other.subscriptionTier == subscriptionTier)&&const DeepCollectionEquality().equals(other.scheduleRules, scheduleRules));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,locationId,ownerId,const DeepCollectionEquality().hash(adminIds),imageUrl,description,dateRange,category,format,const DeepCollectionEquality().hash(scheduleRules));
+int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,locationId,ownerId,const DeepCollectionEquality().hash(adminIds),imageUrl,description,dateRange,category,format,subscriptionTier,const DeepCollectionEquality().hash(scheduleRules));
 
 @override
 String toString() {
-  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, locationId: $locationId, ownerId: $ownerId, adminIds: $adminIds, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category, format: $format, scheduleRules: $scheduleRules)';
+  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, locationId: $locationId, ownerId: $ownerId, adminIds: $adminIds, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category, format: $format, subscriptionTier: $subscriptionTier, scheduleRules: $scheduleRules)';
 }
 
 
@@ -53,7 +54,7 @@ abstract mixin class $TournamentCopyWith<$Res>  {
   factory $TournamentCopyWith(Tournament value, $Res Function(Tournament) _then) = _$TournamentCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String status, int playersCount, String location, String? locationId, String? ownerId, List<String> adminIds, String imageUrl, String description, String dateRange, String category, String format, List<DailySchedule> scheduleRules
+ String id, String name, String status, int playersCount, String location, String? locationId, String? ownerId, List<String> adminIds, String imageUrl, String description, String dateRange, String category, String format, String subscriptionTier, List<DailySchedule> scheduleRules
 });
 
 
@@ -70,7 +71,7 @@ class _$TournamentCopyWithImpl<$Res>
 
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? locationId = freezed,Object? ownerId = freezed,Object? adminIds = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,Object? format = null,Object? scheduleRules = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? locationId = freezed,Object? ownerId = freezed,Object? adminIds = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,Object? format = null,Object? subscriptionTier = null,Object? scheduleRules = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -85,6 +86,7 @@ as String,description: null == description ? _self.description : description // 
 as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,format: null == format ? _self.format : format // ignore: cast_nullable_to_non_nullable
+as String,subscriptionTier: null == subscriptionTier ? _self.subscriptionTier : subscriptionTier // ignore: cast_nullable_to_non_nullable
 as String,scheduleRules: null == scheduleRules ? _self.scheduleRules : scheduleRules // ignore: cast_nullable_to_non_nullable
 as List<DailySchedule>,
   ));
@@ -171,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  List<DailySchedule> scheduleRules)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  String subscriptionTier,  List<DailySchedule> scheduleRules)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tournament() when $default != null:
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.scheduleRules);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.subscriptionTier,_that.scheduleRules);case _:
   return orElse();
 
 }
@@ -192,10 +194,10 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  List<DailySchedule> scheduleRules)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  String subscriptionTier,  List<DailySchedule> scheduleRules)  $default,) {final _that = this;
 switch (_that) {
 case _Tournament():
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.scheduleRules);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.subscriptionTier,_that.scheduleRules);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +214,10 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  List<DailySchedule> scheduleRules)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String status,  int playersCount,  String location,  String? locationId,  String? ownerId,  List<String> adminIds,  String imageUrl,  String description,  String dateRange,  String category,  String format,  String subscriptionTier,  List<DailySchedule> scheduleRules)?  $default,) {final _that = this;
 switch (_that) {
 case _Tournament() when $default != null:
-return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.scheduleRules);case _:
+return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.location,_that.locationId,_that.ownerId,_that.adminIds,_that.imageUrl,_that.description,_that.dateRange,_that.category,_that.format,_that.subscriptionTier,_that.scheduleRules);case _:
   return null;
 
 }
@@ -227,7 +229,7 @@ return $default(_that.id,_that.name,_that.status,_that.playersCount,_that.locati
 @JsonSerializable()
 
 class _Tournament implements Tournament {
-  const _Tournament({required this.id, required this.name, required this.status, required this.playersCount, required this.location, this.locationId, this.ownerId, final  List<String> adminIds = const [], required this.imageUrl, required this.description, required this.dateRange, this.category = 'Open', this.format = 'singles', final  List<DailySchedule> scheduleRules = const []}): _adminIds = adminIds,_scheduleRules = scheduleRules;
+  const _Tournament({required this.id, required this.name, required this.status, required this.playersCount, required this.location, this.locationId, this.ownerId, final  List<String> adminIds = const [], required this.imageUrl, required this.description, required this.dateRange, this.category = 'Open', this.format = 'singles', this.subscriptionTier = 'Free', final  List<DailySchedule> scheduleRules = const []}): _adminIds = adminIds,_scheduleRules = scheduleRules;
   factory _Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);
 
 @override final  String id;
@@ -255,8 +257,10 @@ class _Tournament implements Tournament {
 @override@JsonKey() final  String category;
 @override@JsonKey() final  String format;
 // 'singles', 'doubles'
+@override@JsonKey() final  String subscriptionTier;
+// 'Free', 'Premium'
  final  List<DailySchedule> _scheduleRules;
-// 'singles', 'doubles'
+// 'Free', 'Premium'
 @override@JsonKey() List<DailySchedule> get scheduleRules {
   if (_scheduleRules is EqualUnmodifiableListView) return _scheduleRules;
   // ignore: implicit_dynamic_type
@@ -277,16 +281,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.locationId, locationId) || other.locationId == locationId)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&const DeepCollectionEquality().equals(other._adminIds, _adminIds)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category)&&(identical(other.format, format) || other.format == format)&&const DeepCollectionEquality().equals(other._scheduleRules, _scheduleRules));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tournament&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.playersCount, playersCount) || other.playersCount == playersCount)&&(identical(other.location, location) || other.location == location)&&(identical(other.locationId, locationId) || other.locationId == locationId)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&const DeepCollectionEquality().equals(other._adminIds, _adminIds)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.dateRange, dateRange) || other.dateRange == dateRange)&&(identical(other.category, category) || other.category == category)&&(identical(other.format, format) || other.format == format)&&(identical(other.subscriptionTier, subscriptionTier) || other.subscriptionTier == subscriptionTier)&&const DeepCollectionEquality().equals(other._scheduleRules, _scheduleRules));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,locationId,ownerId,const DeepCollectionEquality().hash(_adminIds),imageUrl,description,dateRange,category,format,const DeepCollectionEquality().hash(_scheduleRules));
+int get hashCode => Object.hash(runtimeType,id,name,status,playersCount,location,locationId,ownerId,const DeepCollectionEquality().hash(_adminIds),imageUrl,description,dateRange,category,format,subscriptionTier,const DeepCollectionEquality().hash(_scheduleRules));
 
 @override
 String toString() {
-  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, locationId: $locationId, ownerId: $ownerId, adminIds: $adminIds, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category, format: $format, scheduleRules: $scheduleRules)';
+  return 'Tournament(id: $id, name: $name, status: $status, playersCount: $playersCount, location: $location, locationId: $locationId, ownerId: $ownerId, adminIds: $adminIds, imageUrl: $imageUrl, description: $description, dateRange: $dateRange, category: $category, format: $format, subscriptionTier: $subscriptionTier, scheduleRules: $scheduleRules)';
 }
 
 
@@ -297,7 +301,7 @@ abstract mixin class _$TournamentCopyWith<$Res> implements $TournamentCopyWith<$
   factory _$TournamentCopyWith(_Tournament value, $Res Function(_Tournament) _then) = __$TournamentCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String status, int playersCount, String location, String? locationId, String? ownerId, List<String> adminIds, String imageUrl, String description, String dateRange, String category, String format, List<DailySchedule> scheduleRules
+ String id, String name, String status, int playersCount, String location, String? locationId, String? ownerId, List<String> adminIds, String imageUrl, String description, String dateRange, String category, String format, String subscriptionTier, List<DailySchedule> scheduleRules
 });
 
 
@@ -314,7 +318,7 @@ class __$TournamentCopyWithImpl<$Res>
 
 /// Create a copy of Tournament
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? locationId = freezed,Object? ownerId = freezed,Object? adminIds = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,Object? format = null,Object? scheduleRules = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? status = null,Object? playersCount = null,Object? location = null,Object? locationId = freezed,Object? ownerId = freezed,Object? adminIds = null,Object? imageUrl = null,Object? description = null,Object? dateRange = null,Object? category = null,Object? format = null,Object? subscriptionTier = null,Object? scheduleRules = null,}) {
   return _then(_Tournament(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -329,6 +333,7 @@ as String,description: null == description ? _self.description : description // 
 as String,dateRange: null == dateRange ? _self.dateRange : dateRange // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,format: null == format ? _self.format : format // ignore: cast_nullable_to_non_nullable
+as String,subscriptionTier: null == subscriptionTier ? _self.subscriptionTier : subscriptionTier // ignore: cast_nullable_to_non_nullable
 as String,scheduleRules: null == scheduleRules ? _self._scheduleRules : scheduleRules // ignore: cast_nullable_to_non_nullable
 as List<DailySchedule>,
   ));

@@ -27,11 +27,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
         selectedIndex: navigationShell.currentIndex,
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: loc.home,
-          ),
-          NavigationDestination(
             icon: const Icon(Icons.emoji_events_outlined),
             selectedIcon: const Icon(Icons.emoji_events),
             label: loc.tournaments,

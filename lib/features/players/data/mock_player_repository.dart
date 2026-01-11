@@ -114,4 +114,23 @@ class MockPlayerRepository implements PlayerRepository {
       following: [],
     )).toList();
   }
+  @override
+  Future<Player?> getPlayer(String id) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return Player(
+      id: id,
+      name: 'User $id',
+      title: 'Member',
+      category: 'B',
+      playingSince: '2024',
+      wins: 5,
+      losses: 2,
+      rank: 10,
+      bio: 'Mock Bio',
+      avatarUrl: 'https://via.placeholder.com/150',
+      userType: 'player',
+      followedMatchIds: [],
+      following: [],
+    );
+  }
 }

@@ -72,6 +72,21 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
+            Text(
+              l10n.premiumPrice,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.premiumSupportDev,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
              Text(
               l10n.freeLimitReached, // Reuse this or add specific benefit bullet points
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),

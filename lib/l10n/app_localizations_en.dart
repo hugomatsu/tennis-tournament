@@ -483,4 +483,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get limitReached => 'Limit Reached';
+
+  @override
+  String get createdUnderFreePlan =>
+      'This tournament was created under Free plan';
+
+  @override
+  String get premiumPrice => 'Starting at R\$ 29,99/month';
+
+  @override
+  String get premiumSupportDev => 'Contributions support development!';
 }

@@ -22,4 +22,5 @@ abstract class PlayerRepository {
   Future<void> setPremiumStatus(String userId, bool isPremium);
   Future<void> cancelSubscription(String userId);
   Future<List<Player>> getPlayersByIds(List<String> ids);
+  Future<Player?> getPlayer(String id);
 }

@@ -127,6 +127,43 @@ class FirestoreTournamentRepository implements TournamentRepository {
   }
 
   @override
+  Future<List<Tournament>> getTournamentsForUser(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('tournaments')
+          .where(Filter.or(
+            Filter('ownerId', isEqualTo: userId),
+            Filter('adminIds', arrayContains: userId),
+          ))
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Tournament(
+          id: doc.id,
+          name: data['name'] as String,
+          status: data['status'] as String,
+          playersCount: data['playersCount'] as int,
+          location: data['location'] as String,
+          imageUrl: data['imageUrl'] as String,
+          description: data['description'] as String,
+          dateRange: data['dateRange'] as String,
+          category: data['category'] as String? ?? 'Open',
+          format: data['format'] as String? ?? 'singles',
+          locationId: data['locationId'] as String?,
+          ownerId: data['ownerId'] as String?,
+          adminIds: List<String>.from(data['adminIds'] ?? []),
+          scheduleRules: (data['scheduleRules'] as List<dynamic>?)
+              ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
   Future<void> addCategory(TournamentCategory category) async {
     await _firestore
         .collection('tournaments')

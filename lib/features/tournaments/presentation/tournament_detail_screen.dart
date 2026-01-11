@@ -58,7 +58,18 @@ class TournamentDetailScreen extends ConsumerWidget {
                           ref.invalidate(tournamentCategoriesProvider(id));
                         },
                       ),
-
+                      if (tournament.subscriptionTier == 'Free')
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Chip(
+                            label: Text(
+                              AppLocalizations.of(context)!.createdUnderFreePlan,
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                            backgroundColor: Colors.grey[200],
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
                       if (userAsync.asData?.value != null) ...[
                         Builder(
                           builder: (context) {
@@ -752,17 +763,38 @@ class _InfoTab extends ConsumerWidget {
                    (p) => p.id == tournament.ownerId, 
                    orElse: () => admins.firstWhere((p) => p.id == tournament.adminIds.firstOrNull, orElse: () => admins.first),
                  );
-                 final actualAdmins = admins.where((p) => p.id != owner.id).toList();
+                 final adminsOnly = admins.where((p) => p.id != owner.id).toList();
                  
                  return Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
-                     _InfoRow(icon: Icons.manage_accounts, text: 'Owner: ${owner.name}'),
-                     const SizedBox(height: 12),
-                     if (actualAdmins.isNotEmpty) ...[
-                        _InfoRow(icon: Icons.security, text: 'Admins: ${actualAdmins.map((a) => a.name).join(", ")}'),
-                        const SizedBox(height: 12),
-                     ],
+                 // Display Owner
+                 if (owner != null)
+                   ListTile(
+                     contentPadding: EdgeInsets.zero,
+                     leading: CircleAvatar(
+                       radius: 20,
+                       backgroundImage: NetworkImage(owner.avatarUrl),
+                     ),
+                     title: Text(owner.name),
+                     subtitle: Text(loc.owner),
+                     onTap: () => context.push('/players/${owner.id}'),
+                   ),
+                 
+                 // Display Admins
+                 if (adminsOnly.isNotEmpty) ...[
+                   const SizedBox(height: 8),
+                   Text(loc.admins, style: Theme.of(context).textTheme.titleSmall),
+                   ...adminsOnly.map((admin) => ListTile(
+                     contentPadding: EdgeInsets.zero,
+                     leading: CircleAvatar(
+                       radius: 16,
+                       backgroundImage: NetworkImage(admin.avatarUrl),
+                     ),
+                     title: Text(admin.name),
+                     onTap: () => context.push('/players/${admin.id}'),
+                   )),
+                 ],
                    ],
                  );
               },

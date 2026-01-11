@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 
-class LiveTournamentCard extends StatelessWidget {
+class LiveTournamentCard extends ConsumerWidget {
   final Tournament tournament;
 
   const LiveTournamentCard({super.key, required this.tournament});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
+    final ownerAsync = ref.watch(playerProvider(tournament.ownerId ?? ''));
+    
+    final currentUserId = userAsync.asData?.value?.id;
+    final isHostedByMe = currentUserId != null && (tournament.ownerId == currentUserId || tournament.adminIds.contains(currentUserId));
+
     return Container(
       width: 280,
       margin: const EdgeInsets.only(right: 16),
       child: Card(
         clipBehavior: Clip.antiAlias,
+        shape: isHostedByMe 
+            ? RoundedRectangleBorder(
+                side: const BorderSide(color: Colors.amber, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              )
+            : null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -57,6 +71,32 @@ class LiveTournamentCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (isHostedByMe)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.star, size: 12, color: Colors.black),
+                            SizedBox(width: 4),
+                            Text(
+                              'YOURS', // TODO: Localize
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -74,12 +114,34 @@ class LiveTournamentCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
+                  // Owner Info
+                  ownerAsync.when(
+                    data: (owner) => Row(
+                      children: [
+                        CircleAvatar(
+                           radius: 8,
+                           backgroundImage: NetworkImage(owner.avatarUrl), 
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Hosted by ${owner.name}', // TODO: Localize
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    loading: () => const SizedBox(height: 16), // Placeholder height
+                    error: (_,__) => const SizedBox.shrink(),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Icon(Icons.people_outline, size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        '${tournament.playersCount} Players',
+                        '${tournament.playersCount}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(width: 16),

@@ -25,6 +25,7 @@ abstract class TournamentRepository {
   Future<void> updateTournament(Tournament tournament);
   Future<void> deleteTournament(String tournamentId);
   Future<int> getUserTournamentCount(String userId);
+  Future<List<Tournament>> getTournamentsForUser(String userId);
 
   // Category Management
   Future<void> addCategory(TournamentCategory category);

@@ -17,7 +17,7 @@ class TournamentsScreen extends ConsumerStatefulWidget {
 
 class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'Open', 'Men\'s Singles', 'Women\'s Singles', 'Doubles'];
+  final List<String> _categories = ['All', 'Mine', 'Open', 'Men\'s Singles', 'Women\'s Singles', 'Doubles'];
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,15 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
     final tournamentsAsync = ref.watch(filteredTournamentsProvider(_selectedCategory));
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.tournaments)),
+      appBar: AppBar(
+        title: Text(loc.tournaments),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => context.push('/help'),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           SingleChildScrollView(
@@ -147,6 +155,11 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   }
 }
 
-final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, String>((ref, category) {
+final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, String>((ref, category) async {
+  if (category == 'Mine') {
+    final user = await ref.watch(currentUserProvider.future);
+    if (user == null) return [];
+    return ref.watch(tournamentRepositoryProvider).getTournamentsForUser(user.id);
+  }
   return ref.watch(tournamentRepositoryProvider).getLiveTournaments(category: category);
 });

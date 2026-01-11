@@ -20,6 +20,7 @@ abstract class Tournament with _$Tournament {
     required String dateRange,
     @Default('Open') String category,
     @Default('singles') String format, // 'singles', 'doubles'
+    @Default('Free') String subscriptionTier, // 'Free', 'Premium'
     @Default([]) List<DailySchedule> scheduleRules,
   }) = _Tournament;
 

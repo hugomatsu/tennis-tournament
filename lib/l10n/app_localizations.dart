@@ -1033,6 +1033,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Limit Reached'**
   String get limitReached;
+
+  /// No description provided for @createdUnderFreePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'This tournament was created under Free plan'**
+  String get createdUnderFreePlan;
+
+  /// No description provided for @premiumPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting at R\$ 29,99/month'**
+  String get premiumPrice;
+
+  /// No description provided for @premiumSupportDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributions support development!'**
+  String get premiumSupportDev;
 }
 
 class _AppLocalizationsDelegate

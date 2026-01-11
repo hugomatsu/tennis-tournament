@@ -11,7 +11,7 @@ import 'package:tennis_tournament/features/locations/presentation/location_manag
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/auth/presentation/login_screen.dart';
 import 'package:tennis_tournament/features/auth/presentation/register_screen.dart';
-import 'package:tennis_tournament/features/home/presentation/home_screen.dart';
+
 import 'package:tennis_tournament/features/matches/presentation/schedule_screen.dart';
 import 'package:tennis_tournament/features/matches/presentation/match_detail_screen.dart';
 import 'package:tennis_tournament/features/players/presentation/edit_profile_screen.dart';
@@ -84,14 +84,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/',
-                builder: (context, state) => const HomeScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/tournaments',
                 builder: (context, state) => const TournamentsScreen(),
                 routes: [
@@ -136,8 +128,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                 ],
               ),
-                ],
-              ),
+            ],
+          ),
 
           StatefulShellBranch(
             routes: [

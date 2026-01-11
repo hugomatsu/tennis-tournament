@@ -161,5 +161,8 @@
   "cancelSubscription": "Cancel Subscription",
   "subscriptionCancelled": "Subscription cancelled",
   "freeTournamentsUsed": "Free Tournaments: {count}/{limit}",
-  "limitReached": "Limit Reached"
+  "limitReached": "Limit Reached",
+  "createdUnderFreePlan": "This tournament was created under Free plan",
+  "premiumPrice": "Starting at R$ 29,99/month",
+  "premiumSupportDev": "Contributions support development!"
 }

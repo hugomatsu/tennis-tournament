@@ -183,6 +183,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
             : 'https://via.placeholder.com/400x200',
         status: 'Upcoming',
         playersCount: 0,
+        subscriptionTier: currentUser.isPremium ? 'Premium' : 'Free', // Set tier
       );
 
       await tournamentRepo.createTournament(tournament);

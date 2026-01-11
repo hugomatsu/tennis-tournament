@@ -23,6 +23,13 @@ final friendsProvider = FutureProvider<List<Player>>((ref) async {
   return allPlayers.where((p) => user.following.contains(p.id)).toList();
 });
 
+final playerProvider = FutureProvider.family<Player, String>((ref, id) async {
+  if (id.isEmpty) throw Exception('Player ID cannot be empty');
+  final player = await ref.watch(playerRepositoryProvider).getPlayer(id);
+  if (player == null) throw Exception('Player not found');
+  return player;
+});
+
 final playerControllerProvider = Provider((ref) => PlayerController(ref));
 
 class PlayerController {
