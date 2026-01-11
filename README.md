@@ -1,4 +1,4 @@
-# Tennis Tournament Manager
+# Entre Sets — Onde o torneio também vira resenha
 
 A premium, cross-platform (Mobile & Web) application built with Flutter to manage tennis tournaments, schedule matches, and track player stats with a modern, high-fidelity design.
 

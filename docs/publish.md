@@ -17,6 +17,12 @@ This guide covers the steps to publish the Tennis Tournament application for Web
 
 ### Build for Web
 
+flutter build web --release
+firebase login
+firebase init hosting
+`build/web`
+firebase deploy --only hosting
+
 1.  Run the build command:
     ```bash
     flutter build web --release
