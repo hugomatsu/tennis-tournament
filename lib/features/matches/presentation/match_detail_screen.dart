@@ -322,6 +322,13 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   },
                 ),
              ],
+             const Divider(),
+             ListTile(
+                leading: const Icon(Icons.emoji_events),
+                title: Text(match.tournamentName),
+                subtitle: const Text('Tournament'), 
+                onTap: () => context.push('/tournaments/${match.tournamentId}'),
+             ),
           ],
         ),
       ),
@@ -356,6 +363,24 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ),
               ),
             ),
+            if (match.score != null && match.score!.isNotEmpty) ...[
+               const SizedBox(height: 8),
+               Container(
+                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                 decoration: BoxDecoration(
+                   color: Theme.of(context).colorScheme.tertiaryContainer,
+                   borderRadius: BorderRadius.circular(4),
+                 ),
+                 child: Text(
+                   match.score!,
+                   style: TextStyle(
+                     fontWeight: FontWeight.bold,
+                     fontSize: 16,
+                     color: Theme.of(context).colorScheme.onTertiaryContainer,
+                   ),
+                 ),
+               ),
+            ],
           ],
         ),
         Expanded(

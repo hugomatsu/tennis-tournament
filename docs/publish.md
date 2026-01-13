@@ -15,40 +15,39 @@ This guide covers the steps to publish the Tennis Tournament application for Web
 
 ## 1. Web (Firebase Hosting)
 
-### Build for Web
+### Build and Deploy Steps
 
-flutter build web --release
-firebase login
-firebase init hosting
-`build/web`
-firebase deploy --only hosting
-
-1.  Run the build command:
+1.  **Build**:
     ```bash
     flutter build web --release
     ```
-    *Note: Ensure your `assets/env` file is present and contains the necessary Firebase configuration keys.*
+    This generates the production files in `build/web`.
 
-### Deploy to Firebase
-
-1.  Login to Firebase:
+2.  **Login**:
     ```bash
     firebase login
     ```
 
-2.  Initialize Firebase (if not already done):
+3.  **Initialize** (Only needed once):
     ```bash
     firebase init hosting
     ```
     - Select your project.
-    - Public directory: `build/web`
-    - Configure as a single-page app: `Yes`
-    - Set up automatic builds and deploys with GitHub? (Optional)
+    - **Public directory**: `build/web`
+    - **Configure as a single-page app**: `Yes`
+    - **Set up automatic builds and deploys with GitHub?**: (Optional)
 
-3.  Deploy:
+4.  **Deploy**:
     ```bash
     firebase deploy --only hosting
     ```
+
+### Accessing the App
+After deployment, your app will be available at:
+`https://tennis-tournment.web.app/`
+
+> [!NOTE]
+> Do NOT look for `build/web/index.html` in the URL. Firebase serves the *contents* of your `build/web` folder at the root domain.
 
 ---
 

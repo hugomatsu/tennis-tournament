@@ -190,21 +190,28 @@ class ProfileScreen extends ConsumerWidget {
                                    separatorBuilder: (_, __) => const SizedBox(width: 12),
                                    itemBuilder: (context, index) {
                                      final friend = friends[index];
-                                     return Column(
-                                       mainAxisSize: MainAxisSize.min,
-                                       children: [
-                                          CircleAvatar(
-                                            radius: 24,
-                                            backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                                            foregroundImage: friend.avatarUrl.isNotEmpty ? NetworkImage(friend.avatarUrl) : null,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            friend.name.split(' ').first,
-                                            style: const TextStyle(fontSize: 11),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                       ],
+                                     return InkWell(
+                                       onTap: () => context.push('/players/${friend.id}'),
+                                       borderRadius: BorderRadius.circular(8),
+                                       child: Padding(
+                                         padding: const EdgeInsets.all(4.0),
+                                         child: Column(
+                                           mainAxisSize: MainAxisSize.min,
+                                           children: [
+                                              CircleAvatar(
+                                                radius: 24,
+                                                backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                                                foregroundImage: friend.avatarUrl.isNotEmpty ? NetworkImage(friend.avatarUrl) : null,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                friend.name.split(' ').first,
+                                                style: const TextStyle(fontSize: 11),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                           ],
+                                         ),
+                                       ),
                                      );
                                    },
                                  ),

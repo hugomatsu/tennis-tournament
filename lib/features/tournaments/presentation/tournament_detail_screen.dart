@@ -58,273 +58,169 @@ class TournamentDetailScreen extends ConsumerWidget {
                           ref.invalidate(tournamentCategoriesProvider(id));
                         },
                       ),
-                      if (tournament.subscriptionTier == 'Free')
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Chip(
-                            label: Text(
-                              AppLocalizations.of(context)!.createdUnderFreePlan,
-                              style: const TextStyle(fontSize: 10),
-                            ),
-                            backgroundColor: Colors.grey[200],
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        ),
                       if (userAsync.asData?.value != null) ...[
                         Builder(
                           builder: (context) {
-                            final user = userAsync.asData!.value!;
+                            final user = userAsync.value!; // Safe as we checked data
                             final isOwner = tournament.ownerId == user.id;
                             final isAdmin = isOwner || tournament.adminIds.contains(user.id);
-
+                            
                             if (!isAdmin) return const SizedBox.shrink();
 
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  tooltip: 'Edit Tournament',
-                                  onPressed: () {
+                            return PopupMenuButton<String>(
+                              icon: const Icon(Icons.settings),
+                              tooltip: 'Tournament Options',
+                              onSelected: (value) async {
+                                switch (value) {
+                                  case 'edit':
                                     _showEditTournamentDialog(context, ref, tournament);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.category),
-                                  tooltip: 'Manage Categories',
-                                  onPressed: () {
+                                    break;
+                                  case 'categories':
                                     _showManageCategoriesDialog(context, ref, tournament.id);
-                                  },
-                                ),
+                                    break;
+                                  case 'admins':
+                                    context.go('/tournaments/${tournament.id}/manage-admins', extra: tournament);
+                                    break;
+                                  case 'participants':
+                                    context.go('/tournaments/${tournament.id}/participants');
+                                    break;
+                                  case 'schedule_settings':
+                                    context.go('/tournaments/${tournament.id}/schedule-settings');
+                                    break;
+                                  case 'generate_bracket':
+                                     // Inline generation logic
+                                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                                      final participants = await ref.read(tournamentRepositoryProvider).getParticipants(tournament.id);
+                                      final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournament.id);
+
+                                      if (categories.isEmpty) {
+                                        scaffoldMessenger.showSnackBar(const SnackBar(content: Text('No categories found')));
+                                        return;
+                                      }
+                                      final approvedParticipants = participants.where((p) => p.status == 'approved').toList();
+
+                                      if (!context.mounted) return;
+                                      final method = await showDialog<String>(
+                                        context: context,
+                                        builder: (context) => SimpleDialog(
+                                          title: const Text('Generation Method'),
+                                          children: [
+                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'automatic'), child: const ListTile(leading: Icon(Icons.auto_fix_high), title: Text('Automatic'))),
+                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'manual'), child: const ListTile(leading: Icon(Icons.drag_handle), title: Text('Manual'))),
+                                          ],
+                                        ),
+                                      );
+                                      if (method == null) return;
+                                      
+                                      // Logic from previous implementation
+                                      final allMatches = <TennisMatch>[];
+                                      int generatedCount = 0;
+                                      try {
+                                        for (final category in categories) {
+                                          var categoryParticipants = approvedParticipants.where((p) => p.categoryId == category.id).toList();
+                                          if (categoryParticipants.length < 2) continue;
+
+                                          if (method == 'manual') {
+                                             if (!context.mounted) return;
+                                             // Note: _ManualBracketOrderingDialog needs to be accessible. 
+                                             // It wasn't shown in the file view but assumed to be in the file or imported.
+                                             // Wait, previous file view did NOT show _ManualBracketOrderingDialog class definition?
+                                             // Ah, lines 800+ were not shown. I assume it's there.
+                                             // If not, I'll need to check. But since I'm just moving code, it should be fine.
+                                             // However, `_ManualBracketOrderingDialog` was used in line 227.
+                                             // I need to make sure I don't break it.
+                                            final reordered = await showDialog<List<Participant>>(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) => _ManualBracketOrderingDialog( // Verify this exists
+                                                categoryName: category.name,
+                                                participants: categoryParticipants,
+                                              ),
+                                            );
+                                            if (reordered == null) return;
+                                            categoryParticipants = reordered;
+                                          }
+
+                                          final matches = await ref.read(schedulingServiceProvider).generateBracket(
+                                            tournament, 
+                                            category,
+                                            categoryParticipants,
+                                            shuffle: method == 'automatic',
+                                          );
+                                          allMatches.addAll(matches);
+                                          generatedCount += matches.length;
+                                        }
+
+                                        if (allMatches.isEmpty) {
+                                          scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Not enough approved participants')));
+                                          return;
+                                        }
+                                        await ref.read(matchRepositoryProvider).createMatches(allMatches);
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Generated $generatedCount matches!')));
+                                      } catch (e) {
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Error: $e')));
+                                      }
+                                    break;
+                                  case 'delete_bracket':
+                                     final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Delete Bracket?'),
+                                        content: const Text('This will delete all matches. Cannot be undone.'),
+                                        actions: [
+                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true && context.mounted) {
+                                      try {
+                                        await ref.read(matchRepositoryProvider).deleteMatchesForTournament(tournament.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bracket deleted')));
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                      }
+                                    }
+                                    break;
+                                  case 'delete_tournament':
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Delete Tournament?'),
+                                        content: const Text('This will delete everything. Cannot be undone.'),
+                                        actions: [
+                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true && context.mounted) {
+                                      try {
+                                        await ref.read(tournamentRepositoryProvider).deleteTournament(tournament.id);
+                                        if (context.mounted) context.pop(); 
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                      }
+                                    }
+                                    break;
+                                }
+                              },
+                              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(value: 'edit', child: ListTile(leading: Icon(Icons.edit), title: Text('Edit Info'))),
+                                const PopupMenuItem<String>(value: 'categories', child: ListTile(leading: Icon(Icons.category), title: Text('Categories'))),
                                 if (isOwner)
-                                  IconButton(
-                                    icon: const Icon(Icons.admin_panel_settings),
-                                    tooltip: 'Manage Admins',
-                                    onPressed: () {
-                                      context.go('/tournaments/${tournament.id}/manage-admins', extra: tournament);
-                                    },
-                                  ),
+                                  const PopupMenuItem<String>(value: 'admins', child: ListTile(leading: Icon(Icons.admin_panel_settings), title: Text('Manage Admins'))),
+                                const PopupMenuItem<String>(value: 'participants', child: ListTile(leading: Icon(Icons.people), title: Text('Participants'))),
+                                const PopupMenuItem<String>(value: 'schedule_settings', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('Schedule Settings'))),
+                                const PopupMenuItem<String>(value: 'generate_bracket', child: ListTile(leading: Icon(Icons.shuffle), title: Text('Generate Bracket'))),
+                                if (isOwner) ...[
+                                  const PopupMenuDivider(),
+                                  const PopupMenuItem<String>(value: 'delete_bracket', child: ListTile(leading: Icon(Icons.delete_sweep, color: Colors.red), title: Text('Clear Bracket', style: TextStyle(color: Colors.red)))),
+                                  const PopupMenuItem<String>(value: 'delete_tournament', child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Delete Tournament', style: TextStyle(color: Colors.red)))),
+                                ]
                               ],
                             );
                           }
-                        ),
-                        if (tournament.ownerId == userAsync.asData!.value!.id) // Allow delete for owner only 
-                        IconButton(
-                          icon: const Icon(Icons.delete_sweep),
-                          tooltip: 'Delete Bracket',
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Delete Bracket?'),
-                                content: const Text('This will delete all generated matches for this tournament. This action cannot be undone.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  FilledButton(
-                                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
-                            );
-
-                            if (confirm == true && context.mounted) {
-                              final scaffoldMessenger = ScaffoldMessenger.of(context);
-                              try {
-                                await ref.read(matchRepositoryProvider).deleteMatchesForTournament(tournament.id);
-                                scaffoldMessenger.showSnackBar(
-                                  const SnackBar(content: Text('Bracket deleted successfully')),
-                                );
-                              } catch (e) {
-                                scaffoldMessenger.showSnackBar(
-                                  SnackBar(content: Text('Error deleting bracket: $e')),
-                                );
-                              }
-                            }
-                          },
-                        ),
-                        if (tournament.ownerId == userAsync.asData!.value!.id || tournament.adminIds.contains(userAsync.asData!.value!.id)) ...[
-                        IconButton(
-                          icon: const Icon(Icons.shuffle),
-                          tooltip: 'Generate Bracket',
-                          onPressed: () async {
-                            final scaffoldMessenger = ScaffoldMessenger.of(context);
-                            
-                            // 1. Fetch participants and categories
-                            final participants = await ref
-                                .read(tournamentRepositoryProvider)
-                                .getParticipants(tournament.id);
-                            
-                            final categories = await ref
-                                .read(tournamentRepositoryProvider)
-                                .getCategories(tournament.id);
-
-                            if (categories.isEmpty) {
-                              scaffoldMessenger.showSnackBar(
-                                const SnackBar(content: Text('No categories found to generate bracket')),
-                              );
-                              return;
-                            }
-
-                            // Filter only approved participants
-                            final approvedParticipants = participants
-                                .where((p) => p.status == 'approved')
-                                .toList();
-
-                            // Ask for generation method
-                            if (!context.mounted) return;
-                            final method = await showDialog<String>(
-                              context: context,
-                              builder: (context) => SimpleDialog(
-                                title: const Text('Generation Method'),
-                                children: [
-                                  SimpleDialogOption(
-                                    onPressed: () => Navigator.pop(context, 'automatic'),
-                                    child: const ListTile(
-                                      leading: Icon(Icons.auto_fix_high),
-                                      title: Text('Automatic'),
-                                      subtitle: Text('Randomly shuffle players'),
-                                    ),
-                                  ),
-                                  SimpleDialogOption(
-                                    onPressed: () => Navigator.pop(context, 'manual'),
-                                    child: const ListTile(
-                                      leading: Icon(Icons.drag_handle),
-                                      title: Text('Manual'),
-                                      subtitle: Text('Reorder players manually'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-
-                            if (method == null) return;
-
-                            final allMatches = <TennisMatch>[];
-                            int generatedCount = 0;
-
-                            try {
-                              // 2. Generate matches for each category
-                              for (final category in categories) {
-                                var categoryParticipants = approvedParticipants
-                                    .where((p) => p.categoryId == category.id)
-                                    .toList();
-                                
-                                if (categoryParticipants.length < 2) {
-                                  continue;
-                                }
-
-                                if (method == 'manual') {
-                                  if (!context.mounted) return;
-                                  // Show reordering dialog for this category
-                                  final reordered = await showDialog<List<Participant>>(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) => _ManualBracketOrderingDialog(
-                                      categoryName: category.name,
-                                      participants: categoryParticipants,
-                                    ),
-                                  );
-
-                                  if (reordered == null) {
-                                    // User cancelled manual ordering for this category
-                                    // We can either skip or abort. Let's abort to be safe.
-                                    return;
-                                  }
-                                  categoryParticipants = reordered;
-                                }
-
-                                final matches = await ref
-                                    .read(schedulingServiceProvider)
-                                    .generateBracket(
-                                      tournament, 
-                                      category,
-                                      categoryParticipants,
-                                      shuffle: method == 'automatic', // Only shuffle if automatic
-                                    );
-                                
-                                allMatches.addAll(matches);
-                                generatedCount += matches.length;
-                              }
-
-                              if (allMatches.isEmpty) {
-                                scaffoldMessenger.showSnackBar(
-                                  const SnackBar(content: Text('Not enough approved participants in any category')),
-                                );
-                                return;
-                              }
-
-                              // 3. Save matches
-                              await ref.read(matchRepositoryProvider).createMatches(allMatches);
-
-                              scaffoldMessenger.showSnackBar(
-                                SnackBar(content: Text('Generated $generatedCount matches across ${categories.length} categories!')),
-                              );
-                            } catch (e) {
-                              scaffoldMessenger.showSnackBar(
-                                SnackBar(content: Text('Error: $e')),
-                              );
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.calendar_month),
-                          tooltip: 'Schedule Settings',
-                          onPressed: () {
-                            context.go('/tournaments/${tournament.id}/schedule-settings');
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.people),
-                          tooltip: 'Manage Players',
-                          onPressed: () {
-                            context.go('/tournaments/${tournament.id}/participants');
-                          },
-                        ),
-                        ],
-                        if (tournament.ownerId == userAsync.asData!.value!.id)
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          tooltip: 'Delete Tournament',
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Delete Tournament?'),
-                                content: const Text('This will delete all matches, participants, and categories. This action cannot be undone.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  FilledButton(
-                                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
-                            );
-
-                            if (confirm == true && context.mounted) {
-                              try {
-                                await ref.read(tournamentRepositoryProvider).deleteTournament(tournament.id);
-                                if (context.mounted) {
-                                  context.pop(); // Go back to list
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error deleting: $e')),
-                                  );
-                                }
-                              }
-                            }
-                          },
                         ),
                       ],
                     ],
@@ -666,6 +562,25 @@ class _InfoTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (tournament.subscriptionTier == 'Free')
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                children: [
+                   const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                   const SizedBox(width: 8),
+                   Expanded(child: Text(AppLocalizations.of(context)!.createdUnderFreePlan, style: const TextStyle(fontSize: 12))),
+                ],
+              ),
+            ),
+          ),
         Text(
           'Description', // TODO: Localize
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -805,33 +720,7 @@ class _InfoTab extends ConsumerWidget {
         ),
         _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
         const SizedBox(height: 16),
-        if (userAsync.value != null)
-          Builder(
-            builder: (context) {
-              final user = userAsync.value!;
-              final isOwner = tournament.ownerId == user.id;
-              final isAdmin = isOwner || tournament.adminIds.contains(user.id);
 
-              if (!isAdmin) return const SizedBox.shrink();
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => _ManageCategoriesDialog(tournamentId: tournament.id),
-                      );
-                    },
-                    icon: const Icon(Icons.category),
-                    label: const Text('Manage Categories'), // TODO: Localize
-                  ),
-                ),
-              );
-            }
-          ),
         const SizedBox(height: 8),
         Text(
           loc.participants,

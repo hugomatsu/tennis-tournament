@@ -136,13 +136,36 @@ class MatchCard extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          DateFormat('HH:mm').format(match.time),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             Text(
+                               match.tournamentName,
+                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                 color: Colors.grey[600],
+                                 fontWeight: FontWeight.bold,
+                               ),
+                             ),
+                             const SizedBox(height: 4),
+                             if (match.status == 'Finished' || match.status == 'Completed' && match.score != null)
+                               Text(
+                                 match.score!,
+                                 style: TextStyle(
+                                   fontSize: 18,
+                                   fontWeight: FontWeight.bold,
+                                   color: Theme.of(context).colorScheme.tertiary,
+                                 ),
+                               )
+                             else
+                               Text(
+                                DateFormat('HH:mm').format(match.time),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                          ],
                         ),
                         StatusChip(status: match.status),
                       ],

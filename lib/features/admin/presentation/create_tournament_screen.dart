@@ -7,6 +7,8 @@ import 'package:tennis_tournament/features/media/presentation/media_library_pick
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
@@ -192,7 +194,12 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tournament Created!')),
         );
-        context.go('/tournaments/${tournament.id}');
+        // Refresh the tournament list to show the new item
+        ref.invalidate(filteredTournamentsProvider('Mine'));
+        ref.invalidate(filteredTournamentsProvider('')); // Invalidate 'All' as well
+        
+        // Use push replacement or just go to ensure we land on details
+        context.pushReplacement('/tournaments/${tournament.id}');
       }
     } catch (e) {
       if (mounted) {
