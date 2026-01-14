@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
@@ -45,6 +46,7 @@ class BracketView extends ConsumerWidget {
                   children: categories.map((c) {
                     return _SingleBracketView(
                       tournamentId: tournament.id,
+                      tournamentName: tournament.name,
                       categoryId: c.id,
                     );
                   }).toList(),
@@ -62,10 +64,12 @@ class BracketView extends ConsumerWidget {
 
 class _SingleBracketView extends ConsumerWidget {
   final String tournamentId;
+  final String tournamentName;
   final String categoryId;
 
   const _SingleBracketView({
     required this.tournamentId,
+    required this.tournamentName,
     required this.categoryId,
   });
 
@@ -155,64 +159,176 @@ class _SingleBracketView extends ConsumerWidget {
         final totalHeight = totalSlots * (cardHeight + margin) + 100; // Extra padding
         final totalWidth = maxRound * (cardWidth + gap) + 100;
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SizedBox(
-              width: totalWidth,
-              height: totalHeight,
-              child: Stack(
-                children: [
-                  // 1. Painter for lines
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: BracketPainter(
-                        matches: matches,
-                        cardHeight: cardHeight,
-                        cardWidth: cardWidth,
-                        gap: gap,
-                        margin: margin,
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Container( // Wrap in Container for white background capture default
+                  color: Theme.of(context).cardColor, 
+                  width: totalWidth,
+                  height: totalHeight,
+                  child: Stack(
+                    children: [
+                      // 1. Painter for lines
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: BracketPainter(
+                            matches: matches,
+                            cardHeight: cardHeight,
+                            cardWidth: cardWidth,
+                            gap: gap,
+                            margin: margin,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  // 2. Matches
-                  ...sortedRounds.map((r) {
-                    final roundMatches = rounds[r]!;
-                    final xOffset = (r - 1) * (cardWidth + gap);
-                    
-                    return Positioned(
-                      left: xOffset,
-                      top: 0,
-                      bottom: 0,
-                      width: cardWidth,
-                      child: Stack(
-                        children: roundMatches.map((match) {
-                          final yOffset = _calculateY(r, match.matchIndex, cardHeight, margin);
-                          final isFinal = r == maxRound && roundMatches.length == 1;
+                      // 2. Matches
+                      ...sortedRounds.map((r) {
+                        final roundMatches = rounds[r]!;
+                        final xOffset = (r - 1) * (cardWidth + gap);
+                        
+                        return Positioned(
+                          left: xOffset,
+                          top: 0,
+                          bottom: 0,
+                          width: cardWidth,
+                          child: Stack(
+                            children: roundMatches.map((match) {
+                              final yOffset = _calculateY(r, match.matchIndex, cardHeight, margin);
+                              final isFinal = r == maxRound && roundMatches.length == 1;
 
-                          return Positioned(
-                            top: yOffset,
-                            left: 0,
-                            child: MatchCard(
-                              match: match,
-                              width: cardWidth,
-                              height: cardHeight,
-                              isFinal: isFinal,
-                              currentUserId: currentUserId,
-                              onTap: () {
-                                context.push('/matches/${match.id}');
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    );
-                  }),
-                ],
+                              return Positioned(
+                                top: yOffset,
+                                left: 0,
+                                child: MatchCard(
+                                  match: match,
+                                  width: cardWidth,
+                                  height: cardHeight,
+                                  isFinal: isFinal,
+                                  currentUserId: currentUserId,
+                                  onTap: () {
+                                    context.push('/matches/${match.id}');
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+             Positioned(
+              top: 16,
+              right: 16,
+              child: ShareButton(
+                shareSubject: 'Tournament Bracket',
+                shareUrl: 'https://tennis-tournament.web.app/tournaments/$tournamentId', // TODO: Dynamic host
+                label: 'Share Bracket',
+                shareWidget: Theme(
+                  data: ThemeData.light(),
+                  child: Builder(
+                    builder: (context) {
+                      return Container(
+                        width: totalWidth + 100,
+                        height: totalHeight + 150,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                             // Branding Header
+                             Positioned(
+                               top: 20,
+                               left: 20,
+                               child: Row(
+                                 children: [
+                                   Icon(Icons.sports_tennis, color: Colors.white.withOpacity(0.1), size: 40),
+                                   const SizedBox(width: 8),
+                                   Text(
+                                     tournamentName,
+                                     style: TextStyle(
+                                       fontSize: 32,
+                                       fontWeight: FontWeight.w900,
+                                       color: Colors.white.withOpacity(0.1),
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
+
+                            // Centered Bracket
+                            Positioned(
+                              left: 50,
+                              top: 80,
+                              child: SizedBox(
+                                width: totalWidth,
+                                height: totalHeight,
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: CustomPaint(
+                                        painter: BracketPainter(
+                                          matches: matches,
+                                          cardHeight: cardHeight,
+                                          cardWidth: cardWidth,
+                                          gap: gap,
+                                          margin: margin,
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                    ),
+                                    for (var match in matches)
+                                      Positioned(
+                                        left: (int.parse(match.round) - 1) * (cardWidth + gap),
+                                        top: _calculateY(int.parse(match.round), match.matchIndex, cardHeight, margin),
+                                        child: MatchCard(
+                                          match: match,
+                                          width: cardWidth,
+                                          height: cardHeight,
+                                          isFinal: int.parse(match.round) == maxRound && matches.where((m) => m.round == match.round).length == 1,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Footer Branding
+                            Positioned(
+                                bottom: 20,
+                                right: 30,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.share, size: 16, color: Colors.grey),
+                                      const SizedBox(width: 8),
+                                      const Text('tennis-tournament.web.app', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),

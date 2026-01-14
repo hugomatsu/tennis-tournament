@@ -7,6 +7,7 @@ class BracketPainter extends CustomPainter {
   final double cardWidth;
   final double gap;
   final double margin;
+  final Color? color;
 
   BracketPainter({
     required this.matches,
@@ -14,12 +15,13 @@ class BracketPainter extends CustomPainter {
     required this.cardWidth,
     required this.gap,
     required this.margin,
+    this.color,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.5)
+      ..color = color ?? Colors.grey.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 

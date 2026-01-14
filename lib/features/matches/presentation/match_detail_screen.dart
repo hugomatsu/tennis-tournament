@@ -9,6 +9,7 @@ import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final matchDetailProvider = StreamProvider.family<TennisMatch?, String>((ref, matchId) {
@@ -52,11 +53,155 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       appBar: AppBar(
         title: Text(loc.matchDetails),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-               // Share feature
+          matchAsync.when(
+            data: (match) {
+              if (match == null) return const SizedBox.shrink();
+              return ShareButton(
+                shareSubject: 'Check out this match!',
+                shareUrl: 'https://tennis-tournament.web.app/matches/${match.id}', // TODO: Dynamic host
+
+                shareWidget: Theme(
+                  data: ThemeData.light(),
+                  child: Builder(
+                    builder: (context) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              match.tournamentName.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Simplified VS view for sharing
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 4),
+                                        ),
+                                        child: CircleAvatar(
+                                          radius: 45,
+                                          backgroundColor: Colors.white24,
+                                          backgroundImage: match.player1AvatarUrls.isNotEmpty ? NetworkImage(match.player1AvatarUrls.first!) : null,
+                                          child: match.player1AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        match.player1Name,
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white24,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Text('VS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                       Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 4),
+                                        ),
+                                        child: CircleAvatar(
+                                          radius: 45,
+                                          backgroundColor: Colors.white24,
+                                          backgroundImage: match.player2AvatarUrls.isNotEmpty ? NetworkImage(match.player2AvatarUrls.first!) : null,
+                                           child: match.player2AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        match.player2Name ?? 'TBD',
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            if (match.score != null) ...[
+                              Text(
+                                match.score!,
+                                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w800, color: Colors.white),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'Completed',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+                                ),
+                              ),
+                            ] else ...[
+                               Text(
+                                DateFormat('EEE, MMM d').format(match.time),
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat('h:mm a').format(match.time),
+                                style: const TextStyle(fontSize: 16, color: Colors.white70),
+                              ),
+                            ],
+                            const SizedBox(height: 24),
+                            // Branding Footer
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.sports_tennis, size: 16, color: Colors.white70),
+                                const SizedBox(width: 8),
+                                const Text('Powered by Tennis Tournament App', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  ),
+                  ),
+                );
             },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
           FutureBuilder<Player?>(
             future: ref.watch(currentUserProvider.future), // Ensure we check current user
