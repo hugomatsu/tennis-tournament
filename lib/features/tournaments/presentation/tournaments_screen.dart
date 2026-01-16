@@ -45,10 +45,20 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
             child: Row(
               children: _categories.map((category) {
                 final isSelected = _selectedCategory == category;
+                String label = category;
+                switch (category) {
+                  case 'All': label = loc.all; break;
+                  case 'Mine': label = loc.mine; break;
+                  case 'Open': label = loc.open; break;
+                  case 'Men\'s Singles': label = loc.mensSingles; break;
+                  case 'Women\'s Singles': label = loc.womensSingles; break;
+                  case 'Doubles': label = loc.doubles; break;
+                }
+                
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text(category),
+                    label: Text(label),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
@@ -64,7 +74,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
             child: tournamentsAsync.when(
               data: (tournaments) {
                 if (tournaments.isEmpty) {
-                  return const Center(child: Text('No tournaments found'));
+                  return Center(child: Text(loc.noTournamentsFound));
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -82,7 +92,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (err, stack) => Center(child: Text('${loc.errorOccurred(err.toString())}')),
             ),
           ),
         ],

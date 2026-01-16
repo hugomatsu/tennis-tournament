@@ -26,7 +26,7 @@ class ScheduleScreen extends ConsumerWidget {
           return MatchListCalendar(matches: matches);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error, stack) => Center(child: Text('${loc.errorOccurred(error.toString())}')),
       ),
     );
   }

@@ -1051,6 +1051,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contributions support development!'**
   String get premiumSupportDev;
+
+  /// No description provided for @organizers.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizers'**
+  String get organizers;
+
+  /// No description provided for @noOrganizersListed.
+  ///
+  /// In en, this message translates to:
+  /// **'No organizers listed.'**
+  String get noOrganizersListed;
+
+  /// No description provided for @failedToLoadOrganizers.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load organizers.'**
+  String get failedToLoadOrganizers;
+
+  /// No description provided for @noCategoriesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories found.'**
+  String get noCategoriesFound;
+
+  /// No description provided for @errorLoadingCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading categories.'**
+  String get errorLoadingCategories;
+
+  /// No description provided for @myPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'My Plan'**
+  String get myPlan;
+
+  /// No description provided for @content.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get content;
+
+  /// No description provided for @appAndSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'App & Settings'**
+  String get appAndSettings;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @system.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get system;
+
+  /// No description provided for @light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get light;
+
+  /// No description provided for @dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get dark;
+
+  /// No description provided for @evaluateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluate App'**
+  String get evaluateApp;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get termsOfUse;
+
+  /// No description provided for @madeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by'**
+  String get madeBy;
+
+  /// No description provided for @editTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Tournament'**
+  String get editTournament;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Category'**
+  String get addCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get editCategory;
+
+  /// No description provided for @matchDurationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Duration (minutes)'**
+  String get matchDurationMinutes;
+
+  /// No description provided for @selectPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Partner'**
+  String get selectPartner;
+
+  /// No description provided for @leaveTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Tournament?'**
+  String get leaveTournament;
+
+  /// No description provided for @leaveTournamentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to leave the tournament completely? This will remove you from all categories.'**
+  String get leaveTournamentConfirm;
+
+  /// No description provided for @leaveParticipation.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Participation'**
+  String get leaveParticipation;
+
+  /// No description provided for @joinTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Join Tournament'**
+  String get joinTournament;
+
+  /// No description provided for @editParticipation.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Participation'**
+  String get editParticipation;
+
+  /// No description provided for @leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leave;
+
+  /// No description provided for @friend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get friend;
+
+  /// No description provided for @searchLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Search locations...'**
+  String get searchLocations;
+
+  /// No description provided for @noLocationsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No locations found'**
+  String get noLocationsFound;
+
+  /// No description provided for @courtsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts available'**
+  String get courtsAvailable;
+
+  /// No description provided for @addNewLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Location'**
+  String get addNewLocation;
+
+  /// No description provided for @selectCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Categories'**
+  String get selectCategories;
+
+  /// No description provided for @noCategoriesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Categories Available'**
+  String get noCategoriesAvailable;
+
+  /// No description provided for @partnerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner required for {category}. Skipped.'**
+  String partnerRequired(Object category);
+
+  /// No description provided for @participationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Participation updated successfully'**
+  String get participationUpdated;
+
+  /// No description provided for @errorUpdatingParticipation.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating participation: {error}'**
+  String errorUpdatingParticipation(Object error);
+
+  /// No description provided for @youHaveLeftTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'You have left the tournament'**
+  String get youHaveLeftTournament;
+
+  /// No description provided for @errorLeavingTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Error leaving tournament: {error}'**
+  String errorLeavingTournament(Object error);
+
+  /// No description provided for @reorderPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Players - {category}'**
+  String reorderPlayers(Object category);
+
+  /// No description provided for @dragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder. Players are paired from top to bottom (1 vs 2, 3 vs 4, etc.)'**
+  String get dragToReorder;
+
+  /// No description provided for @confirmOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Order'**
+  String get confirmOrder;
+
+  /// No description provided for @enterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a name'**
+  String get enterName;
+
+  /// No description provided for @selectLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get selectLocation;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get dateRange;
+
+  /// No description provided for @selectDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Dates'**
+  String get selectDates;
+
+  /// No description provided for @coverImageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover Image URL'**
+  String get coverImageUrl;
+
+  /// No description provided for @selectImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Image'**
+  String get selectImage;
+
+  /// No description provided for @selectFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Select from Library'**
+  String get selectFromLibrary;
+
+  /// No description provided for @tournamentCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Created!'**
+  String get tournamentCreated;
+
+  /// No description provided for @pleaseSelectDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a date range'**
+  String get pleaseSelectDateRange;
+
+  /// No description provided for @pleaseSelectLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a location'**
+  String get pleaseSelectLocation;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @mine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get mine;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @mensSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Men\'s Singles'**
+  String get mensSingles;
+
+  /// No description provided for @womensSingles.
+  ///
+  /// In en, this message translates to:
+  /// **'Women\'s Singles'**
+  String get womensSingles;
+
+  /// No description provided for @doubles.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubles'**
+  String get doubles;
+
+  /// No description provided for @noTournamentsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tournaments found'**
+  String get noTournamentsFound;
+
+  /// No description provided for @purchasesRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored'**
+  String get purchasesRestored;
+
+  /// No description provided for @confirmCancelSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Cancellation'**
+  String get confirmCancelSubscription;
+
+  /// No description provided for @cancelSubscriptionWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure? Used features will be lost.'**
+  String get cancelSubscriptionWarning;
+
+  /// No description provided for @simulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation'**
+  String get simulation;
 }
 
 class _AppLocalizationsDelegate

@@ -457,16 +457,77 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                title: Text(match.court),
                subtitle: Text('${loc.round} ${match.round}'),
              ),
-             if (match.locationId != null) ...[
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: Text(loc.viewLocation), // Placeholder for location name lookup
-                  onTap: () {
-                     // Launch map logic
+              if (match.locationId != null)
+                FutureBuilder(
+                  future: ref.watch(locationRepositoryProvider).getLocation(match.locationId!),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final location = snapshot.data!;
+                      return Column(
+                        children: [
+                          const Divider(),
+                          InkWell(
+                            onTap: () async {
+                              final uri = Uri.parse(location.googleMapsUrl);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri);
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (location.imageUrl != null && location.imageUrl!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 16),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          location.imageUrl!,
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => const Icon(Icons.location_on, size: 40, color: Colors.grey),
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 16),
+                                      child: Icon(Icons.location_on, size: 24, color: Colors.grey),
+                                    ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          location.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            decoration: TextDecoration.underline,
+                                            decorationColor: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                                            color: Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          loc.viewLocation,
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.open_in_new, size: 16, color: Colors.grey),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink(); 
                   },
                 ),
-             ],
              const Divider(),
              ListTile(
                 leading: const Icon(Icons.emoji_events),
@@ -673,12 +734,7 @@ class _PlayerCard extends ConsumerWidget {
     return Card(
       elevation: isWinner ? 4 : 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(12),
-          bottomLeft: const Radius.circular(12),
-          topRight: isLeft ? Radius.zero : const Radius.circular(12),
-          bottomRight: isLeft ? Radius.zero : const Radius.circular(12),
-        ),
+        borderRadius: BorderRadius.circular(16),
         side: isWinner ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2) : BorderSide.none,
       ),
       child: Container(

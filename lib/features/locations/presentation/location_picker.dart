@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/locations/application/location_providers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/locations/domain/location.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class LocationPicker extends ConsumerStatefulWidget {
   final Function(TournamentLocation location) onLocationSelected;
@@ -33,9 +34,9 @@ class _LocationPickerState extends ConsumerState<LocationPicker> {
           padding: const EdgeInsets.all(16),
           child: TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: 'Search locations...',
-              prefixIcon: Icon(Icons.search),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.searchLocations,
+              prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(),
             ),
             onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
@@ -50,7 +51,7 @@ class _LocationPickerState extends ConsumerState<LocationPicker> {
               }).toList();
 
               if (filtered.isEmpty) {
-                return const Center(child: Text('No locations found'));
+                return Center(child: Text(AppLocalizations.of(context)!.noLocationsFound));
               }
 
               return ListView.builder(
@@ -62,7 +63,7 @@ class _LocationPickerState extends ConsumerState<LocationPicker> {
                         ? CircleAvatar(backgroundImage: NetworkImage(location.imageUrl!))
                         : const CircleAvatar(child: Icon(Icons.stadium)),
                     title: Text(location.name),
-                    subtitle: Text('${location.numberOfCourts} Courts available'),
+                    subtitle: Text('${location.numberOfCourts} ${AppLocalizations.of(context)!.courtsAvailable}'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => widget.onLocationSelected(location),
                   );
@@ -76,7 +77,7 @@ class _LocationPickerState extends ConsumerState<LocationPicker> {
         const Divider(height: 1),
         ListTile(
           leading: const Icon(Icons.add_location_alt, color: Colors.blue),
-          title: const Text('Add New Location'),
+          title: Text(AppLocalizations.of(context)!.addNewLocation),
           onTap: () {
              // Navigate to location management/creation
              // Since we are likely in a modal, we might need to route to a creation screen

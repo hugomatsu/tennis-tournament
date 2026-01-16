@@ -31,7 +31,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorOccurred(e.toString())}')),
         );
       }
     } finally {
@@ -113,7 +113,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               onPressed: () {
                 // Mock restore logic
                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Purchases restored')),
+                    SnackBar(content: Text(l10n.purchasesRestored)),
                   );
               },
                child: Text(l10n.restorePurchases),

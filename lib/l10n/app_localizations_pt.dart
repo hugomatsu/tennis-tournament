@@ -493,4 +493,204 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get premiumSupportDev => 'Contributions support development!';
+
+  @override
+  String get organizers => 'Organizadores';
+
+  @override
+  String get noOrganizersListed => 'Nenhum organizador listado.';
+
+  @override
+  String get failedToLoadOrganizers => 'Falha ao carregar organizadores.';
+
+  @override
+  String get noCategoriesFound => 'Nenhuma categoria encontrada.';
+
+  @override
+  String get errorLoadingCategories => 'Erro ao carregar categorias.';
+
+  @override
+  String get myPlan => 'Meu Plano';
+
+  @override
+  String get content => 'Conteúdo';
+
+  @override
+  String get appAndSettings => 'App & Configurações';
+
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get system => 'Sistema';
+
+  @override
+  String get light => 'Claro';
+
+  @override
+  String get dark => 'Escuro';
+
+  @override
+  String get evaluateApp => 'Avaliar App';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidade';
+
+  @override
+  String get termsOfUse => 'Termos de Uso';
+
+  @override
+  String get madeBy => 'Feito por';
+
+  @override
+  String get editTournament => 'Editar Torneio';
+
+  @override
+  String get addCategory => 'Adicionar Categoria';
+
+  @override
+  String get editCategory => 'Editar Categoria';
+
+  @override
+  String get matchDurationMinutes => 'Duração da Partida (minutos)';
+
+  @override
+  String get selectPartner => 'Selecionar Parceiro';
+
+  @override
+  String get leaveTournament => 'Sair do Torneio?';
+
+  @override
+  String get leaveTournamentConfirm =>
+      'Tem certeza que deseja sair do torneio completamente? Isso removerá você de todas as categorias.';
+
+  @override
+  String get leaveParticipation => 'Sair da Participação';
+
+  @override
+  String get joinTournament => 'Entrar no Torneio';
+
+  @override
+  String get editParticipation => 'Editar Participação';
+
+  @override
+  String get leave => 'Sair';
+
+  @override
+  String get friend => 'Amigo';
+
+  @override
+  String get searchLocations => 'Buscar locais...';
+
+  @override
+  String get noLocationsFound => 'Nenhum local encontrado';
+
+  @override
+  String get courtsAvailable => 'Quadras disponíveis';
+
+  @override
+  String get addNewLocation => 'Adicionar Novo Local';
+
+  @override
+  String get selectCategories => 'Selecionar Categorias';
+
+  @override
+  String get noCategoriesAvailable => 'Nenhuma categoria disponível';
+
+  @override
+  String partnerRequired(Object category) {
+    return 'Parceiro necessário para $category. Ignorado.';
+  }
+
+  @override
+  String get participationUpdated => 'Participação atualizada com sucesso';
+
+  @override
+  String errorUpdatingParticipation(Object error) {
+    return 'Erro ao atualizar participação: $error';
+  }
+
+  @override
+  String get youHaveLeftTournament => 'Você saiu do torneio';
+
+  @override
+  String errorLeavingTournament(Object error) {
+    return 'Erro ao sair do torneio: $error';
+  }
+
+  @override
+  String reorderPlayers(Object category) {
+    return 'Ordenar Jogadores - $category';
+  }
+
+  @override
+  String get dragToReorder =>
+      'Arraste para reordenar. Jogadores são pareados de cima para baixo (1 vs 2, 3 vs 4, etc.)';
+
+  @override
+  String get confirmOrder => 'Confirmar Ordem';
+
+  @override
+  String get enterName => 'Por favor informe um nome';
+
+  @override
+  String get selectLocation => 'Selecionar Local';
+
+  @override
+  String get dateRange => 'Período';
+
+  @override
+  String get selectDates => 'Selecionar Datas';
+
+  @override
+  String get coverImageUrl => 'URL da Imagem de Capa';
+
+  @override
+  String get selectImage => 'Selecionar Imagem';
+
+  @override
+  String get selectFromLibrary => 'Selecionar da Biblioteca';
+
+  @override
+  String get tournamentCreated => 'Torneio Criado!';
+
+  @override
+  String get pleaseSelectDateRange => 'Por favor selecione o período';
+
+  @override
+  String get pleaseSelectLocation => 'Por favor selecione um local';
+
+  @override
+  String get all => 'Todos';
+
+  @override
+  String get mine => 'Meus';
+
+  @override
+  String get open => 'Abertos';
+
+  @override
+  String get mensSingles => 'Simples Masc.';
+
+  @override
+  String get womensSingles => 'Simples Fem.';
+
+  @override
+  String get doubles => 'Duplas';
+
+  @override
+  String get noTournamentsFound => 'Nenhum torneio encontrado';
+
+  @override
+  String get purchasesRestored => 'Compras restauradas';
+
+  @override
+  String get confirmCancelSubscription => 'Confirmar Cancelamento';
+
+  @override
+  String get cancelSubscriptionWarning =>
+      'Tem certeza? Recursos utilizados serão perdidos.';
+
+  @override
+  String get simulation => 'Simulação';
 }

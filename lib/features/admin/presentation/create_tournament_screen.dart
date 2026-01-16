@@ -53,7 +53,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         builder: (context, scrollController) => Column(
           children: [
             AppBar(
-              title: const Text('Select Location'),
+              title: Text(AppLocalizations.of(context)!.selectLocation),
               leading: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -107,7 +107,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         builder: (context, scrollController) => Column(
           children: [
             AppBar(
-              title: const Text('Select Image'),
+              title: Text(AppLocalizations.of(context)!.selectImage),
               leading: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -134,7 +134,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     
     if (_startDate == null || _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date range')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectDateRange)),
       );
       return;
     }
@@ -148,11 +148,12 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       
       final currentUser = await playerRepo.getCurrentUser();
       if (currentUser == null) {
-         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please log in to create a tournament')),
-          );
-         }
+           if (mounted) {
+            final l10n = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.pleaseLogIn)),
+            );
+           }
          return;
       }
 
@@ -192,7 +193,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tournament Created!')),
+          SnackBar(content: Text(l10n.tournamentCreated)),
         );
         // Refresh the tournament list to show the new item
         ref.invalidate(filteredTournamentsProvider('Mine'));
@@ -204,7 +205,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorOccurred(e.toString())}')),
         );
       }
     } finally {
@@ -239,8 +240,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM d, y');
     
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Tournament')),
+      appBar: AppBar(title: Text(l10n.createTournament)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -250,27 +253,27 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Tournament Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.emoji_events),
+                decoration: InputDecoration(
+                  labelText: l10n.tournamentName,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.emoji_events),
                 ),
                 validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter a name' : null,
+                    value == null || value.isEmpty ? l10n.enterName : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _locationController,
                 readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
+                decoration: InputDecoration(
+                  labelText: l10n.location,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.location_on),
+                  suffixIcon: const Icon(Icons.arrow_drop_down),
                 ),
                 onTap: _showLocationPicker,
                 validator: (value) =>
-                    value == null || value.isEmpty ? 'Please select a location' : null,
+                    value == null || value.isEmpty ? l10n.pleaseSelectLocation : null,
               ),
               const SizedBox(height: 16),
               
@@ -278,15 +281,15 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               InkWell(
                 onTap: () => _selectDateRange(context),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date Range',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.date_range),
+                  decoration: InputDecoration(
+                    labelText: l10n.dateRange,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.date_range),
                   ),
                   child: Text(
                     _startDate != null && _endDate != null
                         ? '${dateFormat.format(_startDate!)} - ${dateFormat.format(_endDate!)}'
-                        : 'Select Dates',
+                        : l10n.selectDates,
                     style: TextStyle(
                       color: _startDate != null ? Colors.black : Colors.grey[600],
                     ),
@@ -297,10 +300,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
+                decoration: InputDecoration(
+                  labelText: l10n.description,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.description),
                 ),
                 maxLines: 3,
               ),
@@ -312,10 +315,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   Expanded(
                     child: TextFormField(
                       controller: _imageUrlController,
-                      decoration: const InputDecoration(
-                        labelText: 'Cover Image URL',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.image),
+                      decoration: InputDecoration(
+                        labelText: l10n.coverImageUrl,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.image),
                       ),
                       readOnly: true, // Make it read-only so user uses the picker
                       onTap: _showMediaLibrary,
@@ -325,7 +328,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   IconButton.filledTonal(
                     onPressed: _showMediaLibrary,
                     icon: const Icon(Icons.photo_library),
-                    tooltip: 'Select from Library',
+                    tooltip: l10n.selectFromLibrary,
                   ),
                 ],
               ),
@@ -362,7 +365,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                           width: 20, 
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
                         )
-                      : const Text('Create Tournament'),
+                       : Text(l10n.createTournament),
                 ),
               ),
             ],

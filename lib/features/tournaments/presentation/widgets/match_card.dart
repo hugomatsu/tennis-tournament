@@ -56,7 +56,9 @@ class MatchCard extends ConsumerWidget {
                 color: theme.colorScheme.surface, 
                 border: isFinal 
                     ? Border.all(color: Colors.amber, width: 2) 
-                    : (isParticipant ? Border.all(color: theme.colorScheme.primary, width: 2) : null),
+                    : (isParticipant 
+                        ? Border.all(color: theme.colorScheme.primary, width: 2) 
+                        : Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1)),
                 boxShadow: isParticipant 
                     ? [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 1)]
                     : null,

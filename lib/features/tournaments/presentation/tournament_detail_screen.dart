@@ -146,7 +146,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                             final reordered = await showDialog<List<Participant>>(
                                               context: context,
                                               barrierDismissible: false,
-                                              builder: (context) => _ManualBracketOrderingDialog( // Verify this exists
+                                              builder: (context) => _ManualBracketOrderingDialog( 
                                                 categoryName: category.name,
                                                 participants: categoryParticipants,
                                               ),
@@ -610,7 +610,7 @@ class _InfoTab extends ConsumerWidget {
                   ),
                 ),
               Text(
-                tournament.description.isNotEmpty ? tournament.description : 'No description provided.',
+                tournament.description.isNotEmpty ? tournament.description : loc.description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
                   height: 1.5,
@@ -659,8 +659,25 @@ class _InfoTab extends ConsumerWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.location_on_outlined, size: 20, color: Colors.grey),
-                            const SizedBox(width: 16),
+                            if (location.imageUrl != null && location.imageUrl!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    location.imageUrl!,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => const Icon(Icons.location_on_outlined, size: 40, color: Colors.grey),
+                                  ),
+                                ),
+                              )
+                            else
+                              const Padding(
+                                padding: EdgeInsets.only(right: 16),
+                                child: Icon(Icons.location_on_outlined, size: 20, color: Colors.grey),
+                              ),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -671,12 +688,12 @@ class _InfoTab extends ConsumerWidget {
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.primary,
                                       decoration: TextDecoration.underline,
-                                      decorationColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                      decorationColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${location.numberOfCourts} Courts', 
+                                    '${location.numberOfCourts} ${loc.courtsAvailable}', 
                                     style: Theme.of(context).textTheme.bodySmall
                                   ),
                                 ],
@@ -712,7 +729,7 @@ class _InfoTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Organizers', // TODO: Localize
+                loc.organizers,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -723,7 +740,7 @@ class _InfoTab extends ConsumerWidget {
                   final adminsAsync = ref.watch(tournamentAdminsProvider(tournament));
                   return adminsAsync.when(
                     data: (admins) {
-                       if (admins.isEmpty) return const Text('No organizers listed.');
+                       if (admins.isEmpty) return Text(loc.noOrganizersListed);
                        
                        final owner = admins.firstWhere(
                          (p) => p.id == tournament.ownerId, 
@@ -793,7 +810,7 @@ class _InfoTab extends ConsumerWidget {
                   
                   return categoriesAsync.when(
                     data: (categories) {
-                      if (categories.isEmpty) return const Text('No categories found.');
+                      if (categories.isEmpty) return Text(loc.noCategoriesFound);
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -917,14 +934,14 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
         .getParticipantsForUser(widget.tournament.id, widget.currentUser!.id);
     
     if (mounted) {
-      setState(() => _joinedCategoryIds = participants.map((p) => p.categoryId).toList());
+                                      setState(() => _joinedCategoryIds = participants.map((p) => p.categoryId).toList());
     }
   }
 
   Future<void> _showCategorySelectionDialog() async {
     if (widget.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in to join')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseLogIn)),
       );
       return;
     }
@@ -934,7 +951,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     if (categories.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No categories available to join.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noCategoriesAvailable)),
         );
       }
       return;
@@ -943,15 +960,15 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     // Local state for the dialog
     final selectedCategories = Set<String>.from(_joinedCategoryIds);
     final isEditing = _joinedCategoryIds.isNotEmpty;
-
     if (!mounted) return;
+    final loc = AppLocalizations.of(context)!;
 
     await showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text(isEditing ? 'Edit Participation' : 'Select Categories'),
+            title: Text(isEditing ? loc.editParticipation : loc.joinTournament),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -981,17 +998,17 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Leave Tournament?'),
-                        content: const Text('Are you sure you want to leave the tournament completely? This will remove you from all categories.'),
+                        title: Text(loc.leaveTournament),
+                        content: Text(loc.leaveTournamentConfirm),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
+                            child: Text(loc.cancel),
                           ),
                           FilledButton(
                             style: FilledButton.styleFrom(backgroundColor: Colors.red),
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Leave'),
+                            child: Text(loc.leave),
                           ),
                         ],
                       ),
@@ -1002,18 +1019,18 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
                       _handleLeaveTournament();
                     }
                   },
-                  child: const Text('Leave Participation'),
+                  child: Text(loc.leaveParticipation),
                 ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(loc.cancel),
               ),
               FilledButton(
                 onPressed: () {
                   Navigator.pop(context);
                   _handleUpdateParticipation(selectedCategories);
                 },
-                child: const Text('Confirm'),
+                child: Text(loc.confirm),
               ),
             ],
           );
@@ -1027,6 +1044,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     final userId = widget.currentUser!.id;
     final tournamentId = widget.tournament.id;
     final repo = ref.read(tournamentRepositoryProvider);
+    final loc = AppLocalizations.of(context)!;
 
     try {
       // Determine additions and removals
@@ -1055,7 +1073,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
                // Must have partner for doubles? 
                // For now, abort joining this category if no partner selected
                ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(content: Text('Partner required for ${category.name}. Skipped.')),
+                 SnackBar(content: Text(loc.partnerRequired(category.name))),
                );
                continue;
              }
@@ -1076,7 +1094,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Participation updated successfully')),
+           SnackBar(content: Text(loc.participationUpdated)),
         );
         ref.invalidate(tournamentDetailProvider(tournamentId));
         ref.invalidate(participantsProvider(tournamentId));
@@ -1084,7 +1102,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating participation: $e')),
+          SnackBar(content: Text(loc.errorUpdatingParticipation(e.toString()))),
         );
       }
     } finally {
@@ -1097,6 +1115,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     final userId = widget.currentUser!.id;
     final tournamentId = widget.tournament.id;
     final repo = ref.read(tournamentRepositoryProvider);
+    final loc = AppLocalizations.of(context)!;
 
     try {
       for (final categoryId in _joinedCategoryIds) {
@@ -1107,7 +1126,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You have left the tournament')),
+           SnackBar(content: Text(loc.youHaveLeftTournament)),
         );
         ref.invalidate(tournamentDetailProvider(tournamentId));
         ref.invalidate(participantsProvider(tournamentId));
@@ -1115,7 +1134,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error leaving tournament: $e')),
+          SnackBar(content: Text(loc.errorLeavingTournament(e.toString()))),
         );
       }
     } finally {
@@ -1133,6 +1152,7 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
       child: categoriesAsync.when(
         data: (categories) {
           final isDisabled = categories.isEmpty;
+          final loc = AppLocalizations.of(context)!;
           return FilledButton(
             onPressed: (_isLoading || isDisabled) ? null : _showCategorySelectionDialog,
             style: isJoined ? FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary) : null,
@@ -1143,8 +1163,8 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Text(isDisabled 
-                    ? 'No Categories Available' 
-                    : (isJoined ? 'Edit Participation' : 'Join Tournament')),
+                    ? loc.noCategoriesAvailable 
+                    : (isJoined ? loc.editParticipation : loc.joinTournament)),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -1221,18 +1241,19 @@ class _ManualBracketOrderingDialogState extends State<_ManualBracketOrderingDial
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: Text('Order Players - ${widget.categoryName}'),
+      title: Text(loc.reorderPlayers(widget.categoryName)),
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Text(
-                'Drag to reorder. Players are paired from top to bottom (1 vs 2, 3 vs 4, etc.)',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                loc.dragToReorder,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),
             Expanded(
@@ -1311,11 +1332,11 @@ class _ManualBracketOrderingDialogState extends State<_ManualBracketOrderingDial
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(loc.cancel),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, _items),
-          child: const Text('Confirm Order'),
+          child: Text(loc.confirmOrder),
         ),
       ],
     );
@@ -1339,18 +1360,19 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
     final allPlayersAsync = ref.watch(allPlayersProvider);
     final userAsync = ref.watch(currentUserProvider);
     final currentUser = userAsync.value;
+    final loc = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: const Text('Select Partner'),
+      title: Text(loc.selectPartner),
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
         child: Column(
           children: [
             TextField(
-              decoration: const InputDecoration(
-                labelText: 'Search Players',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                labelText: loc.searchByName,
+                prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
             ),
@@ -1375,7 +1397,7 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
                   }
 
                   if (filtered.isEmpty) {
-                    return const Center(child: Text('No players found'));
+                    return Center(child: Text(loc.noPlayersFound));
                   }
 
                   return ListView.builder(
@@ -1394,14 +1416,14 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
                         trailing: isFriend 
                             ? const Icon(Icons.star, size: 16, color: Colors.amber) 
                             : null,
-                        subtitle: isFriend ? const Text('Friend', style: TextStyle(fontSize: 10, color: Colors.amber)) : null,
+                        subtitle: isFriend ? Text(loc.friend, style: const TextStyle(fontSize: 10, color: Colors.amber)) : null,
                         onTap: () => Navigator.pop(context, player.id),
                       );
                     },
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => Center(child: Text('Error: $e')),
+                error: (e, s) => Center(child: Text('${loc.errorOccurred(e.toString())}')),
               ),
             ),
           ],
@@ -1410,7 +1432,7 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context), // Return null
-          child: const Text('Cancel'),
+          child: Text(loc.cancel),
         ),
       ],
     );

@@ -229,7 +229,7 @@ class ProfileScreen extends ConsumerWidget {
                                );
                              },
                              loading: () => const LinearProgressIndicator(),
-                             error: (e,s) => Text('Error: $e'), 
+                             error: (e,s) => Text(loc.errorOccurred(e.toString())), 
                            );
                         },
                       ),
@@ -250,7 +250,7 @@ class ProfileScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'My Plan', // TODO: Localize
+                          loc.myPlan,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -281,8 +281,8 @@ class ProfileScreen extends ConsumerWidget {
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text(loc.cancelSubscription),
-                                    content: const Text('Are you sure? used features will be lost.'), 
+                                    title: Text(loc.confirmCancelSubscription),
+                                    content: Text(loc.cancelSubscriptionWarning), 
                                     actions: [
                                       TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.close)),
                                       FilledButton(
@@ -323,7 +323,7 @@ class ProfileScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Content', // TODO: Localize
+                          loc.content,
                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -332,7 +332,7 @@ class ProfileScreen extends ConsumerWidget {
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const Icon(Icons.photo_library),
-                          title: const Text('My Media Library'),
+                          title: Text(loc.myMediaLibrary),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => context.push('/media-library'),
                         ),
@@ -353,7 +353,7 @@ class ProfileScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'App & Settings',
+                          loc.appAndSettings,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -361,17 +361,17 @@ class ProfileScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
                         ListTile(
                           leading: const Icon(Icons.brightness_6),
-                          title: const Text('Theme'),
+                          title: Text(loc.theme),
                           trailing: Consumer(
                             builder: (context, ref, _) {
                               final currentMode = ref.watch(themeModeProvider);
                               return DropdownButton<ThemeMode>(
                                 value: currentMode,
                                 underline: const SizedBox.shrink(),
-                                items: const [
-                                  DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                                  DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                                  DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                                items: [
+                                  DropdownMenuItem(value: ThemeMode.system, child: Text(loc.system)),
+                                  DropdownMenuItem(value: ThemeMode.light, child: Text(loc.light)),
+                                  DropdownMenuItem(value: ThemeMode.dark, child: Text(loc.dark)),
                                 ],
                                 onChanged: (ThemeMode? newMode) {
                                   if (newMode != null) {
@@ -385,7 +385,7 @@ class ProfileScreen extends ConsumerWidget {
                         const Divider(),
                          ListTile(
                           leading: const Icon(Icons.star_rate_rounded, color: Colors.amber),
-                          title: const Text('Evaluate App'),
+                          title: Text(loc.evaluateApp),
                           onTap: () async {
                               // TODO: Replace with actual store URLs
                              final url = Uri.parse('https://apps.apple.com/');
@@ -397,7 +397,7 @@ class ProfileScreen extends ConsumerWidget {
                         const Divider(),
                         ListTile(
                           leading: const Icon(Icons.privacy_tip_outlined),
-                          title: const Text('Privacy Policy'),
+                          title: Text(loc.privacyPolicy),
                           onTap: () async {
                              // TODO: Replace with actual Privacy Policy URL
                              final url = Uri.parse('https://entresets.com/privacy');
@@ -406,7 +406,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                          ListTile(
                           leading: const Icon(Icons.description_outlined),
-                          title: const Text('Terms of Use'),
+                          title: Text(loc.termsOfUse),
                           onTap: () async {
                              // TODO: Replace with actual Terms URL
                              final url = Uri.parse('https://entresets.com/terms');
@@ -416,17 +416,52 @@ class ProfileScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  
+                  if (user.userType == 'admin') ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardTheme.color,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.adminControls,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          ListTile(
+                            leading: const Icon(Icons.dashboard_outlined),
+                            title: Text(loc.adminDashboard),
+                            onTap: () => context.push('/admin'),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.bug_report_outlined),
+                            title: Text(loc.simulationDebug),
+                            onTap: () => context.push('/admin/simulation'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 32),
-                  const Center(
+                  Center(
                     child: Text.rich(
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Made by ',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                            text: '${loc.madeBy} ',
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
                           ),
-                          TextSpan(
-                            text: 'Hugomatsu',
+                          const TextSpan(
+                            text: 'Hugomatsu', // Brand name, likely kept as is or localized if needed
                             style: TextStyle(
                               // Using primary color or a specific highlight color
                               color: Colors.blue, 
