@@ -7,6 +7,8 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/presentation/widgets/user_search_dialog.dart';
+import 'package:tennis_tournament/core/theme/theme_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -63,6 +65,15 @@ class ProfileScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
+                ),
+                TextButton.icon(
+                  onPressed: () => context.push('/profile/edit'),
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: Text(loc.editProfile),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    foregroundColor: Colors.grey,
+                  ),
                 ),
                 if (user.isPremium) ...[
                   const SizedBox(height: 4),
@@ -226,10 +237,25 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  const SizedBox(height: 24),
+                  // My Plan Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardTheme.color,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'My Plan', // TODO: Localize
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
                         if (!user.isPremium) ...[
                           SizedBox(
                             width: double.infinity,
@@ -243,9 +269,8 @@ class ProfileScreen extends ConsumerWidget {
                               label: Text(loc.upgradeToPremium),
                             ),
                           ),
-                          const SizedBox(height: 12),
                         ] else ...[
-                          SizedBox(
+                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
@@ -257,7 +282,7 @@ class ProfileScreen extends ConsumerWidget {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     title: Text(loc.cancelSubscription),
-                                    content: const Text('Are you sure? used features will be lost.'), // TODO: Localize detail if needed
+                                    content: const Text('Are you sure? used features will be lost.'), 
                                     actions: [
                                       TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.close)),
                                       FilledButton(
@@ -271,7 +296,6 @@ class ProfileScreen extends ConsumerWidget {
                                 
                                 if (confirm == true) {
                                   await ref.read(playerRepositoryProvider).cancelSubscription(user.id);
-                                  // Refresh user provider
                                   ref.invalidate(currentUserProvider);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.subscriptionCancelled)));
@@ -281,46 +305,140 @@ class ProfileScreen extends ConsumerWidget {
                               child: Text(loc.cancelSubscription),
                             ),
                           ),
-                          const SizedBox(height: 12),
                         ],
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () => context.push('/profile/edit'),
-                            child: Text(loc.editProfile),
-                          ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  // Content Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardTheme.color,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Content', // TODO: Localize
+                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
-                        if (user.userType == 'admin') ...[
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.tonal(
-                              onPressed: () => context.push('/admin'),
-                              child: Text(loc.adminDashboard),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () => context.push('/admin/simulation'),
-                              icon: const Icon(Icons.bug_report),
-                              label: Text(loc.simulationDebug),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () => context.push('/media-library'),
-                            icon: const Icon(Icons.photo_library),
-                            label: const Text('My Media Library'),
-                          ),
+                         const SizedBox(height: 16),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.photo_library),
+                          title: const Text('My Media Library'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/media-library'),
                         ),
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 24),
+                  // App & Settings Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardTheme.color,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'App & Settings',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        ListTile(
+                          leading: const Icon(Icons.brightness_6),
+                          title: const Text('Theme'),
+                          trailing: Consumer(
+                            builder: (context, ref, _) {
+                              final currentMode = ref.watch(themeModeProvider);
+                              return DropdownButton<ThemeMode>(
+                                value: currentMode,
+                                underline: const SizedBox.shrink(),
+                                items: const [
+                                  DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                                  DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+                                  DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                                ],
+                                onChanged: (ThemeMode? newMode) {
+                                  if (newMode != null) {
+                                    ref.read(themeModeProvider.notifier).setTheme(newMode);
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        const Divider(),
+                         ListTile(
+                          leading: const Icon(Icons.star_rate_rounded, color: Colors.amber),
+                          title: const Text('Evaluate App'),
+                          onTap: () async {
+                              // TODO: Replace with actual store URLs
+                             final url = Uri.parse('https://apps.apple.com/');
+                             if (await canLaunchUrl(url)) {
+                               await launchUrl(url);
+                             }
+                          },
+                        ),
+                        const Divider(),
+                        ListTile(
+                          leading: const Icon(Icons.privacy_tip_outlined),
+                          title: const Text('Privacy Policy'),
+                          onTap: () async {
+                             // TODO: Replace with actual Privacy Policy URL
+                             final url = Uri.parse('https://entresets.com/privacy');
+                             await launchUrl(url);
+                          },
+                        ),
+                         ListTile(
+                          leading: const Icon(Icons.description_outlined),
+                          title: const Text('Terms of Use'),
+                          onTap: () async {
+                             // TODO: Replace with actual Terms URL
+                             final url = Uri.parse('https://entresets.com/terms');
+                             await launchUrl(url);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const Center(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Made by ',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          TextSpan(
+                            text: 'Hugomatsu',
+                            style: TextStyle(
+                              // Using primary color or a specific highlight color
+                              color: Colors.blue, 
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
               ],
             ),
           );

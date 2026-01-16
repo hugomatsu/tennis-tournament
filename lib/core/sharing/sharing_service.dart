@@ -8,14 +8,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter/foundation.dart';
+import 'package:tennis_tournament/core/widgets/web_share_modal.dart';
 
 final sharingServiceProvider = Provider((ref) => SharingService());
 
 class SharingService {
   final ScreenshotController _screenshotController = ScreenshotController();
 
-  Future<void> shareUrl(String url) async {
-    await Share.share(url);
+  Future<void> shareUrl(String url, {String? subject, BuildContext? context}) async {
+    if (kIsWeb && context != null) {
+      await showDialog(
+        context: context,
+        builder: (context) => WebShareModal(
+          title: subject ?? 'Share',
+          text: url,
+        ),
+      );
+    } else {
+      await Share.share(url, subject: subject);
+    }
   }
 
   Future<void> saveWidgetImage({
@@ -99,18 +111,38 @@ class SharingService {
     try {
       final image = await _captureWidget(widget, withBackground, context);
 
-      final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}.png';
-      
-      await Share.shareXFiles(
-        [
-          XFile.fromData(
-            image,
-            name: fileName,
-            mimeType: 'image/png',
+      final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}'; // Extension added by saver/share
+
+      if (kIsWeb && context != null) {
+         await showDialog(
+          context: context,
+          builder: (context) => WebShareModal(
+            title: subject,
+            text: 'Here is the $subject',
+            onDownloadImage: () async {
+              await FileSaver.instance.saveFile(
+                name: fileName,
+                bytes: image,
+                // ext: 'png', // Removed as it caused error
+                mimeType: MimeType.png,
+              );
+            },
           ),
-        ],
-        subject: subject,
-      );
+        );
+      } else {
+         final fileNameWithExt = '$fileName.png';
+         // On mobile/desktop native
+         await Share.shareXFiles(
+          [
+            XFile.fromData(
+              image,
+              name: fileNameWithExt,
+              mimeType: 'image/png',
+            ),
+          ],
+          subject: subject,
+        );
+      }
       
     } catch (e) {
       debugPrint('Error sharing widget: $e');

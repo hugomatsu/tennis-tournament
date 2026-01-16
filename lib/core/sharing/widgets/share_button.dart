@@ -39,7 +39,7 @@ class ShareButton extends ConsumerWidget {
               title: const Text('Share Link'),
               onTap: () {
                 Navigator.pop(context);
-                service.shareUrl(shareUrl);
+                service.shareUrl(shareUrl, context: context);
               },
             ),
             ListTile(

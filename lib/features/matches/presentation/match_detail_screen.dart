@@ -58,7 +58,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               if (match == null) return const SizedBox.shrink();
               return ShareButton(
                 shareSubject: 'Check out this match!',
-                shareUrl: 'https://tennis-tournament.web.app/matches/${match.id}', // TODO: Dynamic host
+                shareUrl: 'https://entresets.com/matches/${match.id}', // TODO: Dynamic host
 
                 shareWidget: Theme(
                   data: ThemeData.light(),

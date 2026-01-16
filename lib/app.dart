@@ -4,6 +4,7 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/core/theme/app_theme.dart';
+import 'package:tennis_tournament/core/theme/theme_provider.dart';
 import 'package:tennis_tournament/core/widgets/scaffold_with_nav_bar.dart';
 import 'package:tennis_tournament/features/admin/presentation/admin_dashboard_screen.dart';
 import 'package:tennis_tournament/features/admin/presentation/create_tournament_screen.dart';
@@ -204,6 +205,13 @@ final routerProvider = Provider<GoRouter>((ref) {
            return PlayerProfileScreen(playerId: id);
         },
       ),
+      GoRoute(
+        path: '/t/:id',
+        redirect: (context, state) {
+          final id = state.pathParameters['id'];
+          return '/tournaments/$id';
+        },
+      ),
     ],
   );
 });
@@ -216,10 +224,13 @@ class TennisApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -19,6 +19,7 @@ import 'package:tennis_tournament/features/tournaments/presentation/widgets/matc
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
+import 'package:tennis_tournament/core/sharing/sharing_service.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -56,6 +57,19 @@ class TournamentDetailScreen extends ConsumerWidget {
                         onPressed: () {
                           ref.invalidate(tournamentDetailProvider(id));
                           ref.invalidate(tournamentCategoriesProvider(id));
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.share),
+                        tooltip: 'Invite Players',
+                        onPressed: () {
+                           // TODO: Get base URL from env
+                           final url = 'https://entresets.com/t/${tournament.id}'; 
+                           ref.read(sharingServiceProvider).shareUrl(
+                             url,
+                             subject: 'Join ${tournament.name} on EntreSets!', 
+                             context: context,
+                           );
                         },
                       ),
                       if (userAsync.asData?.value != null) ...[
@@ -560,307 +574,302 @@ class _InfoTab extends ConsumerWidget {
     final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournament.id));
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       children: [
-        if (tournament.subscriptionTier == 'Free')
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Row(
-                children: [
-                   const Icon(Icons.info_outline, size: 16, color: Colors.grey),
-                   const SizedBox(width: 8),
-                   Expanded(child: Text(AppLocalizations.of(context)!.createdUnderFreePlan, style: const TextStyle(fontSize: 12))),
-                ],
-              ),
-            ),
-          ),
-        Text(
-          'Description', // TODO: Localize
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(tournament.description),
-        const SizedBox(height: 24),
-        Text(
-          loc.info,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        _InfoRow(icon: Icons.calendar_today, text: tournament.dateRange),
-        const SizedBox(height: 12),
-        if (tournament.locationId != null)
-          FutureBuilder(
-            future: ref.watch(locationRepositoryProvider).getLocation(tournament.locationId!),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                final location = snapshot.data!;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        final uri = Uri.parse(location.googleMapsUrl);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        }
-                      },
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.location_on, size: 20, color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  location.name,
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.sports_tennis, size: 14, color: Colors.grey),
-                                    const SizedBox(width: 4),
-                                    Text('${location.numberOfCourts} Courts', style: Theme.of(context).textTheme.bodySmall),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (location.imageUrl != null) ...[
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 32.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child:  Image.network(
-                              location.imageUrl!,
-                              height: 120,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                        ),
-                      ),
+        // Header Section with Description and Tag
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               if (tournament.subscriptionTier == 'Free')
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                       Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                       const SizedBox(width: 8),
+                       Flexible(
+                         child: Text(
+                           AppLocalizations.of(context)!.createdUnderFreePlan, 
+                           style: TextStyle(
+                             fontSize: 12, 
+                             color: Theme.of(context).colorScheme.onSurfaceVariant,
+                             fontWeight: FontWeight.w500
+                           )
+                         ),
+                       ),
                     ],
-                  ],
-                );
-              }
-              // Fallback if loading or not found
-              return _InfoRow(icon: Icons.location_on, text: tournament.location);
-            },
-          )
-        else
-          _InfoRow(icon: Icons.location_on, text: tournament.location),
-        const SizedBox(height: 12),
-        // Owner and Admins Display
-        Consumer(
-          builder: (context, ref, child) {
-            final adminsAsync = ref.watch(tournamentAdminsProvider(tournament));
-            return adminsAsync.when(
-              data: (admins) {
-                 if (admins.isEmpty) return const SizedBox.shrink();
-                 // Find owner
-                 final owner = admins.firstWhere(
-                   (p) => p.id == tournament.ownerId, 
-                   orElse: () => admins.firstWhere((p) => p.id == tournament.adminIds.firstOrNull, orElse: () => admins.first),
-                 );
-                 final adminsOnly = admins.where((p) => p.id != owner.id).toList();
-                 
-                 return Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                 // Display Owner
-                 if (owner != null)
-                   ListTile(
-                     contentPadding: EdgeInsets.zero,
-                     leading: CircleAvatar(
-                       radius: 20,
-                       backgroundImage: NetworkImage(owner.avatarUrl),
-                     ),
-                     title: Text(owner.name),
-                     subtitle: Text(loc.owner),
-                     onTap: () => context.push('/players/${owner.id}'),
-                   ),
-                 
-                 // Display Admins
-                 if (adminsOnly.isNotEmpty) ...[
-                   const SizedBox(height: 8),
-                   Text(loc.admins, style: Theme.of(context).textTheme.titleSmall),
-                   ...adminsOnly.map((admin) => ListTile(
-                     contentPadding: EdgeInsets.zero,
-                     leading: CircleAvatar(
-                       radius: 16,
-                       backgroundImage: NetworkImage(admin.avatarUrl),
-                     ),
-                     title: Text(admin.name),
-                     onTap: () => context.push('/players/${admin.id}'),
-                   )),
-                 ],
-                   ],
-                 );
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-            );
-          },
+                  ),
+                ),
+              Text(
+                tournament.description.isNotEmpty ? tournament.description : 'No description provided.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
         ),
-        _InfoRow(icon: Icons.people, text: '${tournament.playersCount} Players'),
-        const SizedBox(height: 16),
+        
+        const SizedBox(height: 24),
 
-        const SizedBox(height: 8),
-        Text(
-          loc.participants,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        participantsAsync.when(
-          data: (participants) {
-            if (participants.isEmpty) return const Text('No participants yet.');
-            
-            return categoriesAsync.when(
-              data: (categories) {
-                if (categories.isEmpty) return const Text('No categories found.');
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: categories.map((category) {
-                    final categoryParticipants = participants
-                        .where((p) => p.categoryId == category.id)
-                        .toList();
-                    
-                    if (categoryParticipants.isEmpty) return const SizedBox.shrink();
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            category.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          if (category.description.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                              child: Text(
-                                category.description,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                          const SizedBox(height: 8),
-                          ...categoryParticipants.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final participant = entry.value;
-                            final isCurrentUser = userAsync.asData?.value != null && 
-                                participant.userIds.contains(userAsync.asData!.value!.id);
-
-                            // Build Avatar logic similar to MatchCard/PlayerInfo
-                            Widget avatarWidget;
-                            if (participant.avatarUrls.isEmpty) {
-                               avatarWidget = CircleAvatar(
-                                  radius: 12,
-                                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                                  child: Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', 
-                                    style: const TextStyle(fontSize: 10)),
-                               );
-                            } else if (participant.avatarUrls.length == 1) {
-                               final url = participant.avatarUrls.first;
-                               avatarWidget = CircleAvatar(
-                                  radius: 12,
-                                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                                  foregroundImage: url != null && url.isNotEmpty ? NetworkImage(url) : null, 
-                                  onForegroundImageError: url != null && url.isNotEmpty ? (_, __) {} : null,
-                                  child: (url == null || url.isEmpty)
-                                      ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 10)) 
-                                      : null,
-                               );
-                            } else {
-                               // Team avatars
-                               avatarWidget = SizedBox(
-                                 width: 30, // Slightly wider for overlap
-                                 height: 24,
-                                 child: Stack(
-                                   children: [
-                                     for (int i = 0; i < participant.avatarUrls.length && i < 2; i++)
-                                       Positioned(
-                                         left: i * 10.0,
-                                         child: CircleAvatar(
-                                           radius: 10,
-                                           backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                                           foregroundImage: participant.avatarUrls[i] != null && participant.avatarUrls[i]!.isNotEmpty 
-                                              ? NetworkImage(participant.avatarUrls[i]!) : null,
-                                           backgroundColor: Theme.of(context).cardColor,
-                                         ),
-                                       ),
-                                   ],
-                                 ),
-                               );
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: Row(
+        // General Information Section
+        Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                loc.info,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              _InfoRow(icon: Icons.calendar_today_outlined, text: tournament.dateRange),
+              const Divider(height: 24),
+              if (tournament.locationId != null)
+                FutureBuilder(
+                  future: ref.watch(locationRepositoryProvider).getLocation(tournament.locationId!),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final location = snapshot.data!;
+                      return InkWell(
+                        onTap: () async {
+                          final uri = Uri.parse(location.googleMapsUrl);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.location_on_outlined, size: 20, color: Colors.grey),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(
-                                    width: 24,
-                                    child: Text(
-                                      '${index + 1}.',
-                                      style: TextStyle(
-                                        fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                                        color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
-                                      ),
+                                  Text(
+                                    location.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                                     ),
                                   ),
-                                  avatarWidget,
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      participant.name,
-                                      style: TextStyle(
-                                        fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                                        color: isCurrentUser ? Theme.of(context).colorScheme.primary : null,
-                                      ),
-                                    ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${location.numberOfCourts} Courts', 
+                                    style: Theme.of(context).textTheme.bodySmall
                                   ),
                                 ],
                               ),
-                            );
-                          }),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-              loading: () => const SizedBox(height: 20, child: LinearProgressIndicator()),
-              error: (e, s) => Text('Error loading categories: $e'),
-            );
-          },
-          loading: () => const SizedBox(height: 20, child: LinearProgressIndicator()),
-          error: (e, s) => const Text('Error loading participants'),
+                            ),
+                            Icon(Icons.open_in_new, size: 16, color: Colors.grey),
+                          ],
+                        ),
+                      );
+                    }
+                    return _InfoRow(icon: Icons.location_on_outlined, text: tournament.location);
+                  },
+                )
+              else
+                _InfoRow(icon: Icons.location_on_outlined, text: tournament.location),
+              const Divider(height: 24),
+              _InfoRow(icon: Icons.people_outline, text: '${tournament.playersCount} Players joined'),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Organizers Section
+        Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Organizers', // TODO: Localize
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              Consumer(
+                builder: (context, ref, child) {
+                  final adminsAsync = ref.watch(tournamentAdminsProvider(tournament));
+                  return adminsAsync.when(
+                    data: (admins) {
+                       if (admins.isEmpty) return const Text('No organizers listed.');
+                       
+                       final owner = admins.firstWhere(
+                         (p) => p.id == tournament.ownerId, 
+                         orElse: () => admins.firstWhere((p) => p.id == tournament.adminIds.firstOrNull, orElse: () => admins.first),
+                       );
+                       final adminsOnly = admins.where((p) => p.id != owner.id).toList();
+                       
+                       return Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           ListTile(
+                             contentPadding: EdgeInsets.zero,
+                             leading: CircleAvatar(
+                               radius: 20,
+                               backgroundImage: NetworkImage(owner.avatarUrl),
+                             ),
+                             title: Text(owner.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                             subtitle: Text(loc.owner, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                             onTap: () => context.push('/players/${owner.id}'),
+                           ),
+                           if (adminsOnly.isNotEmpty) ...[
+                             const SizedBox(height: 8),
+                             ...adminsOnly.map((admin) => ListTile(
+                               contentPadding: EdgeInsets.zero,
+                               leading: CircleAvatar(
+                                 radius: 16,
+                                 backgroundImage: NetworkImage(admin.avatarUrl),
+                               ),
+                               title: Text(admin.name),
+                               subtitle: Text(loc.admins),
+                               onTap: () => context.push('/players/${admin.id}'),
+                             )),
+                           ],
+                         ],
+                       );
+                    },
+                    loading: () => const LinearProgressIndicator(), 
+                    error: (_, __) => const Text('Failed to load organizers.'),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Participants Section
+         Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               Text(
+                loc.participants,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              participantsAsync.when(
+                data: (participants) {
+                  if (participants.isEmpty) return const Text('No participants yet.');
+                  
+                  return categoriesAsync.when(
+                    data: (categories) {
+                      if (categories.isEmpty) return const Text('No categories found.');
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: categories.map((category) {
+                          final categoryParticipants = participants
+                              .where((p) => p.categoryId == category.id)
+                              .toList();
+                          
+                          if (categoryParticipants.isEmpty) return const SizedBox.shrink();
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    category.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                ...categoryParticipants.asMap().entries.map((entry) {
+                                  final participant = entry.value;
+                                  
+                                  // Simplified participant display for list
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                         CircleAvatar(
+                                            radius: 14,
+                                            backgroundImage: participant.avatarUrls.isNotEmpty && participant.avatarUrls.first != null ? NetworkImage(participant.avatarUrls.first!) : null,
+                                              child: participant.avatarUrls.isEmpty ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', 
+                                              style: const TextStyle(fontSize: 10)) : null,
+                                         ),
+                                         const SizedBox(width: 12),
+                                         Text(participant.name),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const Text('Error loading categories'),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, __) => Text('Error: $e'),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 32),
-        _JoinTournamentButton(
-          tournament: tournament,
-          currentUser: userAsync.asData?.value,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _JoinTournamentButton(
+            tournament: tournament,
+            currentUser: userAsync.asData?.value,
+          ),
         ),
+        const SizedBox(height: 32),
       ],
     );
   }

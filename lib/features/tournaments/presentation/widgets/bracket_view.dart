@@ -226,7 +226,7 @@ class _SingleBracketView extends ConsumerWidget {
               right: 16,
               child: ShareButton(
                 shareSubject: 'Tournament Bracket',
-                shareUrl: 'https://tennis-tournament.web.app/tournaments/$tournamentId', // TODO: Dynamic host
+                shareUrl: 'https://entresets.com/t/$tournamentId', // TODO: Dynamic host
                 label: 'Share Bracket',
                 shareWidget: Theme(
                   data: ThemeData.light(),

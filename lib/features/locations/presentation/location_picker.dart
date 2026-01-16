@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/locations/application/location_providers.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/locations/domain/location.dart';
 
 class LocationPicker extends ConsumerStatefulWidget {
@@ -71,6 +72,17 @@ class _LocationPickerState extends ConsumerState<LocationPicker> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, s) => Center(child: Text('Error: $e')),
           ),
+        ),
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.add_location_alt, color: Colors.blue),
+          title: const Text('Add New Location'),
+          onTap: () {
+             // Navigate to location management/creation
+             // Since we are likely in a modal, we might need to route to a creation screen
+             // For now, let's assume we can push the location management screen
+             context.push('/admin/locations');
+          },
         ),
       ],
     );
