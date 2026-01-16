@@ -21,9 +21,14 @@ void main() async {
     await dotenv.load(fileName: "assets/env"); 
   }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // Firebase may already be initialized on Android via google-services.json
+    debugPrint('Firebase initialization: $e');
+  }
   runApp(
     const ProviderScope(
       child: TennisApp(),
