@@ -235,13 +235,6 @@ class _SingleBracketView extends ConsumerWidget {
                       return Container(
                         width: totalWidth + 100,
                         height: totalHeight + 150,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-                          ),
-                        ),
                         child: Stack(
                           children: [
                              // Branding Header

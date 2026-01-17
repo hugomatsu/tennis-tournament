@@ -1429,6 +1429,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Simulation'**
   String get simulation;
+
+  /// No description provided for @sharePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Preview'**
+  String get sharePreview;
+
+  /// No description provided for @backgroundBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get backgroundBlue;
+
+  /// No description provided for @backgroundRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get backgroundRed;
+
+  /// No description provided for @backgroundYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get backgroundYellow;
+
+  /// No description provided for @backgroundNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get backgroundNone;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard!'**
+  String get copiedToClipboard;
 }
 
 class _AppLocalizationsDelegate

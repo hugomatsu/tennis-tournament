@@ -207,5 +207,13 @@
   "purchasesRestored": "Compras restauradas",
   "confirmCancelSubscription": "Confirmar Cancelamento",
   "cancelSubscriptionWarning": "Tem certeza? Recursos utilizados serão perdidos.",
-  "simulation": "Simulação"
+  "simulation": "Simulação",
+  "sharePreview": "Visualizar Compartilhamento",
+  "backgroundBlue": "Azul",
+  "backgroundRed": "Vermelho",
+  "backgroundYellow": "Amarelo",
+  "backgroundNone": "Nenhum",
+  "copy": "Copiar",
+  "share": "Compartilhar",
+  "copiedToClipboard": "Copiado para a área de transferência!"
 }

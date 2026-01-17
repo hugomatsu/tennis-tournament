@@ -693,4 +693,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get simulation => 'Simulation';
+
+  @override
+  String get sharePreview => 'Share Preview';
+
+  @override
+  String get backgroundBlue => 'Blue';
+
+  @override
+  String get backgroundRed => 'Red';
+
+  @override
+  String get backgroundYellow => 'Yellow';
+
+  @override
+  String get backgroundNone => 'None';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard!';
 }

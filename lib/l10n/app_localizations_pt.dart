@@ -693,4 +693,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get simulation => 'Simulação';
+
+  @override
+  String get sharePreview => 'Visualizar Compartilhamento';
+
+  @override
+  String get backgroundBlue => 'Azul';
+
+  @override
+  String get backgroundRed => 'Vermelho';
+
+  @override
+  String get backgroundYellow => 'Amarelo';
+
+  @override
+  String get backgroundNone => 'Nenhum';
+
+  @override
+  String get copy => 'Copiar';
+
+  @override
+  String get share => 'Compartilhar';
+
+  @override
+  String get copiedToClipboard => 'Copiado para a área de transferência!';
 }

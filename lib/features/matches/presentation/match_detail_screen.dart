@@ -65,14 +65,6 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   child: Builder(
                     builder: (context) {
                       return Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
                         padding: const EdgeInsets.all(32),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
