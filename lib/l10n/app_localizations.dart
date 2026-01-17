@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Winner'**
   String get winner;
 
+  /// No description provided for @runnerUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner-Up'**
+  String get runnerUp;
+
   /// No description provided for @saveChanges.
   ///
   /// In en, this message translates to:
@@ -1201,6 +1207,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join Tournament'**
   String get joinTournament;
+
+  /// No description provided for @registrationClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration Closed'**
+  String get registrationClosed;
 
   /// No description provided for @editParticipation.
   ///

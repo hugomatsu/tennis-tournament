@@ -1146,25 +1146,40 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
   Widget build(BuildContext context) {
     final isJoined = _joinedCategoryIds.isNotEmpty;
     final categoriesAsync = ref.watch(tournamentCategoriesProvider(widget.tournament.id));
+    final matchesAsync = ref.watch(bracketMatchesProvider(widget.tournament.id));
 
     return SizedBox(
       width: double.infinity,
       child: categoriesAsync.when(
         data: (categories) {
-          final isDisabled = categories.isEmpty;
           final loc = AppLocalizations.of(context)!;
+          
+          // Check if brackets have been generated (matches exist)
+          final hasBrackets = matchesAsync.when(
+            data: (matches) => matches.isNotEmpty,
+            loading: () => false,
+            error: (_, __) => false,
+          );
+          
+          final isDisabled = categories.isEmpty || (hasBrackets && !isJoined);
+          final buttonText = hasBrackets && !isJoined
+              ? loc.registrationClosed
+              : (categories.isEmpty 
+                  ? loc.noCategoriesAvailable 
+                  : (isJoined ? loc.editParticipation : loc.joinTournament));
+          
           return FilledButton(
             onPressed: (_isLoading || isDisabled) ? null : _showCategorySelectionDialog,
-            style: isJoined ? FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary) : null,
+            style: isJoined 
+                ? FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary) 
+                : null,
             child: _isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(isDisabled 
-                    ? loc.noCategoriesAvailable 
-                    : (isJoined ? loc.editParticipation : loc.joinTournament)),
+                : Text(buttonText),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

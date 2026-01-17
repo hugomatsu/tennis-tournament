@@ -64,6 +64,153 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   data: ThemeData.light(),
                   child: Builder(
                     builder: (context) {
+                      final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+                      final hasWinner = match.winner != null && match.winner!.isNotEmpty;
+                      
+                      // Winner celebration share widget for completed matches
+                      if (isCompleted && hasWinner) {
+                        final isP1Winner = match.winner == match.player1Name;
+                        final winnerName = match.winner!;
+                        final winnerAvatarUrls = isP1Winner ? match.player1AvatarUrls : match.player2AvatarUrls;
+                        final loserName = isP1Winner ? (match.player2Name ?? 'TBD') : match.player1Name;
+                        final loserAvatarUrls = isP1Winner ? match.player2AvatarUrls : match.player1AvatarUrls;
+                        
+                        return Container(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Tournament name
+                              Text(
+                                match.tournamentName.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              // Trophy
+                              const Icon(
+                                Icons.emoji_events,
+                                size: 56,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'WINNER',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 4,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              // Winner avatar
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 20,
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 55,
+                                  backgroundColor: Colors.white24,
+                                  backgroundImage: winnerAvatarUrls.isNotEmpty && winnerAvatarUrls.first != null
+                                      ? NetworkImage(winnerAvatarUrls.first!)
+                                      : null,
+                                  child: winnerAvatarUrls.isEmpty
+                                      ? Text(
+                                          winnerName.isNotEmpty ? winnerName[0].toUpperCase() : '?',
+                                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              // Winner name
+                              Text(
+                                winnerName,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (match.score != null && match.score!.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Text(
+                                    match.score!,
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.amber.shade800,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 20),
+                              // Runner-up
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: Colors.white30,
+                                    backgroundImage: loserAvatarUrls.isNotEmpty && loserAvatarUrls.first != null
+                                        ? NetworkImage(loserAvatarUrls.first!)
+                                        : null,
+                                    child: loserAvatarUrls.isEmpty
+                                        ? Text(loserName.isNotEmpty ? loserName[0] : '?', style: const TextStyle(color: Colors.white))
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        loserName,
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+                                      ),
+                                      const Text(
+                                        'Runner-Up',
+                                        style: TextStyle(fontSize: 11, color: Colors.white60),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              // Branding Footer
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.sports_tennis, size: 14, color: Colors.white54),
+                                  const SizedBox(width: 6),
+                                  const Text('entresets.com', style: TextStyle(fontSize: 11, color: Colors.white54)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      
+                      // Regular VS view for non-completed matches
                       return Container(
                         padding: const EdgeInsets.all(32),
                         child: Column(
@@ -146,34 +293,15 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                               ],
                             ),
                             const SizedBox(height: 32),
-                            if (match.score != null) ...[
-                              Text(
-                                match.score!,
-                                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w800, color: Colors.white),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  'Completed',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-                                ),
-                              ),
-                            ] else ...[
-                               Text(
-                                DateFormat('EEE, MMM d').format(match.time),
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                DateFormat('h:mm a').format(match.time),
-                                style: const TextStyle(fontSize: 16, color: Colors.white70),
-                              ),
-                            ],
+                            Text(
+                              DateFormat('EEE, MMM d').format(match.time),
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('h:mm a').format(match.time),
+                              style: const TextStyle(fontSize: 16, color: Colors.white70),
+                            ),
                             const SizedBox(height: 24),
                             // Branding Footer
                             Row(
@@ -181,7 +309,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                               children: [
                                 const Icon(Icons.sports_tennis, size: 16, color: Colors.white70),
                                 const SizedBox(width: 8),
-                                const Text('Powered by Tennis Tournament App', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                                const Text('entresets.com', style: TextStyle(fontSize: 12, color: Colors.white70)),
                               ],
                             ),
                           ],
@@ -231,16 +359,21 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
            // Use local _initializeEditing once if needed, or rely on state
            // Since we use a provider, valid to just read data.
 
+           final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+           final hasWinner = match.winner != null && match.winner!.isNotEmpty;
+           
            return SingleChildScrollView(
              padding: const EdgeInsets.all(16),
              child: Column(
                crossAxisAlignment: CrossAxisAlignment.stretch,
                children: [
-                 if (_isEditing) _buildAdminControls(match), // You might need to check if you have this method or restore it too. 
-                 // Assuming _buildAdminControls is further down or needs verification.
-                 // Wait, I saw _buildAdminControls comment in the file view.
+                 if (_isEditing) _buildAdminControls(match),
                  
-                 _buildVsView(match),
+                 // Show winner celebration for completed matches
+                 if (isCompleted && hasWinner)
+                   _buildWinnerCelebration(match, loc)
+                 else
+                   _buildVsView(match),
                  const SizedBox(height: 24),
                  _buildInfoSection(match, loc),
                  const SizedBox(height: 24),
@@ -441,13 +574,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              ListTile(
                leading: const Icon(Icons.calendar_today),
                title: Text(dateFormat.format(match.time)),
-               subtitle: Text(_getLocalizedStatus(match.status, loc)),
-             ),
-             const Divider(),
-             ListTile(
-               leading: const Icon(Icons.stadium),
-               title: Text(match.court),
-               subtitle: Text('${loc.round} ${match.round}'),
+               subtitle: Text('${_getLocalizedStatus(match.status, loc)} • ${loc.round} ${match.round}'),
              ),
               if (match.locationId != null)
                 FutureBuilder(
@@ -530,6 +657,179 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildWinnerCelebration(TennisMatch match, AppLocalizations loc) {
+    final theme = Theme.of(context);
+    final isP1Winner = match.winner == match.player1Name;
+    final winnerName = match.winner!;
+    final winnerAvatarUrls = isP1Winner ? match.player1AvatarUrls : match.player2AvatarUrls;
+    final winnerUserIds = isP1Winner ? match.player1UserIds : match.player2UserIds;
+    final loserName = isP1Winner ? (match.player2Name ?? 'TBD') : match.player1Name;
+    final loserAvatarUrls = isP1Winner ? match.player2AvatarUrls : match.player1AvatarUrls;
+    
+    return Column(
+      children: [
+        // Winner celebration card
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.amber.shade400,
+                Colors.orange.shade600,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.amber.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                // Trophy icon
+                const Icon(
+                  Icons.emoji_events,
+                  size: 48,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  loc.winner.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Winner avatar with golden border
+                GestureDetector(
+                  onTap: () {
+                    if (winnerUserIds.isNotEmpty) {
+                      context.push('/players/${winnerUserIds.first}');
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white24,
+                      backgroundImage: winnerAvatarUrls.isNotEmpty && winnerAvatarUrls.first != null
+                          ? NetworkImage(winnerAvatarUrls.first!)
+                          : null,
+                      child: winnerAvatarUrls.isEmpty
+                          ? Text(
+                              winnerName.isNotEmpty ? winnerName[0].toUpperCase() : '?',
+                              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Winner name
+                Text(
+                  winnerName,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (match.score != null && match.score!.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      match.score!,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.amber.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Runner-up section
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: theme.colorScheme.surfaceContainerLow,
+                backgroundImage: loserAvatarUrls.isNotEmpty && loserAvatarUrls.first != null
+                    ? NetworkImage(loserAvatarUrls.first!)
+                    : null,
+                child: loserAvatarUrls.isEmpty
+                    ? Text(
+                        loserName.isNotEmpty ? loserName[0].toUpperCase() : '?',
+                        style: TextStyle(fontSize: 18, color: theme.colorScheme.onSurface),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loserName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      loc.runnerUp,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.sports_tennis,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

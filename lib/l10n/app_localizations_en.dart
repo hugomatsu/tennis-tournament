@@ -81,6 +81,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get winner => 'Winner';
 
   @override
+  String get runnerUp => 'Runner-Up';
+
+  @override
   String get saveChanges => 'Save Changes';
 
   @override
@@ -569,6 +572,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinTournament => 'Join Tournament';
+
+  @override
+  String get registrationClosed => 'Registration Closed';
 
   @override
   String get editParticipation => 'Edit Participation';
