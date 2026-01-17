@@ -510,7 +510,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noCategoriesFound => 'No categories found.';
 
   @override
-  String get errorLoadingCategories => 'Error loading categories.';
+  String get errorLoadingCategories => 'Error loading categories';
 
   @override
   String get myPlan => 'My Plan';
@@ -723,4 +723,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copiedToClipboard => 'Copied to clipboard!';
+
+  @override
+  String get noParticipantsYet => 'No participants yet.';
+
+  @override
+  String errorGeneric(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String playersJoined(Object count) {
+    return '$count Players joined';
+  }
+
+  @override
+  String get shareBracket => 'Share Bracket';
+
+  @override
+  String get shareMatch => 'Check out this match!';
+
+  @override
+  String get tournamentBracket => 'Tournament Bracket';
+
+  @override
+  String get tbd => 'TBD';
+
+  @override
+  String get noUsersFound => 'No users found.';
+
+  @override
+  String get noCategoriesCreateFirst =>
+      'No categories found. Please create a category first.';
+
+  @override
+  String get noMatchesForDay => 'No matches for this day';
+
+  @override
+  String get addExistingUsers => 'Add Existing Users';
+
+  @override
+  String get selectFromRegisteredUsers => 'Select from registered users';
+
+  @override
+  String get addManualEntry => 'Add Manual Entry';
+
+  @override
+  String get forGuestsOrNonAppUsers => 'For guests or non-app users';
+
+  @override
+  String get addParticipants => 'Add Participants';
+
+  @override
+  String get selectCategoriesColon => 'Select Categories:';
+
+  @override
+  String get searchUsers => 'Search Users';
+
+  @override
+  String addCount(Object count) {
+    return 'Add ($count)';
+  }
+
+  @override
+  String addedParticipants(Object count) {
+    return 'Added $count participants';
+  }
+
+  @override
+  String get alreadyInCategories =>
+      'Selected participants are already in selected categories';
+
+  @override
+  String get addNewCategory => 'Add New Category';
+
+  @override
+  String get addDate => 'Add Date';
+
+  @override
+  String get selectDateToMarkAvailability =>
+      'Select a date to mark availability';
+
+  @override
+  String get editLocation => 'Edit Location';
+
+  @override
+  String get addLocation => 'Add Location';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get storageLimitReached => 'Storage Limit Reached';
+
+  @override
+  String get storageLimitMessage =>
+      'You have reached the 15 MB storage limit. Please delete some files to upload more.';
+
+  @override
+  String storageUsedOfLimit(Object limit, Object used) {
+    return '$used of $limit';
+  }
+
+  @override
+  String get single => 'Single';
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String pageOf(Object current, Object total) {
+    return 'Page $current of $total';
+  }
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get ok => 'OK';
 }

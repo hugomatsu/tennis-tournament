@@ -510,7 +510,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noCategoriesFound => 'Nenhuma categoria encontrada.';
 
   @override
-  String get errorLoadingCategories => 'Erro ao carregar categorias.';
+  String get errorLoadingCategories => 'Erro ao carregar categorias';
 
   @override
   String get myPlan => 'Meu Plano';
@@ -723,4 +723,125 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get copiedToClipboard => 'Copiado para a área de transferência!';
+
+  @override
+  String get noParticipantsYet => 'Nenhum participante ainda.';
+
+  @override
+  String errorGeneric(Object error) {
+    return 'Erro: $error';
+  }
+
+  @override
+  String playersJoined(Object count) {
+    return '$count Jogadores inscritos';
+  }
+
+  @override
+  String get shareBracket => 'Compartilhar Chave';
+
+  @override
+  String get shareMatch => 'Veja esta partida!';
+
+  @override
+  String get tournamentBracket => 'Chave do Torneio';
+
+  @override
+  String get tbd => 'A definir';
+
+  @override
+  String get noUsersFound => 'Nenhum usuário encontrado.';
+
+  @override
+  String get noCategoriesCreateFirst =>
+      'Nenhuma categoria encontrada. Crie uma categoria primeiro.';
+
+  @override
+  String get noMatchesForDay => 'Nenhum jogo para este dia';
+
+  @override
+  String get addExistingUsers => 'Adicionar Usuários Existentes';
+
+  @override
+  String get selectFromRegisteredUsers => 'Selecionar de usuários cadastrados';
+
+  @override
+  String get addManualEntry => 'Adicionar Manualmente';
+
+  @override
+  String get forGuestsOrNonAppUsers => 'Para convidados ou não-usuários';
+
+  @override
+  String get addParticipants => 'Adicionar Participantes';
+
+  @override
+  String get selectCategoriesColon => 'Selecionar Categorias:';
+
+  @override
+  String get searchUsers => 'Buscar Usuários';
+
+  @override
+  String addCount(Object count) {
+    return 'Adicionar ($count)';
+  }
+
+  @override
+  String addedParticipants(Object count) {
+    return 'Adicionados $count participantes';
+  }
+
+  @override
+  String get alreadyInCategories =>
+      'Participantes selecionados já estão nas categorias selecionadas';
+
+  @override
+  String get addNewCategory => 'Adicionar Nova Categoria';
+
+  @override
+  String get addDate => 'Adicionar Data';
+
+  @override
+  String get selectDateToMarkAvailability =>
+      'Selecione uma data para marcar disponibilidade';
+
+  @override
+  String get editLocation => 'Editar Local';
+
+  @override
+  String get addLocation => 'Adicionar Local';
+
+  @override
+  String get unknown => 'Desconhecido';
+
+  @override
+  String get storageLimitReached => 'Limite de Armazenamento Atingido';
+
+  @override
+  String get storageLimitMessage =>
+      'Você atingiu o limite de 15 MB de armazenamento. Por favor, exclua alguns arquivos para fazer upload de mais.';
+
+  @override
+  String storageUsedOfLimit(Object limit, Object used) {
+    return '$used de $limit';
+  }
+
+  @override
+  String get single => 'Simples';
+
+  @override
+  String get team => 'Duplas';
+
+  @override
+  String pageOf(Object current, Object total) {
+    return 'Página $current de $total';
+  }
+
+  @override
+  String get previous => 'Anterior';
+
+  @override
+  String get next => 'Próximo';
+
+  @override
+  String get ok => 'OK';
 }

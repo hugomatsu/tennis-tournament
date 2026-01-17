@@ -196,8 +196,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
           SnackBar(content: Text(l10n.tournamentCreated)),
         );
         // Refresh the tournament list to show the new item
-        ref.invalidate(filteredTournamentsProvider('Mine'));
-        ref.invalidate(filteredTournamentsProvider('')); // Invalidate 'All' as well
+        ref.invalidate(filteredTournamentsProvider(const TournamentFilterParams(mine: true)));
+        ref.invalidate(filteredTournamentsProvider(const TournamentFilterParams())); // Invalidate default as well
         
         // Use push replacement or just go to ensure we land on details
         context.pushReplacement('/tournaments/${tournament.id}');

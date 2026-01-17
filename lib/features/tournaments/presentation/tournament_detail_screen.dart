@@ -108,7 +108,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                       final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournament.id);
 
                                       if (categories.isEmpty) {
-                                        scaffoldMessenger.showSnackBar(const SnackBar(content: Text('No categories found')));
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.noCategoriesFound)));
                                         return;
                                       }
                                       final approvedParticipants = participants.where((p) => p.status == 'approved').toList();
@@ -182,7 +182,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                         title: const Text('Delete Bracket?'),
                                         content: const Text('This will delete all matches. Cannot be undone.'),
                                         actions: [
-                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.cancel)),
                                           FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
                                         ],
                                       ),
@@ -203,7 +203,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                         title: const Text('Delete Tournament?'),
                                         content: const Text('This will delete everything. Cannot be undone.'),
                                         actions: [
-                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.cancel)),
                                           FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
                                         ],
                                       ),
@@ -330,7 +330,7 @@ class TournamentDetailScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -393,7 +393,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.add),
-                  title: const Text('Add New Category'),
+                  title: Text(AppLocalizations.of(context)!.addNewCategory),
                   onTap: () => _showAddCategoryDialog(),
                 ),
               ],
@@ -460,7 +460,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               FilledButton(
                 onPressed: () async {
@@ -535,7 +535,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
             actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -710,7 +710,7 @@ class _InfoTab extends ConsumerWidget {
               else
                 _InfoRow(icon: Icons.location_on_outlined, text: tournament.location),
               const Divider(height: 24),
-              _InfoRow(icon: Icons.people_outline, text: '${tournament.playersCount} Players joined'),
+              _InfoRow(icon: Icons.people_outline, text: loc.playersJoined(tournament.playersCount)),
             ],
           ),
         ),
@@ -778,7 +778,7 @@ class _InfoTab extends ConsumerWidget {
                        );
                     },
                     loading: () => const LinearProgressIndicator(), 
-                    error: (_, __) => const Text('Failed to load organizers.'),
+                    error: (_, __) => Text(loc.failedToLoadOrganizers),
                   );
                 },
               ),
@@ -806,7 +806,7 @@ class _InfoTab extends ConsumerWidget {
               const SizedBox(height: 16),
               participantsAsync.when(
                 data: (participants) {
-                  if (participants.isEmpty) return const Text('No participants yet.');
+                  if (participants.isEmpty) return Text(loc.noParticipantsYet);
                   
                   return categoriesAsync.when(
                     data: (categories) {
@@ -869,7 +869,7 @@ class _InfoTab extends ConsumerWidget {
                       );
                     },
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const Text('Error loading categories'),
+                    error: (_, __) => Text(loc.errorLoadingCategories),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),

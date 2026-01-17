@@ -10,6 +10,7 @@ import 'package:tennis_tournament/features/tournaments/presentation/widgets/matc
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/painters/bracket_painter.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final bracketMatchesProvider = StreamProvider.family<List<TennisMatch>, String>((ref, tournamentId) {
   return ref.watch(matchRepositoryProvider).watchMatchesForTournament(tournamentId);
@@ -27,7 +28,7 @@ class BracketView extends ConsumerWidget {
     return categoriesAsync.when(
       data: (categories) {
         if (categories.isEmpty) {
-          return const Center(child: Text('No categories found. Please create a category.'));
+          return Center(child: Text(AppLocalizations.of(context)!.noCategoriesCreateFirst));
         }
 
         return DefaultTabController(
@@ -224,11 +225,14 @@ class _SingleBracketView extends ConsumerWidget {
              Positioned(
               top: 16,
               right: 16,
-              child: ShareButton(
-                shareSubject: 'Tournament Bracket',
-                shareUrl: 'https://entresets.com/t/$tournamentId', // TODO: Dynamic host
-                label: 'Share Bracket',
-                shareWidget: Theme(
+              child: Builder(
+                builder: (context) {
+                  final loc = AppLocalizations.of(context)!;
+                  return ShareButton(
+                    shareSubject: loc.tournamentBracket,
+                    shareUrl: 'https://entresets.com/t/$tournamentId', // TODO: Dynamic host
+                    label: loc.shareBracket,
+                    shareWidget: Theme(
                   data: ThemeData.light(),
                   child: Builder(
                     builder: (context) {
@@ -319,6 +323,8 @@ class _SingleBracketView extends ConsumerWidget {
                     },
                   ),
                 ),
+              );
+                },
               ),
             ),
           ],

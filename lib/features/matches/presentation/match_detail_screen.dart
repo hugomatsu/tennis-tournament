@@ -56,9 +56,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           matchAsync.when(
             data: (match) {
               if (match == null) return const SizedBox.shrink();
-              return ShareButton(
-                shareSubject: 'Check out this match!',
-                shareUrl: 'https://entresets.com/matches/${match.id}', // TODO: Dynamic host
+              return Builder(
+                builder: (context) {
+                  final loc = AppLocalizations.of(context)!;
+                  return ShareButton(
+                    shareSubject: loc.shareMatch,
+                    shareUrl: 'https://entresets.com/matches/${match.id}', // TODO: Dynamic host
 
                 shareWidget: Theme(
                   data: ThemeData.light(),
@@ -316,9 +319,11 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                         ),
                       );
                     }
-                  ),
-                  ),
-                );
+                   ),
+                   ),
+                 );
+                },
+              );
             },
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
@@ -651,7 +656,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
              ListTile(
                 leading: const Icon(Icons.emoji_events),
                 title: Text(match.tournamentName),
-                subtitle: const Text('Tournament'), 
+                subtitle: Text(loc.tournaments), 
                 onTap: () => context.push('/tournaments/${match.tournamentId}'),
              ),
           ],

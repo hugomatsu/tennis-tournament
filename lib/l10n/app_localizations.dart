@@ -1085,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingCategories.
   ///
   /// In en, this message translates to:
-  /// **'Error loading categories.'**
+  /// **'Error loading categories'**
   String get errorLoadingCategories;
 
   /// No description provided for @myPlan.
@@ -1489,6 +1489,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied to clipboard!'**
   String get copiedToClipboard;
+
+  /// No description provided for @noParticipantsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No participants yet.'**
+  String get noParticipantsYet;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorGeneric(Object error);
+
+  /// No description provided for @playersJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Players joined'**
+  String playersJoined(Object count);
+
+  /// No description provided for @shareBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Bracket'**
+  String get shareBracket;
+
+  /// No description provided for @shareMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out this match!'**
+  String get shareMatch;
+
+  /// No description provided for @tournamentBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Bracket'**
+  String get tournamentBracket;
+
+  /// No description provided for @tbd.
+  ///
+  /// In en, this message translates to:
+  /// **'TBD'**
+  String get tbd;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found.'**
+  String get noUsersFound;
+
+  /// No description provided for @noCategoriesCreateFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories found. Please create a category first.'**
+  String get noCategoriesCreateFirst;
+
+  /// No description provided for @noMatchesForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for this day'**
+  String get noMatchesForDay;
+
+  /// No description provided for @addExistingUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Existing Users'**
+  String get addExistingUsers;
+
+  /// No description provided for @selectFromRegisteredUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select from registered users'**
+  String get selectFromRegisteredUsers;
+
+  /// No description provided for @addManualEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Manual Entry'**
+  String get addManualEntry;
+
+  /// No description provided for @forGuestsOrNonAppUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'For guests or non-app users'**
+  String get forGuestsOrNonAppUsers;
+
+  /// No description provided for @addParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Participants'**
+  String get addParticipants;
+
+  /// No description provided for @selectCategoriesColon.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Categories:'**
+  String get selectCategoriesColon;
+
+  /// No description provided for @searchUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Users'**
+  String get searchUsers;
+
+  /// No description provided for @addCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ({count})'**
+  String addCount(Object count);
+
+  /// No description provided for @addedParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} participants'**
+  String addedParticipants(Object count);
+
+  /// No description provided for @alreadyInCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected participants are already in selected categories'**
+  String get alreadyInCategories;
+
+  /// No description provided for @addNewCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Category'**
+  String get addNewCategory;
+
+  /// No description provided for @addDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Date'**
+  String get addDate;
+
+  /// No description provided for @selectDateToMarkAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a date to mark availability'**
+  String get selectDateToMarkAvailability;
+
+  /// No description provided for @editLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Location'**
+  String get editLocation;
+
+  /// No description provided for @addLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Location'**
+  String get addLocation;
+
+  /// No description provided for @unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
+  /// No description provided for @storageLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage Limit Reached'**
+  String get storageLimitReached;
+
+  /// No description provided for @storageLimitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the 15 MB storage limit. Please delete some files to upload more.'**
+  String get storageLimitMessage;
+
+  /// No description provided for @storageUsedOfLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit}'**
+  String storageUsedOfLimit(Object limit, Object used);
+
+  /// No description provided for @single.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get single;
+
+  /// No description provided for @team.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team;
+
+  /// No description provided for @pageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {current} of {total}'**
+  String pageOf(Object current, Object total);
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

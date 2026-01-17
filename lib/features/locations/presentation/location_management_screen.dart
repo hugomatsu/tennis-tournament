@@ -5,6 +5,7 @@ import 'package:tennis_tournament/features/locations/data/location_repository.da
 import 'package:tennis_tournament/features/locations/domain/location.dart';
 import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class LocationManagementScreen extends ConsumerWidget {
   const LocationManagementScreen({super.key});
@@ -74,7 +75,7 @@ class LocationManagementScreen extends ConsumerWidget {
         title: const Text('Delete Location?'),
         content: Text('Are you sure you want to delete "${location.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
@@ -199,7 +200,7 @@ class _AddEditLocationDialogState extends ConsumerState<_AddEditLocationDialog> 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.location != null ? 'Edit Location' : 'Add Location'),
+      title: Text(widget.location != null ? AppLocalizations.of(context)!.editLocation : AppLocalizations.of(context)!.addLocation),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -252,7 +253,7 @@ class _AddEditLocationDialogState extends ConsumerState<_AddEditLocationDialog> 
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
         FilledButton(
           onPressed: _isLoading ? null : _save,
           child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),

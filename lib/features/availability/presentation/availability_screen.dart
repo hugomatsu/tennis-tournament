@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class AvailabilityScreen extends ConsumerStatefulWidget {
   const AvailabilityScreen({super.key});
@@ -57,9 +58,9 @@ class _AvailabilityScreenState extends ConsumerState<AvailabilityScreen> {
               ),
             ),
           ] else
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('Select a date to mark availability'),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(AppLocalizations.of(context)!.selectDateToMarkAvailability),
             ),
         ],
       ),

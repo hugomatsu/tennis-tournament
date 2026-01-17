@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/home/presentation/widgets/live_tournament_card.dart';
+import 'package:tennis_tournament/features/tournaments/application/tournament_filter_preferences.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
@@ -16,16 +17,69 @@ class TournamentsScreen extends ConsumerStatefulWidget {
 }
 
 class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
-  String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'Mine', 'Open', 'Men\'s Singles', 'Women\'s Singles', 'Doubles'];
+  // Filter state
+  bool _filterMine = false;
+  bool _filterSingle = false;
+  bool _filterTeam = false;
+  bool _filterOpen = false;
+  bool _filtersLoaded = false;
+  
+  // Pagination state
+  int _currentPage = 0;
+  static const int pageSize = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilters();
+  }
+
+  Future<void> _loadFilters() async {
+    final filters = await TournamentFilterPreferences.loadFilters();
+    if (mounted) {
+      setState(() {
+        _filterMine = filters['mine'] ?? false;
+        _filterSingle = filters['single'] ?? false;
+        _filterTeam = filters['team'] ?? false;
+        _filterOpen = filters['open'] ?? false;
+        _filtersLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _saveFilters() async {
+    await TournamentFilterPreferences.saveFilters(
+      mine: _filterMine,
+      single: _filterSingle,
+      team: _filterTeam,
+      open: _filterOpen,
+    );
+  }
+
+  void _onFilterChanged() {
+    _currentPage = 0; // Reset to first page when filters change
+    _saveFilters();
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    // We need to update the provider to accept a category, or just filter locally if the list is small.
-    // ...
     
-    final tournamentsAsync = ref.watch(filteredTournamentsProvider(_selectedCategory));
+    if (!_filtersLoaded) {
+      return Scaffold(
+        appBar: AppBar(title: Text(loc.tournaments)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    final filterParams = TournamentFilterParams(
+      mine: _filterMine,
+      single: _filterSingle,
+      team: _filterTeam,
+      open: _filterOpen,
+    );
+    
+    final tournamentsAsync = ref.watch(filteredTournamentsProvider(filterParams));
 
     return Scaffold(
       appBar: AppBar(
@@ -39,35 +93,55 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       ),
       body: Column(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          // Filter chips
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: _categories.map((category) {
-                final isSelected = _selectedCategory == category;
-                String label = category;
-                switch (category) {
-                  case 'All': label = loc.all; break;
-                  case 'Mine': label = loc.mine; break;
-                  case 'Open': label = loc.open; break;
-                  case 'Men\'s Singles': label = loc.mensSingles; break;
-                  case 'Women\'s Singles': label = loc.womensSingles; break;
-                  case 'Doubles': label = loc.doubles; break;
-                }
-                
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(label),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() => _selectedCategory = category);
-                      }
-                    },
-                  ),
-                );
-              }).toList(),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                // Mine filter
+                FilterChip(
+                  label: Text(loc.mine),
+                  selected: _filterMine,
+                  onSelected: (selected) {
+                    setState(() => _filterMine = selected);
+                    _onFilterChanged();
+                  },
+                ),
+                // Single/Team toggle group
+                FilterChip(
+                  label: Text(loc.single),
+                  selected: _filterSingle,
+                  onSelected: (selected) {
+                    setState(() {
+                      _filterSingle = selected;
+                      if (selected) _filterTeam = false; // Mutually exclusive
+                    });
+                    _onFilterChanged();
+                  },
+                ),
+                FilterChip(
+                  label: Text(loc.team),
+                  selected: _filterTeam,
+                  onSelected: (selected) {
+                    setState(() {
+                      _filterTeam = selected;
+                      if (selected) _filterSingle = false; // Mutually exclusive
+                    });
+                    _onFilterChanged();
+                  },
+                ),
+                // Open filter
+                FilterChip(
+                  label: Text(loc.open),
+                  selected: _filterOpen,
+                  onSelected: (selected) {
+                    setState(() => _filterOpen = selected);
+                    _onFilterChanged();
+                  },
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -76,19 +150,66 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                 if (tournaments.isEmpty) {
                   return Center(child: Text(loc.noTournamentsFound));
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: tournaments.length,
-                  itemBuilder: (context, index) {
-                    final tournament = tournaments[index];
-                    return GestureDetector(
-                      onTap: () => context.go('/tournaments/${tournament.id}'),
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: LiveTournamentCard(tournament: tournament),
+                
+                // Pagination logic
+                final totalPages = (tournaments.length / pageSize).ceil();
+                final startIndex = _currentPage * pageSize;
+                final endIndex = (startIndex + pageSize).clamp(0, tournaments.length);
+                final paginatedTournaments = tournaments.sublist(startIndex, endIndex);
+                
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: paginatedTournaments.length,
+                        itemBuilder: (context, index) {
+                          final tournament = paginatedTournaments[index];
+                          return GestureDetector(
+                            onTap: () => context.go('/tournaments/${tournament.id}'),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: LiveTournamentCard(tournament: tournament),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                    // Pagination controls
+                    if (totalPages > 1)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton.icon(
+                              onPressed: _currentPage > 0
+                                  ? () => setState(() => _currentPage--)
+                                  : null,
+                              icon: const Icon(Icons.arrow_back),
+                              label: Text(loc.previous),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                loc.pageOf(_currentPage + 1, totalPages),
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: _currentPage < totalPages - 1
+                                  ? () => setState(() => _currentPage++)
+                                  : null,
+                              icon: const Icon(Icons.arrow_forward),
+                              label: Text(loc.next),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -104,17 +225,9 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
             data: (user) {
               if (user == null) return const SizedBox.shrink();
               
-              // We need the tournament count. This implies we need a provider or to fetch it.
-              // We'll use a FutureBuilder here for simplicity or create a provider if needed.
-              // For better UX with FAB, let's use a provider so it doesn't flicker too much.
-              // But we don't have a provider for count exposed yet.
-              // Let's assume we can watch a future provider for count.
-              
               return FutureBuilder<int>(
                 future: ref.read(tournamentRepositoryProvider).getUserTournamentCount(user.id),
                 builder: (context, snapshot) {
-                  // Default to 0 if loading, or maybe show loading state on FAB?
-                  // Be conservative: disable if loading.
                   if (!snapshot.hasData) return const FloatingActionButton(onPressed: null, child: Icon(Icons.add));
                   
                   final count = snapshot.data!;
@@ -129,7 +242,6 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                       label: Text(isPremium ? loc.createTournament : '${loc.createTournament} (${count}/$limit)'),
                     );
                   } else {
-                     // Limit reached
                      return Column(
                        mainAxisSize: MainAxisSize.min,
                        crossAxisAlignment: CrossAxisAlignment.end,
@@ -144,9 +256,9 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                          ),
                          const SizedBox(height: 16),
                          FloatingActionButton.extended(
-                           heroTag: 'create_fab', // Unique tag
+                           heroTag: 'create_fab',
                            backgroundColor: Colors.grey,
-                           onPressed: null, // "turn the button gray and not interactable"
+                           onPressed: null,
                            icon: const Icon(Icons.block),
                            label: Text(loc.limitReached),
                          ),
@@ -165,11 +277,68 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   }
 }
 
-final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, String>((ref, category) async {
-  if (category == 'Mine') {
+class TournamentFilterParams {
+  final bool mine;
+  final bool single;
+  final bool team;
+  final bool open;
+
+  const TournamentFilterParams({
+    this.mine = false,
+    this.single = false,
+    this.team = false,
+    this.open = false,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TournamentFilterParams &&
+          runtimeType == other.runtimeType &&
+          mine == other.mine &&
+          single == other.single &&
+          team == other.team &&
+          open == other.open;
+
+  @override
+  int get hashCode => mine.hashCode ^ single.hashCode ^ team.hashCode ^ open.hashCode;
+}
+
+final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, TournamentFilterParams>((ref, params) async {
+  List<Tournament> tournaments;
+  
+  if (params.mine) {
     final user = await ref.watch(currentUserProvider.future);
     if (user == null) return [];
-    return ref.watch(tournamentRepositoryProvider).getTournamentsForUser(user.id);
+    tournaments = await ref.watch(tournamentRepositoryProvider).getTournamentsForUser(user.id);
+  } else {
+    tournaments = await ref.watch(tournamentRepositoryProvider).getLiveTournaments();
   }
-  return ref.watch(tournamentRepositoryProvider).getLiveTournaments(category: category);
+  
+  // Apply additional filters
+  return tournaments.where((t) {
+    // Single filter - check if tournament has singles categories
+    if (params.single) {
+      // Check tournament name or type for singles indication
+      final isSingles = t.name.toLowerCase().contains('single') || 
+                        t.name.toLowerCase().contains('simples');
+      if (!isSingles) return false;
+    }
+    
+    // Team filter - check if tournament has doubles/team categories
+    if (params.team) {
+      final isTeam = t.name.toLowerCase().contains('double') || 
+                     t.name.toLowerCase().contains('dupla') ||
+                     t.name.toLowerCase().contains('team');
+      if (!isTeam) return false;
+    }
+    
+    // Open filter - check if registration is open
+    if (params.open) {
+      final isOpen = t.status == 'Registration Open' || t.status == 'Open';
+      if (!isOpen) return false;
+    }
+    
+    return true;
+  }).toList();
 });

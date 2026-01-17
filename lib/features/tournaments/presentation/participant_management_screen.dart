@@ -91,8 +91,8 @@ class ParticipantManagementScreen extends ConsumerWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.person_add),
-            title: const Text('Add Existing Users'),
-            subtitle: const Text('Select from registered users'),
+            title: Text(AppLocalizations.of(context)!.addExistingUsers),
+            subtitle: Text(AppLocalizations.of(context)!.selectFromRegisteredUsers),
             onTap: () {
               Navigator.pop(context);
               _showAddExistingUsersDialog(context, ref);
@@ -100,8 +100,8 @@ class ParticipantManagementScreen extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.edit),
-            title: const Text('Add Manual Entry'),
-            subtitle: const Text('For guests or non-app users'),
+            title: Text(AppLocalizations.of(context)!.addManualEntry),
+            subtitle: Text(AppLocalizations.of(context)!.forGuestsOrNonAppUsers),
             onTap: () {
               Navigator.pop(context);
               _showAddParticipantDialog(context, ref);
@@ -149,18 +149,18 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
     final participantsAsync = ref.watch(participantsProvider(widget.tournamentId));
     
     return AlertDialog(
-      title: const Text('Add Participants'),
+      title: Text(AppLocalizations.of(context)!.addParticipants),
       content: SizedBox(
         width: double.maxFinite,
         child: categoriesAsync.when(
           data: (categories) {
-            if (categories.isEmpty) return const Text('No categories found. Please create a category first.');
+            if (categories.isEmpty) return Text(AppLocalizations.of(context)!.noCategoriesCreateFirst);
             
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Select Categories:', style: Theme.of(context).textTheme.bodyMedium),
+                Text(AppLocalizations.of(context)!.selectCategoriesColon, style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -184,9 +184,9 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Search Users',
-                    prefixIcon: Icon(Icons.search),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.searchUsers,
+                    prefixIcon: const Icon(Icons.search),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -206,7 +206,7 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
                       }).toList();
 
                       if (filteredPlayers.isEmpty) {
-                        return const Center(child: Text('No users found.'));
+                        return Center(child: Text(AppLocalizations.of(context)!.noUsersFound));
                       }
 
                       return ListView.builder(
@@ -251,11 +251,11 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         FilledButton(
           onPressed: _selectedUserIds.isEmpty || _selectedCategoryIds.isEmpty ? null : _submit,
-          child: Text('Add (${_selectedUserIds.length})'),
+          child: Text(AppLocalizations.of(context)!.addCount(_selectedUserIds.length)),
         ),
       ],
     );
@@ -300,9 +300,9 @@ class _AddExistingUsersDialogState extends ConsumerState<_AddExistingUsersDialog
       if (mounted) {
         Navigator.pop(context);
         if (addedCount > 0) {
-           scaffoldMessenger.showSnackBar(SnackBar(content: Text('Added $addedCount participants')));
+           scaffoldMessenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.addedParticipants(addedCount))));
         } else {
-           scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Selected participants are already in selected categories')));
+           scaffoldMessenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.alreadyInCategories)));
         }
       }
     } catch (e) {
@@ -433,7 +433,7 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
           final categories = snapshot.data!;
-          if (categories.isEmpty) return const Text('No categories found.');
+          if (categories.isEmpty) return Text(loc.noCategoriesFound);
           
           if (_selectedCategoryId == null && categories.isNotEmpty) {
             _selectedCategoryId = categories.first.id;

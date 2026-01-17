@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class ScheduleSettingsScreen extends ConsumerStatefulWidget {
   final String tournamentId;
@@ -55,7 +56,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
           ),
           floatingActionButton: _isCalendarView ? null : FloatingActionButton.extended(
             onPressed: _addNewDay,
-            label: const Text('Add Date'),
+            label: Text(AppLocalizations.of(context)!.addDate),
             icon: const Icon(Icons.add),
           ),
           body: Column(
@@ -331,7 +332,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -388,7 +389,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
