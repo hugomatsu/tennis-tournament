@@ -17,14 +17,18 @@ enum ShareBackgroundColor {
   blue,
   red,
   yellow,
+  green,
+  purple,
+  orange,
   none,
+  custom,
 }
 
 class SharingService {
   final ScreenshotController _screenshotController = ScreenshotController();
 
   /// Get gradient colors for a background option
-  List<Color> getGradientColors(ShareBackgroundColor bgColor) {
+  List<Color> getGradientColors(ShareBackgroundColor bgColor, [Color? customColor]) {
     switch (bgColor) {
       case ShareBackgroundColor.blue:
         return [const Color(0xFF1E88E5), const Color(0xFF1565C0)];
@@ -32,8 +36,22 @@ class SharingService {
         return [const Color(0xFFE53935), const Color(0xFFC62828)];
       case ShareBackgroundColor.yellow:
         return [const Color(0xFFFDD835), const Color(0xFFF9A825)];
+      case ShareBackgroundColor.green:
+        return [const Color(0xFF43A047), const Color(0xFF2E7D32)];
+      case ShareBackgroundColor.purple:
+        return [const Color(0xFF8E24AA), const Color(0xFF6A1B9A)];
+      case ShareBackgroundColor.orange:
+        return [const Color(0xFFFB8C00), const Color(0xFFEF6C00)];
       case ShareBackgroundColor.none:
         return []; // Transparent
+      case ShareBackgroundColor.custom:
+        if (customColor != null) {
+          // Create gradient from custom color
+          final hsl = HSLColor.fromColor(customColor);
+          final darker = hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+          return [customColor, darker];
+        }
+        return [];
     }
   }
 
@@ -97,9 +115,10 @@ class SharingService {
   Future<Uint8List> captureWidgetWithColor({
     required Widget widget,
     required ShareBackgroundColor backgroundColor,
+    Color? customColor,
     BuildContext? context,
   }) async {
-    final gradientColors = getGradientColors(backgroundColor);
+    final gradientColors = getGradientColors(backgroundColor, customColor);
     final hasBackground = gradientColors.isNotEmpty;
 
     final captureWidget = Container(
@@ -133,40 +152,45 @@ class SharingService {
     );
   }
 
-  /// Copy widget image to clipboard
+  /// Copy widget image to clipboard - opens share sheet on mobile for proper copy support
   Future<void> copyWidgetToClipboard({
     required Widget widget,
     required ShareBackgroundColor backgroundColor,
+    Color? customColor,
     BuildContext? context,
   }) async {
     try {
       final image = await captureWidgetWithColor(
         widget: widget,
         backgroundColor: backgroundColor,
+        customColor: customColor,
         context: context,
       );
 
-      // Copy image data to clipboard
-      await Clipboard.setData(ClipboardData(text: '')); // Clear text clipboard
-      
-      // For mobile, we need to save temp file and use platform-specific clipboard
-      // For now, we'll save to a temp file that user can paste
-      if (!kIsWeb) {
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/share_temp.png');
-        await tempFile.writeAsBytes(image);
-        
-        // On iOS/Android, copying image to clipboard requires platform channels
-        // For simplicity, we'll use the share sheet with a "copy" hint
-        // or save the file for manual copy
+      if (kIsWeb) {
+        // Web: save file for download
+        final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}';
+        await FileSaver.instance.saveFile(
+          name: fileName,
+          bytes: image,
+          mimeType: MimeType.png,
+        );
         if (context != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Image saved! You can now paste it.'),
-              duration: Duration(seconds: 2),
-            ),
+            const SnackBar(content: Text('Image downloaded!')),
           );
         }
+      } else {
+        // Mobile: Save to temp file and open share sheet for user to copy
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/share_temp_${DateTime.now().millisecondsSinceEpoch}.png');
+        await tempFile.writeAsBytes(image);
+        
+        // Use share_plus to show share sheet - user can then copy from there
+        await Share.shareXFiles(
+          [XFile(tempFile.path)],
+          text: 'Tap "Copy" to copy image to clipboard',
+        );
       }
     } catch (e) {
       debugPrint('Error copying to clipboard: $e');
@@ -229,12 +253,14 @@ class SharingService {
     required Widget widget,
     required String subject,
     required ShareBackgroundColor backgroundColor,
+    Color? customColor,
     BuildContext? context,
   }) async {
     try {
       final image = await captureWidgetWithColor(
         widget: widget,
         backgroundColor: backgroundColor,
+        customColor: customColor,
         context: context,
       );
 

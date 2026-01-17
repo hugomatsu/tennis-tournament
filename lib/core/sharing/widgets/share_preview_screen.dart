@@ -38,6 +38,7 @@ class SharePreviewScreen extends ConsumerStatefulWidget {
 
 class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   ShareBackgroundColor _selectedColor = ShareBackgroundColor.blue;
+  Color? _customColor;
   bool _isLoading = false;
 
   @override
@@ -95,36 +96,60 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
 
           const SizedBox(height: 16),
 
-          // Background color options
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildColorChip(
-                  color: const Color(0xFF1E88E5),
-                  label: l10n.backgroundBlue,
-                  value: ShareBackgroundColor.blue,
-                ),
-                const SizedBox(width: 8),
-                _buildColorChip(
-                  color: const Color(0xFFE53935),
-                  label: l10n.backgroundRed,
-                  value: ShareBackgroundColor.red,
-                ),
-                const SizedBox(width: 8),
-                _buildColorChip(
-                  color: const Color(0xFFFDD835),
-                  label: l10n.backgroundYellow,
-                  value: ShareBackgroundColor.yellow,
-                ),
-                const SizedBox(width: 8),
-                _buildColorChip(
-                  color: null, // Transparent
-                  label: l10n.backgroundNone,
-                  value: ShareBackgroundColor.none,
-                ),
-              ],
+          // Background color options - scrollable
+          SizedBox(
+            height: 44,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildColorChip(
+                    color: const Color(0xFF1E88E5),
+                    label: l10n.backgroundBlue,
+                    value: ShareBackgroundColor.blue,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: const Color(0xFFE53935),
+                    label: l10n.backgroundRed,
+                    value: ShareBackgroundColor.red,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: const Color(0xFFFDD835),
+                    label: l10n.backgroundYellow,
+                    value: ShareBackgroundColor.yellow,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: const Color(0xFF43A047),
+                    label: 'Green',
+                    value: ShareBackgroundColor.green,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: const Color(0xFF8E24AA),
+                    label: 'Purple',
+                    value: ShareBackgroundColor.purple,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: const Color(0xFFFB8C00),
+                    label: 'Orange',
+                    value: ShareBackgroundColor.orange,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildColorChip(
+                    color: null, // Transparent
+                    label: l10n.backgroundNone,
+                    value: ShareBackgroundColor.none,
+                  ),
+                  const SizedBox(width: 8),
+                  // Custom color picker
+                  _buildCustomColorChip(theme),
+                ],
+              ),
             ),
           ),
 
@@ -178,26 +203,33 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   }
 
   Widget _buildPreview(SharingService service) {
-    final gradientColors = service.getGradientColors(_selectedColor);
+    final gradientColors = service.getGradientColors(_selectedColor, _customColor);
     final hasBackground = gradientColors.isNotEmpty;
 
-    return Container(
-      width: double.infinity,
-      decoration: hasBackground
-          ? BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: gradientColors,
-              ),
-            )
-          : BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: widget.shareWidget,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Container(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 32,
+            minHeight: 200,
+          ),
+          decoration: hasBackground
+              ? BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: gradientColors,
+                  ),
+                )
+              : BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: widget.shareWidget,
+          ),
         ),
       ),
     );
@@ -276,6 +308,127 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
     );
   }
 
+  Widget _buildCustomColorChip(ThemeData theme) {
+    final isSelected = _selectedColor == ShareBackgroundColor.custom;
+    
+    return GestureDetector(
+      onTap: () => _showColorPicker(theme),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected && _customColor != null
+              ? _customColor
+              : theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? (_customColor ?? theme.colorScheme.primary)
+                : theme.colorScheme.outlineVariant,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 16,
+              height: 16,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.red, Colors.orange, Colors.yellow, Colors.green, Colors.blue, Colors.purple],
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+            ),
+            Icon(
+              Icons.colorize,
+              size: 14,
+              color: isSelected && _customColor != null
+                  ? Colors.white
+                  : theme.colorScheme.onSurface,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker(ThemeData theme) {
+    // Predefined color options for quick selection
+    final colors = [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.grey,
+      Colors.blueGrey,
+      Colors.black,
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Custom Color'),
+        content: SizedBox(
+          width: 280,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: colors.map((color) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _customColor = color;
+                    _selectedColor = ShareBackgroundColor.custom;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleCopy() async {
     setState(() => _isLoading = true);
     try {
@@ -283,14 +436,10 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
       await service.copyWidgetToClipboard(
         widget: widget.shareWidget,
         backgroundColor: _selectedColor,
+        customColor: _customColor,
         context: context,
       );
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.copiedToClipboard)),
-        );
-      }
+      // Note: Snackbar is shown in the service for mobile, not here
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -304,6 +453,7 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
         widget: widget.shareWidget,
         subject: widget.shareSubject,
         backgroundColor: _selectedColor,
+        customColor: _customColor,
         context: context,
       );
       if (mounted) Navigator.pop(context);
