@@ -8,6 +8,7 @@ import 'package:tennis_tournament/features/players/domain/player.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
+import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
@@ -41,6 +42,23 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     _locationController.dispose();
     _timeController.dispose();
     super.dispose();
+  }
+
+  Widget _buildEditButton(TennisMatch match) {
+    if (_isEditing) {
+      return IconButton(
+        icon: const Icon(Icons.save),
+        onPressed: _saveChanges,
+      );
+    } else {
+      return IconButton(
+        icon: const Icon(Icons.edit),
+        onPressed: () {
+          _initializeEditing(match);
+          setState(() => _isEditing = true);
+        },
+      );
+    }
   }
 
   @override
@@ -328,32 +346,78 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),
-          FutureBuilder<Player?>(
-            future: ref.watch(currentUserProvider.future), // Ensure we check current user
-            builder: (context, snapshot) {
-               final user = snapshot.data;
-               if (user != null && user.userType == 'admin') {
-                 if (_isEditing) {
-                   return IconButton(
-                     icon: const Icon(Icons.save),
-                     onPressed: _saveChanges,
-                   );
-                 } else {
-                   return IconButton(
-                     icon: const Icon(Icons.edit),
-                     onPressed: () {
-                       final matchAsync = ref.read(matchDetailProvider(widget.matchId));
-                       final match = matchAsync.value;
-                       if (match != null) {
-                         _initializeEditing(match);
-                         setState(() => _isEditing = true);
-                       }
-                     },
-                   );
-                 }
-               }
-               return const SizedBox.shrink();
+          // Follow button
+          matchAsync.when(
+            data: (match) {
+              if (match == null) return const SizedBox.shrink();
+              return Consumer(
+                builder: (context, ref, _) {
+                  final userAsync = ref.watch(currentUserProvider);
+                  return userAsync.when(
+                    data: (user) {
+                      if (user == null) return const SizedBox.shrink();
+                      final isFollowing = user.followedMatchIds.contains(match.id);
+                      return IconButton(
+                        icon: Icon(
+                          isFollowing ? Icons.bookmark : Icons.bookmark_border,
+                          color: isFollowing ? Theme.of(context).colorScheme.primary : null,
+                        ),
+                        tooltip: isFollowing ? 'Unfollow match' : 'Follow match',
+                        onPressed: () async {
+                          final newList = isFollowing
+                              ? user.followedMatchIds.where((id) => id != match.id).toList()
+                              : [...user.followedMatchIds, match.id];
+                          await ref.read(playerRepositoryProvider).updateUser(
+                            user.copyWith(followedMatchIds: newList),
+                          );
+                        },
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  );
+                },
+              );
             },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+          // Edit button - show for admin, owner, or tournament admin
+          matchAsync.when(
+            data: (match) {
+              if (match == null) return const SizedBox.shrink();
+              return FutureBuilder<Player?>(
+                future: ref.watch(currentUserProvider.future),
+                builder: (context, userSnapshot) {
+                  final user = userSnapshot.data;
+                  if (user == null) return const SizedBox.shrink();
+                  
+                  // Check if user is global admin
+                  if (user.userType == 'admin') {
+                    return _buildEditButton(match);
+                  }
+                  
+                  // Check if user is tournament owner or admin
+                  return FutureBuilder(
+                    future: ref.read(tournamentRepositoryProvider).getTournament(match.tournamentId),
+                    builder: (context, tournamentSnapshot) {
+                      final tournament = tournamentSnapshot.data;
+                      if (tournament == null) return const SizedBox.shrink();
+                      
+                      final isOwner = tournament.ownerId == user.id;
+                      final isTournamentAdmin = tournament.adminIds.contains(user.id);
+                      
+                      if (isOwner || isTournamentAdmin) {
+                        return _buildEditButton(match);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  );
+                },
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
         ],
       ),

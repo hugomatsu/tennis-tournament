@@ -9,6 +9,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tennis_tournament/core/widgets/web_share_modal.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 final sharingServiceProvider = Provider((ref) => SharingService());
 
@@ -17,9 +18,6 @@ enum ShareBackgroundColor {
   blue,
   red,
   yellow,
-  green,
-  purple,
-  orange,
   none,
   custom,
 }
@@ -36,12 +34,6 @@ class SharingService {
         return [const Color(0xFFE53935), const Color(0xFFC62828)];
       case ShareBackgroundColor.yellow:
         return [const Color(0xFFFDD835), const Color(0xFFF9A825)];
-      case ShareBackgroundColor.green:
-        return [const Color(0xFF43A047), const Color(0xFF2E7D32)];
-      case ShareBackgroundColor.purple:
-        return [const Color(0xFF8E24AA), const Color(0xFF6A1B9A)];
-      case ShareBackgroundColor.orange:
-        return [const Color(0xFFFB8C00), const Color(0xFFEF6C00)];
       case ShareBackgroundColor.none:
         return []; // Transparent
       case ShareBackgroundColor.custom:
@@ -152,7 +144,7 @@ class SharingService {
     );
   }
 
-  /// Copy widget image to clipboard - opens share sheet on mobile for proper copy support
+  /// Copy widget image to clipboard using native clipboard
   Future<void> copyWidgetToClipboard({
     required Widget widget,
     required ShareBackgroundColor backgroundColor,
@@ -181,16 +173,21 @@ class SharingService {
           );
         }
       } else {
-        // Mobile: Save to temp file and open share sheet for user to copy
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/share_temp_${DateTime.now().millisecondsSinceEpoch}.png');
-        await tempFile.writeAsBytes(image);
+        // Mobile: Use super_clipboard for native clipboard support
+        final clipboard = SystemClipboard.instance;
+        if (clipboard == null) {
+          throw Exception('Clipboard not available');
+        }
         
-        // Use share_plus to show share sheet - user can then copy from there
-        await Share.shareXFiles(
-          [XFile(tempFile.path)],
-          text: 'Tap "Copy" to copy image to clipboard',
-        );
+        final item = DataWriterItem();
+        item.add(Formats.png(image));
+        await clipboard.write([item]);
+        
+        if (context != null && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Image copied to clipboard!')),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Error copying to clipboard: $e');

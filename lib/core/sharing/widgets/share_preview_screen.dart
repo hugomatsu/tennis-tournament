@@ -123,24 +123,6 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
                   ),
                   const SizedBox(width: 8),
                   _buildColorChip(
-                    color: const Color(0xFF43A047),
-                    label: 'Green',
-                    value: ShareBackgroundColor.green,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildColorChip(
-                    color: const Color(0xFF8E24AA),
-                    label: 'Purple',
-                    value: ShareBackgroundColor.purple,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildColorChip(
-                    color: const Color(0xFFFB8C00),
-                    label: 'Orange',
-                    value: ShareBackgroundColor.orange,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildColorChip(
                     color: null, // Transparent
                     label: l10n.backgroundNone,
                     value: ShareBackgroundColor.none,

@@ -289,6 +289,7 @@ class FirestoreMatchRepository implements MatchRepository {
 
   @override
   Future<void> updateMatchScore(String matchId, String score, String winnerName) async {
+    String? tournamentId;
     try {
       await _firestore.runTransaction((transaction) async {
         final matchRef = _firestore.collection('matches').doc(matchId);
@@ -299,6 +300,7 @@ class FirestoreMatchRepository implements MatchRepository {
         }
 
         final matchData = matchSnapshot.data()!;
+        tournamentId = matchData['tournamentId'] as String?;
 
         final nextMatchId = matchData['nextMatchId'] as String?;
         
@@ -371,8 +373,41 @@ class FirestoreMatchRepository implements MatchRepository {
             }
         }
       });
+      
+      // After transaction completes, check if all tournament matches are completed
+      if (tournamentId != null && tournamentId!.isNotEmpty) {
+        await _checkAndCompleteTournament(tournamentId!);
+      }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Check if all matches for a tournament are completed and update tournament status
+  Future<void> _checkAndCompleteTournament(String tournamentId) async {
+    try {
+      final matchesSnapshot = await _firestore
+          .collection('matches')
+          .where('tournamentId', isEqualTo: tournamentId)
+          .get();
+      
+      if (matchesSnapshot.docs.isEmpty) return;
+      
+      // Check if all matches are completed
+      final allCompleted = matchesSnapshot.docs.every((doc) {
+        final status = doc.data()['status'] as String?;
+        return status == 'Completed' || status == 'Finished';
+      });
+      
+      if (allCompleted) {
+        // Update tournament status to Completed
+        await _firestore.collection('tournaments').doc(tournamentId).update({
+          'status': 'Completed',
+        });
+      }
+    } catch (e) {
+      // Silently fail - tournament completion is a nice-to-have, not critical
+      print('Error checking tournament completion: $e');
     }
   }
 
