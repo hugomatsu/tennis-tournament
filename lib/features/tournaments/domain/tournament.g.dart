@@ -28,6 +28,9 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
           ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  tournamentType: json['tournamentType'] as String? ?? 'mataMata',
+  groupCount: (json['groupCount'] as num?)?.toInt() ?? 0,
+  pointsPerWin: (json['pointsPerWin'] as num?)?.toInt() ?? 3,
 );
 
 Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
@@ -47,6 +50,9 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'format': instance.format,
       'subscriptionTier': instance.subscriptionTier,
       'scheduleRules': instance.scheduleRules,
+      'tournamentType': instance.tournamentType,
+      'groupCount': instance.groupCount,
+      'pointsPerWin': instance.pointsPerWin,
     };
 
 _DailySchedule _$DailyScheduleFromJson(Map<String, dynamic> json) =>

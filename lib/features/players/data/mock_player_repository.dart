@@ -133,4 +133,10 @@ class MockPlayerRepository implements PlayerRepository {
       following: [],
     );
   }
+
+  @override
+  Future<int> getTournamentsParticipatedCount(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return 3; // Mock value
+  }
 }

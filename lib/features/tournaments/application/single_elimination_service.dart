@@ -8,6 +8,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:tennis_tournament/features/locations/domain/location.dart';
+import 'package:tennis_tournament/features/tournaments/application/open_tennis_service.dart';
 import 'package:uuid/uuid.dart';
 
 class _MatchSlot {
@@ -17,7 +18,16 @@ class _MatchSlot {
   _MatchSlot(this.time, this.court);
 }
 
+/// Default provider - returns SingleElimination (mata-mata) service
 final schedulingServiceProvider = Provider<SchedulingService>((ref) {
+  return SingleEliminationService(ref);
+});
+
+/// Provider that selects service based on tournament type
+final schedulingServiceForTournamentProvider = Provider.family<SchedulingService, String>((ref, tournamentType) {
+  if (tournamentType == 'openTennis') {
+    return OpenTennisService(ref);
+  }
   return SingleEliminationService(ref);
 });
 

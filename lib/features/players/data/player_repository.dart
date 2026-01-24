@@ -23,4 +23,5 @@ abstract class PlayerRepository {
   Future<void> cancelSubscription(String userId);
   Future<List<Player>> getPlayersByIds(List<String> ids);
   Future<Player?> getPlayer(String id);
+  Future<int> getTournamentsParticipatedCount(String userId);
 }

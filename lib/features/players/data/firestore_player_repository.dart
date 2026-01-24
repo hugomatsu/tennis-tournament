@@ -221,4 +221,37 @@ class FirestorePlayerRepository implements PlayerRepository {
       return null;
     }
   }
+
+  @override
+  Future<int> getTournamentsParticipatedCount(String userId) async {
+    try {
+      // Query all tournaments where the user is a participant by checking matches
+      // Alternatively, we could track this in a separate field, but for now we'll
+      // count tournaments where the user appears in any match
+      final matchesSnapshot = await _firestore
+          .collection('matches')
+          .where('player1UserIds', arrayContains: userId)
+          .get();
+      
+      final matchesSnapshot2 = await _firestore
+          .collection('matches')
+          .where('player2UserIds', arrayContains: userId)
+          .get();
+      
+      // Get unique tournament IDs from matches
+      final tournamentIds = <String>{};
+      for (final doc in matchesSnapshot.docs) {
+        final tournamentId = doc.data()['tournamentId'] as String?;
+        if (tournamentId != null) tournamentIds.add(tournamentId);
+      }
+      for (final doc in matchesSnapshot2.docs) {
+        final tournamentId = doc.data()['tournamentId'] as String?;
+        if (tournamentId != null) tournamentIds.add(tournamentId);
+      }
+      
+      return tournamentIds.length;
+    } catch (e) {
+      return 0;
+    }
+  }
 }

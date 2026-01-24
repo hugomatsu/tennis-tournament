@@ -1,0 +1,443 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:tennis_tournament/features/matches/domain/match.dart';
+import 'package:tennis_tournament/features/matches/data/match_repository.dart';
+import 'package:tennis_tournament/features/tournaments/domain/group_standing.dart';
+import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
+import 'package:tennis_tournament/features/tournaments/domain/scheduling_service.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
+import 'package:tennis_tournament/features/locations/data/location_repository.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class _MatchSlot {
+  final DateTime time;
+  final String court;
+  _MatchSlot(this.time, this.court);
+}
+
+final openTennisServiceProvider = Provider<OpenTennisService>((ref) {
+  return OpenTennisService(ref);
+});
+
+/// Service for Open Tennis Mode (round-robin groups + playoff bracket)
+class OpenTennisService implements SchedulingService {
+  final Ref _ref;
+  final _uuid = const Uuid();
+  final _firestore = FirebaseFirestore.instance;
+
+  OpenTennisService(this._ref);
+
+  @override
+  Future<List<TennisMatch>> generateBracket(
+    Tournament tournament,
+    TournamentCategory category,
+    List<Participant> participants, {
+    bool shuffle = true,
+  }) async {
+    // For Open Tennis mode, this generates group stage matches
+    return generateGroupMatches(tournament, category, participants, shuffle: shuffle);
+  }
+
+  /// Generate round-robin group stage matches
+  Future<List<TennisMatch>> generateGroupMatches(
+    Tournament tournament,
+    TournamentCategory category,
+    List<Participant> participants, {
+    bool shuffle = true,
+  }) async {
+    if (participants.length < 2) return [];
+
+    // Get number of courts
+    int numberOfCourts = 1;
+    if (tournament.locationId != null) {
+      try {
+        final loc = await _ref.read(locationRepositoryProvider).getLocation(tournament.locationId!);
+        if (loc != null) numberOfCourts = loc.numberOfCourts;
+      } catch (_) {}
+    }
+
+    // Fetch existing matches to avoid conflicts
+    List<TennisMatch> existingMatches = [];
+    try {
+      existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
+      existingMatches = existingMatches.where((m) => m.categoryId != category.id).toList();
+    } catch (_) {}
+
+    // Shuffle if requested
+    final players = List<Participant>.from(participants);
+    if (shuffle) players.shuffle();
+
+    // Determine number of groups
+    int groupCount = tournament.groupCount;
+    if (groupCount <= 0) {
+      // Auto: half of players, minimum 2
+      groupCount = (players.length / 2).ceil().clamp(2, players.length ~/ 2);
+    }
+    if (groupCount > players.length) groupCount = players.length;
+    if (groupCount < 1) groupCount = 1;
+
+    // Split players into groups
+    final groups = <String, List<Participant>>{};
+    for (int i = 0; i < players.length; i++) {
+      final groupId = String.fromCharCode('A'.codeUnitAt(0) + (i % groupCount));
+      groups.putIfAbsent(groupId, () => []);
+      groups[groupId]!.add(players[i]);
+    }
+
+    // Generate group standings
+    await _createGroupStandings(tournament, category, groups);
+
+    // Generate round-robin matches for each group
+    final matches = <TennisMatch>[];
+    final matchDuration = category.matchDurationMinutes;
+    
+    DateTime startDate = DateTime.now().add(const Duration(days: 1));
+    startDate = DateTime(startDate.year, startDate.month, startDate.day, 9, 0);
+
+    // Generate time slots
+    List<_MatchSlot> slots = _generateFallbackSlots(startDate, numberOfCourts, matchDuration, 200, existingMatches);
+    int slotIndex = 0;
+
+    for (final entry in groups.entries) {
+      final groupId = entry.key;
+      final groupPlayers = entry.value;
+
+      // Round-robin: each player plays every other player once
+      for (int i = 0; i < groupPlayers.length; i++) {
+        for (int j = i + 1; j < groupPlayers.length; j++) {
+          final p1 = groupPlayers[i];
+          final p2 = groupPlayers[j];
+
+          // Get slot
+          DateTime matchTime;
+          String courtName;
+          if (slotIndex < slots.length) {
+            matchTime = slots[slotIndex].time;
+            courtName = slots[slotIndex].court;
+            slotIndex++;
+          } else {
+            matchTime = startDate.add(Duration(minutes: matchDuration * slotIndex));
+            courtName = 'Court 1';
+            slotIndex++;
+          }
+
+          final match = TennisMatch(
+            id: _uuid.v4(),
+            tournamentId: tournament.id,
+            categoryId: category.id,
+            tournamentName: tournament.name,
+            player1Id: p1.id,
+            player1Name: p1.name,
+            player1UserIds: p1.userIds,
+            player1AvatarUrls: p1.avatarUrls,
+            player2Id: p2.id,
+            player2Name: p2.name,
+            player2UserIds: p2.userIds,
+            player2AvatarUrls: p2.avatarUrls,
+            opponentName: p2.name,
+            time: matchTime,
+            court: courtName,
+            round: 'Group $groupId', // Group stage identifier
+            status: 'Preparing',
+            matchIndex: matches.length,
+            durationMinutes: matchDuration,
+            locationId: tournament.locationId,
+          );
+
+          matches.add(match);
+        }
+      }
+    }
+
+    return matches;
+  }
+
+  /// Create group standings in Firestore
+  Future<void> _createGroupStandings(
+    Tournament tournament,
+    TournamentCategory category,
+    Map<String, List<Participant>> groups,
+  ) async {
+    final batch = _firestore.batch();
+
+    for (final entry in groups.entries) {
+      final groupId = entry.key;
+      final players = entry.value;
+
+      for (final player in players) {
+        final standing = GroupStanding(
+          id: _uuid.v4(),
+          tournamentId: tournament.id,
+          categoryId: category.id,
+          groupId: groupId,
+          participantId: player.id,
+          participantName: player.name,
+          participantUserIds: player.userIds,
+          participantAvatarUrls: player.avatarUrls,
+        );
+
+        final docRef = _firestore
+            .collection('tournaments')
+            .doc(tournament.id)
+            .collection('standings')
+            .doc(standing.id);
+
+        batch.set(docRef, standing.toJson());
+      }
+    }
+
+    await batch.commit();
+  }
+
+  /// Update standings after a match is completed
+  Future<void> updateStandingsAfterMatch(
+    String tournamentId,
+    String categoryId,
+    String winnerId,
+    String loserId,
+    int pointsPerWin,
+  ) async {
+    // Get winner standing
+    final winnerQuery = await _firestore
+        .collection('tournaments')
+        .doc(tournamentId)
+        .collection('standings')
+        .where('categoryId', isEqualTo: categoryId)
+        .where('participantId', isEqualTo: winnerId)
+        .limit(1)
+        .get();
+
+    if (winnerQuery.docs.isNotEmpty) {
+      await winnerQuery.docs.first.reference.update({
+        'matchesPlayed': FieldValue.increment(1),
+        'wins': FieldValue.increment(1),
+        'points': FieldValue.increment(pointsPerWin),
+      });
+    }
+
+    // Get loser standing
+    final loserQuery = await _firestore
+        .collection('tournaments')
+        .doc(tournamentId)
+        .collection('standings')
+        .where('categoryId', isEqualTo: categoryId)
+        .where('participantId', isEqualTo: loserId)
+        .limit(1)
+        .get();
+
+    if (loserQuery.docs.isNotEmpty) {
+      await loserQuery.docs.first.reference.update({
+        'matchesPlayed': FieldValue.increment(1),
+        'losses': FieldValue.increment(1),
+      });
+    }
+  }
+
+  /// Get group standings for a tournament category
+  Future<Map<String, List<GroupStanding>>> getGroupStandings(
+    String tournamentId,
+    String categoryId,
+  ) async {
+    final snapshot = await _firestore
+        .collection('tournaments')
+        .doc(tournamentId)
+        .collection('standings')
+        .where('categoryId', isEqualTo: categoryId)
+        .get();
+
+    final standings = snapshot.docs
+        .map((doc) => GroupStanding.fromJson(doc.data()))
+        .toList();
+
+    // Group by groupId
+    final grouped = <String, List<GroupStanding>>{};
+    for (final s in standings) {
+      grouped.putIfAbsent(s.groupId, () => []);
+      grouped[s.groupId]!.add(s);
+    }
+
+    // Sort each group by points (descending)
+    for (final group in grouped.values) {
+      group.sort((a, b) => b.points.compareTo(a.points));
+    }
+
+    return grouped;
+  }
+
+  /// Check if group stage is complete
+  Future<bool> isGroupStageComplete(
+    String tournamentId,
+    String categoryId,
+  ) async {
+    final matches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournamentId);
+    final groupMatches = matches.where((m) =>
+        m.categoryId == categoryId && m.round.startsWith('Group'));
+
+    return groupMatches.isNotEmpty &&
+        groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
+  }
+
+  /// Generate playoff bracket from group winners
+  Future<List<TennisMatch>> generatePlayoffBracket(
+    Tournament tournament,
+    TournamentCategory category,
+  ) async {
+    // Get group standings
+    final standings = await getGroupStandings(tournament.id, category.id);
+    
+    // Get top player from each group
+    final qualifiedPlayers = <Participant>[];
+    for (final group in standings.entries) {
+      if (group.value.isNotEmpty) {
+        final winner = group.value.first; // Already sorted by points
+        qualifiedPlayers.add(Participant(
+          id: winner.participantId,
+          name: winner.participantName,
+          categoryId: category.id,
+          userIds: winner.participantUserIds,
+          avatarUrls: winner.participantAvatarUrls,
+          status: 'approved',
+          joinedAt: DateTime.now(),
+        ));
+      }
+    }
+
+    if (qualifiedPlayers.length < 2) return [];
+
+    // Use SingleEliminationService for playoff
+    // Import and delegate to SingleEliminationService
+    // For simplicity, generate inline here
+
+    // Get number of courts
+    int numberOfCourts = 1;
+    if (tournament.locationId != null) {
+      try {
+        final loc = await _ref.read(locationRepositoryProvider).getLocation(tournament.locationId!);
+        if (loc != null) numberOfCourts = loc.numberOfCourts;
+      } catch (_) {}
+    }
+
+    final existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
+    final matchDuration = category.matchDurationMinutes;
+    
+    DateTime startDate = DateTime.now().add(const Duration(days: 1));
+    startDate = DateTime(startDate.year, startDate.month, startDate.day, 9, 0);
+
+    List<_MatchSlot> slots = _generateFallbackSlots(startDate, numberOfCourts, matchDuration, 100, existingMatches);
+    int slotIndex = 0;
+
+    // Simple bracket generation for qualified players
+    final matches = <TennisMatch>[];
+    final n = qualifiedPlayers.length;
+    int round = 1;
+    var currentPlayers = qualifiedPlayers;
+
+    while (currentPlayers.length >= 2) {
+      final roundMatches = <TennisMatch>[];
+      
+      for (int i = 0; i < currentPlayers.length; i += 2) {
+        if (i + 1 >= currentPlayers.length) break; // Odd player gets bye
+
+        final p1 = currentPlayers[i];
+        final p2 = currentPlayers[i + 1];
+
+        DateTime matchTime;
+        String courtName;
+        if (slotIndex < slots.length) {
+          matchTime = slots[slotIndex].time;
+          courtName = slots[slotIndex].court;
+          slotIndex++;
+        } else {
+          matchTime = startDate.add(Duration(minutes: matchDuration * slotIndex));
+          courtName = 'Court 1';
+          slotIndex++;
+        }
+
+        final match = TennisMatch(
+          id: _uuid.v4(),
+          tournamentId: tournament.id,
+          categoryId: category.id,
+          tournamentName: tournament.name,
+          player1Id: p1.id,
+          player1Name: p1.name,
+          player1UserIds: p1.userIds,
+          player1AvatarUrls: p1.avatarUrls,
+          player2Id: p2.id,
+          player2Name: p2.name,
+          player2UserIds: p2.userIds,
+          player2AvatarUrls: p2.avatarUrls,
+          opponentName: p2.name,
+          time: matchTime,
+          court: courtName,
+          round: 'Playoff R$round',
+          status: 'Preparing',
+          matchIndex: roundMatches.length,
+          durationMinutes: matchDuration,
+          locationId: tournament.locationId,
+        );
+
+        roundMatches.add(match);
+      }
+
+      matches.addAll(roundMatches);
+      round++;
+      
+      // Next round players will be winners (TBD for now)
+      // For initial generation, just break after first round
+      // Winners get populated as matches complete
+      break;
+    }
+
+    return matches;
+  }
+
+  List<_MatchSlot> _generateFallbackSlots(
+    DateTime startDate,
+    int numberOfCourts,
+    int durationMinutes,
+    int countNeeded,
+    List<TennisMatch> existingMatches,
+  ) {
+    List<_MatchSlot> slots = [];
+    DateTime current = startDate;
+    int added = 0;
+    int attempts = 0;
+    const maxAttempts = 5000;
+
+    while (added < countNeeded && attempts < maxAttempts) {
+      for (int c = 1; c <= numberOfCourts; c++) {
+        final candidate = _MatchSlot(current, 'Court $c');
+        if (!_isSlotOccupied(candidate, existingMatches, durationMinutes)) {
+          slots.add(candidate);
+          added++;
+        }
+      }
+      current = current.add(Duration(minutes: durationMinutes));
+      attempts++;
+
+      if (current.hour >= 20) {
+        current = DateTime(current.year, current.month, current.day + 1, 9, 0);
+      }
+    }
+    return slots;
+  }
+
+  bool _isSlotOccupied(_MatchSlot slot, List<TennisMatch> existingMatches, int durationMinutes) {
+    final slotStart = slot.time;
+    final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
+
+    for (var match in existingMatches) {
+      if (match.court == slot.court) {
+        final matchStart = match.time;
+        final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
+
+        if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}

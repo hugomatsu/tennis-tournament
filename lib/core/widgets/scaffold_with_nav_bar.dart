@@ -4,7 +4,7 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 
-class ScaffoldWithNavBar extends StatelessWidget {
+class ScaffoldWithNavBar extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
   const ScaffoldWithNavBar({
@@ -12,14 +12,24 @@ class ScaffoldWithNavBar extends StatelessWidget {
     Key? key,
   }) : super(key: key ?? const ValueKey('ScaffoldWithNavBar'));
 
-  void _goBranch(int index) {
+  void _goBranch(int index, WidgetRef ref) {
+    final isSameTab = index == navigationShell.currentIndex;
+    
+    // When clicking on the same tab, go to initial location (reset to root)
+    // This behavior reloads the tab by forcing re-navigation to the initial route
     navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: isSameTab,
     );
+    
+    // For profile tab, also refresh user data when re-selecting
+    if (isSameTab && index == 2) {
+      ref.invalidate(currentUserProvider);
+    }
   }
+  
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     return Scaffold(
       body: navigationShell,
@@ -39,7 +49,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           NavigationDestination( // Profile Tab
             icon: Consumer(
               builder: (context, ref, _) {
-                final userAsync = ref.watch(currentUserProvider); // Make sure to import currentUserProvider
+                final userAsync = ref.watch(currentUserProvider);
                 final isPremium = userAsync.value?.isPremium ?? false;
                 if (!isPremium) return const Icon(Icons.person_outline);
                 
@@ -76,10 +86,11 @@ class ScaffoldWithNavBar extends StatelessWidget {
             label: loc.profile,
           ),
         ],
-        onDestinationSelected: _goBranch,
+        onDestinationSelected: (index) => _goBranch(index, ref),
         backgroundColor: Theme.of(context).colorScheme.surface,
         indicatorColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
 }
+

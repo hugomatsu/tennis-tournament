@@ -10,6 +10,7 @@ import 'package:tennis_tournament/features/tournaments/presentation/widgets/matc
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/painters/bracket_painter.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/widgets/group_standings_view.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final bracketMatchesProvider = StreamProvider.family<List<TennisMatch>, String>((ref, tournamentId) {
@@ -45,6 +46,15 @@ class BracketView extends ConsumerWidget {
               Expanded(
                 child: TabBarView(
                   children: categories.map((c) {
+                    // For Open Tennis mode, show group standings view
+                    if (tournament.tournamentType == 'openTennis') {
+                      return GroupStandingsView(
+                        tournamentId: tournament.id,
+                        categoryId: c.id,
+                        tournament: tournament,
+                      );
+                    }
+                    // For Mata-Mata mode, show traditional bracket
                     return _SingleBracketView(
                       tournamentId: tournament.id,
                       tournamentName: tournament.name,

@@ -131,6 +131,7 @@
   "following": "Following",
   "unknownPlayer": "Unknown Player",
   "about": "About",
+  "stats": "Stats",
   "notFollowingAnyone": "Not following anyone yet.",
   "simulationDebug": "Simulation & Debug",
   "matchNotFound": "Match not found",

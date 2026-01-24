@@ -387,6 +387,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about => 'About';
 
   @override
+  String get stats => 'Stats';
+
+  @override
   String get notFollowingAnyone => 'Not following anyone yet.';
 
   @override

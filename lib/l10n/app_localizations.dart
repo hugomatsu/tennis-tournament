@@ -848,6 +848,12 @@ abstract class AppLocalizations {
   /// **'About'**
   String get about;
 
+  /// No description provided for @stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get stats;
+
   /// No description provided for @notFollowingAnyone.
   ///
   /// In en, this message translates to:

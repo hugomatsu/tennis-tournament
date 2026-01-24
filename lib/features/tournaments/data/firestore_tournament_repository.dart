@@ -36,6 +36,10 @@ class FirestoreTournamentRepository implements TournamentRepository {
           scheduleRules: (data['scheduleRules'] as List<dynamic>?)
               ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
               .toList() ?? [],
+          // Open Tennis Mode fields
+          tournamentType: data['tournamentType'] as String? ?? 'mataMata',
+          groupCount: data['groupCount'] as int? ?? 0,
+          pointsPerWin: data['pointsPerWin'] as int? ?? 3,
         );
       }).toList();
     } catch (e) {
@@ -66,6 +70,10 @@ class FirestoreTournamentRepository implements TournamentRepository {
         scheduleRules: (data['scheduleRules'] as List<dynamic>?)
             ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
             .toList() ?? [],
+        // Open Tennis Mode fields
+        tournamentType: data['tournamentType'] as String? ?? 'mataMata',
+        groupCount: data['groupCount'] as int? ?? 0,
+        pointsPerWin: data['pointsPerWin'] as int? ?? 3,
       );
     } catch (e) {
       return null;
@@ -88,6 +96,10 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'category': tournament.category,
       'format': tournament.format,
       'scheduleRules': tournament.scheduleRules.map((e) => e.toJson()).toList(),
+      // Open Tennis Mode fields
+      'tournamentType': tournament.tournamentType,
+      'groupCount': tournament.groupCount,
+      'pointsPerWin': tournament.pointsPerWin,
     });
   }
 
@@ -103,6 +115,10 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'format': tournament.format,
       'adminIds': tournament.adminIds, // Persist admins
       'scheduleRules': tournament.scheduleRules.map((e) => e.toJson()).toList(),
+      // Open Tennis Mode fields
+      'tournamentType': tournament.tournamentType,
+      'groupCount': tournament.groupCount,
+      'pointsPerWin': tournament.pointsPerWin,
     });
   }
 
@@ -156,6 +172,10 @@ class FirestoreTournamentRepository implements TournamentRepository {
           scheduleRules: (data['scheduleRules'] as List<dynamic>?)
               ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
               .toList() ?? [],
+          // Open Tennis Mode fields
+          tournamentType: data['tournamentType'] as String? ?? 'mataMata',
+          groupCount: data['groupCount'] as int? ?? 0,
+          pointsPerWin: data['pointsPerWin'] as int? ?? 3,
         );
       }).toList();
     } catch (e) {

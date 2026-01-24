@@ -167,6 +167,131 @@ class SimulationService {
       }
     }
   }
+
+  /// Seed an Open Tennis mode tournament (round-robin groups + playoff)
+  Future<void> seedOpenTennisTournament({
+    required String name,
+    required int playerCount,
+    int groupCount = 2,
+    int pointsPerWin = 3,
+  }) async {
+    final tournamentRepo = _ref.read(tournamentRepositoryProvider);
+    final matchRepo = _ref.read(matchRepositoryProvider);
+    final schedulingService = _ref.read(schedulingServiceForTournamentProvider('openTennis'));
+    final locationRepo = _ref.read(locationRepositoryProvider);
+
+    // 0. Get or Create Location
+    String locationId;
+    String locationName;
+
+    final existingLocations = await locationRepo.getLocations();
+    if (existingLocations.isNotEmpty) {
+      final loc = existingLocations.first;
+      locationId = loc.id;
+      locationName = loc.name;
+    } else {
+      locationId = const Uuid().v4();
+      locationName = 'Simulation Court';
+      await locationRepo.addLocation(TournamentLocation(
+        id: locationId,
+        name: locationName,
+        googleMapsUrl: 'https://maps.google.com',
+        description: 'A default court for simulations',
+        numberOfCourts: 4,
+        imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80',
+      ));
+    }
+
+    // 1. Create Tournament with Open Tennis mode
+    final currentUser = await _ref.read(playerRepositoryProvider).getCurrentUser();
+    final ownerId = currentUser?.id ?? const Uuid().v4();
+
+    final tournamentId = const Uuid().v4();
+    final tournament = Tournament(
+      id: tournamentId,
+      name: name,
+      status: 'Registration Open',
+      playersCount: playerCount,
+      location: locationName,
+      locationId: locationId,
+      ownerId: ownerId,
+      adminIds: [ownerId],
+      imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80',
+      description: 'Open Tennis Mode simulation - Round-robin groups with playoff bracket.',
+      dateRange: 'Jan 20 - Jan 25',
+      category: 'Open Tennis',
+      tournamentType: 'openTennis',
+      groupCount: groupCount,
+      pointsPerWin: pointsPerWin,
+    );
+
+    await tournamentRepo.createTournament(tournament);
+
+    // 2. Create Category
+    final categoryId = const Uuid().v4();
+    await tournamentRepo.addCategory(TournamentCategory(
+      id: categoryId,
+      tournamentId: tournamentId,
+      name: 'Open',
+      type: 'singles',
+      matchDurationMinutes: 90,
+    ));
+
+    // 3. Create Dummy Players & Participants
+    final participants = <Participant>[];
+
+    for (int i = 0; i < playerCount; i++) {
+      final playerId = const Uuid().v4();
+      final playerName = 'Player ${i + 1}';
+      
+      // Create Player in Firestore
+      final player = Player(
+        id: playerId,
+        name: playerName,
+        title: 'Open Tennis Player',
+        category: 'Open Tennis',
+        playingSince: '2024',
+        wins: 0,
+        losses: 0,
+        rank: 100 + i,
+        bio: 'Simulated Open Tennis player.',
+        avatarUrl: 'https://i.pravatar.cc/150?u=$playerId',
+        userType: 'player',
+      );
+
+      await _firestore.collection('users').doc(playerId).set(player.toJson());
+
+      // Add as Participant
+      final participant = Participant(
+        id: const Uuid().v4(),
+        userIds: [playerId],
+        name: playerName,
+        categoryId: categoryId,
+        avatarUrls: [player.avatarUrl],
+        status: 'approved',
+        joinedAt: DateTime.now(),
+      );
+
+      await tournamentRepo.addParticipant(tournamentId, participant);
+      participants.add(participant);
+    }
+
+    // 4. Generate Group Matches (uses OpenTennisService)
+    final categoryObj = TournamentCategory(
+      id: categoryId,
+      tournamentId: tournamentId,
+      name: 'Open',
+      type: 'singles',
+      matchDurationMinutes: 90,
+    );
+
+    final matches = await schedulingService.generateBracket(tournament, categoryObj, participants);
+    
+    // Assign categoryId to matches
+    final matchesWithCategory = matches.map((m) => m.copyWith(categoryId: categoryId)).toList();
+    
+    await matchRepo.createMatches(matchesWithCategory);
+  }
   
   Future<void> seedTeamTournament({
     required String name,

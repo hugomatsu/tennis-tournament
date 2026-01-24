@@ -29,6 +29,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   DateTime? _startDate;
   DateTime? _endDate;
   String? _selectedLocationId;
+  String _tournamentType = 'mataMata'; // 'mataMata' or 'openTennis'
+  int _groupCount = 0; // 0 = auto
+  int _pointsPerWin = 3;
   bool _isLoading = false;
 
   @override
@@ -187,6 +190,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         status: 'Upcoming',
         playersCount: 0,
         subscriptionTier: currentUser.isPremium ? 'Premium' : 'Free', // Set tier
+        tournamentType: _tournamentType,
+        groupCount: _groupCount,
+        pointsPerWin: _pointsPerWin,
       );
 
       await tournamentRepo.createTournament(tournament);
@@ -307,6 +313,90 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 ),
                 maxLines: 3,
               ),
+              const SizedBox(height: 16),
+              
+              // Tournament Type Selector
+              DropdownButtonFormField<String>(
+                value: _tournamentType,
+                decoration: InputDecoration(
+                  labelText: 'Tournament Mode',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.sports_tennis),
+                  helperText: _tournamentType == 'mataMata' 
+                      ? 'Direct elimination: lose once and you\'re out'
+                      : 'Round-robin groups + playoff bracket',
+                  helperMaxLines: 2,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'mataMata', child: Text('Mata-Mata (Elimination)')),
+                  DropdownMenuItem(value: 'openTennis', child: Text('Open Tennis (Groups)')),
+                ],
+                onChanged: (value) => setState(() => _tournamentType = value ?? 'mataMata'),
+              ),
+              
+              // Open Tennis specific settings
+              if (_tournamentType == 'openTennis') ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: Colors.blue),
+                          SizedBox(width: 8),
+                          Text('Open Tennis Mode', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Players are divided into groups. Each player plays against all others in their group. '
+                        'Points are awarded for wins. Top players from each group advance to the playoff bracket.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: _groupCount.toString(),
+                        decoration: const InputDecoration(
+                          labelText: 'Number of Groups',
+                          helperText: '0 = automatic (half of players)',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.group),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) => _groupCount = int.tryParse(v) ?? 0,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: _pointsPerWin.toString(),
+                        decoration: const InputDecoration(
+                          labelText: 'Points per Win',
+                          helperText: 'Points awarded for each victory',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.emoji_events),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              
               const SizedBox(height: 16),
               
               // Image Picker

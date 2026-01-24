@@ -624,7 +624,13 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   match.player1Name, 
                   if (match.player2Name != null) match.player2Name!
                 ].toSet().map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                onChanged: (val) => setState(() => _pendingWinner = val),
+                onChanged: (val) => setState(() {
+                  _pendingWinner = val;
+                  // Auto-set status to Completed when winner is selected
+                  if (val != null && val.isNotEmpty) {
+                    _pendingStatus = 'Completed';
+                  }
+                }),
               ),
             ],
           ),

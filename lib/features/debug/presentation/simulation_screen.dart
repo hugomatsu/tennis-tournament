@@ -42,6 +42,36 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
     }
   }
 
+  Future<void> _runOpenTennisSimulation(String name, int players, int groups, int points) async {
+    setState(() => _isLoading = true);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      await ref.read(simulationServiceProvider).seedOpenTennisTournament(
+            name: name,
+            playerCount: players,
+            groupCount: groups,
+            pointsPerWin: points,
+          );
+      
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Open Tennis "$name" created successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +125,45 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
             icon: Icons.category_outlined,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Multi (2x4P)', 4, 2),
+          ),
+          const Divider(height: 32),
+          const Text(
+            'Open Tennis Mode',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Round-robin groups with playoff bracket for group winners.',
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          _SimulationCard(
+            title: 'Open Tennis - 4 Players',
+            description: '2 Groups, 3 points/win. Round-robin groups.',
+            icon: Icons.group,
+            isLoading: _isLoading,
+            onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (4P)', 4, 2, 3),
+          ),
+          _SimulationCard(
+            title: 'Open Tennis - 6 Players',
+            description: '2 Groups, 3 points/win. 3 players per group.',
+            icon: Icons.group,
+            isLoading: _isLoading,
+            onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (6P)', 6, 2, 3),
+          ),
+          _SimulationCard(
+            title: 'Open Tennis - 8 Players (2 Groups)',
+            description: '2 Groups, 3 points/win. 4 players per group.',
+            icon: Icons.group,
+            isLoading: _isLoading,
+            onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (8P 2G)', 8, 2, 3),
+          ),
+          _SimulationCard(
+            title: 'Open Tennis - 8 Players (4 Groups)',
+            description: '4 Groups, 3 points/win. 2 players per group.',
+            icon: Icons.group,
+            isLoading: _isLoading,
+            onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (8P 4G)', 8, 4, 3),
           ),
           const Divider(height: 48),
           FilledButton.icon(

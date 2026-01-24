@@ -384,7 +384,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unknownPlayer => 'Unknown Player';
 
   @override
-  String get about => 'About';
+  String get about => 'Sobre';
+
+  @override
+  String get stats => 'Estatísticas';
 
   @override
   String get notFollowingAnyone => 'Not following anyone yet.';

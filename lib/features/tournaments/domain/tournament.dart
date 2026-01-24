@@ -22,6 +22,10 @@ abstract class Tournament with _$Tournament {
     @Default('singles') String format, // 'singles', 'doubles'
     @Default('Free') String subscriptionTier, // 'Free', 'Premium'
     @Default([]) List<DailySchedule> scheduleRules,
+    // Open Tennis Mode fields
+    @Default('mataMata') String tournamentType, // 'mataMata', 'openTennis'
+    @Default(0) int groupCount, // 0 = auto (half of players)
+    @Default(3) int pointsPerWin, // Points awarded for each win
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>

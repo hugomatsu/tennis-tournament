@@ -155,7 +155,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                             categoryParticipants = reordered;
                                           }
 
-                                          final matches = await ref.read(schedulingServiceProvider).generateBracket(
+                                          final matches = await ref.read(schedulingServiceForTournamentProvider(tournament.tournamentType)).generateBracket(
                                             tournament, 
                                             category,
                                             categoryParticipants,
@@ -298,6 +298,8 @@ class TournamentDetailScreen extends ConsumerWidget {
     final descController = TextEditingController(text: tournament.description);
     final locationController = TextEditingController(text: tournament.location);
     final dateController = TextEditingController(text: tournament.dateRange);
+    final groupCountController = TextEditingController(text: tournament.groupCount.toString());
+    final pointsPerWinController = TextEditingController(text: tournament.pointsPerWin.toString());
 
     showDialog(
       context: context,
@@ -324,6 +326,53 @@ class TournamentDetailScreen extends ConsumerWidget {
                 controller: dateController,
                 decoration: const InputDecoration(labelText: 'Date Range'),
               ),
+              const SizedBox(height: 16),
+              // Tournament Mode indicator
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: tournament.tournamentType == 'openTennis' 
+                      ? Colors.blue.withOpacity(0.1) 
+                      : Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      tournament.tournamentType == 'openTennis' 
+                          ? Icons.group : Icons.emoji_events,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      tournament.tournamentType == 'openTennis' 
+                          ? 'Open Tennis (Groups)' 
+                          : 'Mata-Mata (Elimination)',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              // Open Tennis specific fields
+              if (tournament.tournamentType == 'openTennis') ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: groupCountController,
+                  decoration: const InputDecoration(
+                    labelText: 'Number of Groups',
+                    helperText: '0 = automatic',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: pointsPerWinController,
+                  decoration: const InputDecoration(
+                    labelText: 'Points per Win',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
             ],
           ),
         ),
@@ -339,6 +388,8 @@ class TournamentDetailScreen extends ConsumerWidget {
                 description: descController.text,
                 location: locationController.text,
                 dateRange: dateController.text,
+                groupCount: int.tryParse(groupCountController.text) ?? tournament.groupCount,
+                pointsPerWin: int.tryParse(pointsPerWinController.text) ?? tournament.pointsPerWin,
               );
               await ref.read(tournamentRepositoryProvider).updateTournament(updated);
               ref.invalidate(tournamentDetailProvider(tournament.id));
@@ -616,6 +667,119 @@ class _InfoTab extends ConsumerWidget {
                   height: 1.5,
                 ),
               ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+
+        // Tournament Mode Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: tournament.tournamentType == 'openTennis' 
+                ? Colors.blue.withOpacity(0.1) 
+                : Colors.green.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: tournament.tournamentType == 'openTennis' 
+                  ? Colors.blue.withOpacity(0.3) 
+                  : Colors.green.withOpacity(0.3),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    tournament.tournamentType == 'openTennis' 
+                        ? Icons.group : Icons.emoji_events,
+                    color: tournament.tournamentType == 'openTennis' 
+                        ? Colors.blue : Colors.green,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tournament.tournamentType == 'openTennis' 
+                              ? 'Open Tennis Mode' 
+                              : 'Mata-Mata (Elimination)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: tournament.tournamentType == 'openTennis' 
+                                ? Colors.blue : Colors.green,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tournament.tournamentType == 'openTennis' 
+                              ? 'Round-robin groups with playoff bracket'
+                              : 'Direct elimination - lose once and you\'re out',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (tournament.tournamentType == 'openTennis') ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${tournament.groupCount == 0 ? 'Auto' : tournament.groupCount}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const Text('Groups', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${tournament.pointsPerWin}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const Text('Pts/Win', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

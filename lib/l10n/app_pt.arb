@@ -149,6 +149,8 @@
   "failedToLoadOrganizers": "Falha ao carregar organizadores.",
   "noCategoriesFound": "Nenhuma categoria encontrada.",
   "errorLoadingCategories": "Erro ao carregar categorias.",
+  "about": "Sobre",
+  "stats": "Estatísticas",
   "myPlan": "Meu Plano",
   "content": "Conteúdo",
   "appAndSettings": "App & Configurações",

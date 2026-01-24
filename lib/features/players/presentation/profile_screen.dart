@@ -53,11 +53,35 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
-                  foregroundImage: user.avatarUrl.isNotEmpty ? NetworkImage(user.avatarUrl) : null,
-                  onForegroundImageError: user.avatarUrl.isNotEmpty ? (_, __) {} : null,
+                // Clickable avatar with edit overlay
+                GestureDetector(
+                  onTap: () => context.push('/profile/edit'),
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: const AssetImage('assets/images/profile_placeholder.png'),
+                        foregroundImage: user.avatarUrl.isNotEmpty ? NetworkImage(user.avatarUrl) : null,
+                        onForegroundImageError: user.avatarUrl.isNotEmpty ? (_, __) {} : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              width: 2,
+                            ),
+                          ),
+                          child: const Icon(Icons.edit, size: 14, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -66,17 +90,8 @@ class ProfileScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                TextButton.icon(
-                  onPressed: () => context.push('/profile/edit'),
-                  icon: const Icon(Icons.edit, size: 16),
-                  label: Text(loc.editProfile),
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    foregroundColor: Colors.grey,
-                  ),
-                ),
                 if (user.isPremium) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
@@ -107,13 +122,55 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _StatItem(label: loc.wins, value: user.wins.toString()),
-                    _StatItem(label: loc.losses, value: user.losses.toString()),
-                    _StatItem(label: loc.rank, value: '#${user.rank}'),
-                  ],
+                // Stats Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardTheme.color,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loc.stats,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+                      IntrinsicHeight(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _StatItem(
+                              label: loc.wins,
+                              value: user.wins.toString(),
+                              icon: Icons.emoji_events,
+                              iconColor: Colors.amber,
+                            ),
+                            VerticalDivider(
+                              width: 32,
+                              thickness: 1,
+                              color: Colors.grey.withOpacity(0.3),
+                            ),
+                            FutureBuilder<int>(
+                              future: ref.read(playerRepositoryProvider).getTournamentsParticipatedCount(user.id),
+                              builder: (context, snapshot) {
+                                return _StatItem(
+                                  label: loc.tournaments,
+                                  value: snapshot.data?.toString() ?? '0',
+                                  icon: Icons.sports_tennis,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 32),
                 Container(
@@ -488,13 +545,25 @@ class ProfileScreen extends ConsumerWidget {
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;
+  final IconData? icon;
+  final Color? iconColor;
 
-  const _StatItem({required this.label, required this.value});
+  const _StatItem({
+    required this.label, 
+    required this.value,
+    this.icon,
+    this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
+        if (icon != null) ...[
+          Icon(icon, size: 28, color: iconColor ?? Theme.of(context).colorScheme.primary),
+          const SizedBox(height: 4),
+        ],
         Text(
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(

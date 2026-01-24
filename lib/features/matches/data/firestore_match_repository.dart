@@ -377,9 +377,116 @@ class FirestoreMatchRepository implements MatchRepository {
       // After transaction completes, check if all tournament matches are completed
       if (tournamentId != null && tournamentId!.isNotEmpty) {
         await _checkAndCompleteTournament(tournamentId!);
+        
+        // For Open Tennis group matches, update standings
+        final matchDoc = await _firestore.collection('matches').doc(matchId).get();
+        final matchData = matchDoc.data();
+        if (matchData != null) {
+          final round = matchData['round'] as String? ?? '';
+          if (round.startsWith('Group')) {
+            await _updateGroupStandings(
+              tournamentId!,
+              matchData['categoryId'] as String? ?? '',
+              matchData['player1Id'] as String? ?? '',
+              matchData['player1Name'] as String? ?? '',
+              matchData['player2Id'] as String? ?? '',
+              matchData['player2Name'] as String? ?? '',
+              winnerName,
+            );
+          }
+          
+          // Update winner's victory count in their player profile (only for non-guests)
+          await _updatePlayerVictoryCount(matchData, winnerName);
+        }
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Update group standings after a group match is completed
+  Future<void> _updateGroupStandings(
+    String tournamentId,
+    String categoryId,
+    String player1Id,
+    String player1Name,
+    String player2Id,
+    String player2Name,
+    String winnerName,
+  ) async {
+    final standingsRef = _firestore
+        .collection('tournaments')
+        .doc(tournamentId)
+        .collection('standings');
+
+    // Determine winner and loser IDs
+    final winnerId = winnerName == player1Name ? player1Id : player2Id;
+    final loserId = winnerName == player1Name ? player2Id : player1Id;
+
+    // Get tournament to get pointsPerWin
+    final tournamentDoc = await _firestore.collection('tournaments').doc(tournamentId).get();
+    final pointsPerWin = tournamentDoc.data()?['pointsPerWin'] as int? ?? 3;
+
+    // Update winner standing
+    final winnerQuery = await standingsRef
+        .where('categoryId', isEqualTo: categoryId)
+        .where('participantId', isEqualTo: winnerId)
+        .limit(1)
+        .get();
+
+    if (winnerQuery.docs.isNotEmpty) {
+      await winnerQuery.docs.first.reference.update({
+        'matchesPlayed': FieldValue.increment(1),
+        'wins': FieldValue.increment(1),
+        'points': FieldValue.increment(pointsPerWin),
+      });
+    }
+
+    // Update loser standing
+    final loserQuery = await standingsRef
+        .where('categoryId', isEqualTo: categoryId)
+        .where('participantId', isEqualTo: loserId)
+        .limit(1)
+        .get();
+
+    if (loserQuery.docs.isNotEmpty) {
+      await loserQuery.docs.first.reference.update({
+        'matchesPlayed': FieldValue.increment(1),
+        'losses': FieldValue.increment(1),
+      });
+    }
+  }
+
+  /// Update the winner player's victory count (only for non-guest players)
+  Future<void> _updatePlayerVictoryCount(Map<String, dynamic> matchData, String winnerName) async {
+    try {
+      // Determine which player won and get their userIds
+      final p1Name = matchData['player1Name'] as String? ?? '';
+      final p1UserIds = List<String>.from(matchData['player1UserIds'] ?? []);
+      final p2UserIds = List<String>.from(matchData['player2UserIds'] ?? []);
+      
+      List<String> winnerUserIds;
+      if (winnerName == p1Name) {
+        winnerUserIds = p1UserIds;
+      } else {
+        winnerUserIds = p2UserIds;
+      }
+      
+      // Update wins for each user associated with the winner (skip guests with no userIds)
+      for (final userId in winnerUserIds) {
+        if (userId.isEmpty) continue;
+        
+        // Check if this is a real user (exists in users collection)
+        final userDoc = await _firestore.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          await userDoc.reference.update({
+            'wins': FieldValue.increment(1),
+          });
+        }
+      }
+    } catch (e) {
+      // Silent fail - victory count update is not critical
+      print('Error updating player victory count: $e');
     }
   }
 
