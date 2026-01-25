@@ -108,6 +108,8 @@
   "startDate": "Data de Início",
   "endDate": "Data de Fim",
   "follow": "Seguir",
+  "following": "Seguindo",
+  "notFollowingAnyone": "Você ainda não segue ninguém.",
   "unfollow": "Deixar de Seguir",
   "titleBeginner": "Iniciante",
   "titleNovice": "Novato",
@@ -322,10 +324,10 @@
   "groupLabel": "Grupo {id}",
   "standings": "Classificação",
   "player": "Jogador",
-  "wins": "V",
-  "losses": "D",
-  "played": "J",
-  "points": "Pts",
+  "winsShort": "V",
+  "lossesShort": "D",
+  "playedShort": "J",
+  "pointsShort": "Pts",
   "matches": "Partidas",
   "generatingPlayoffBracket": "Gerando chave de playoff...",
   "playoffBracketCreated": "Chave de playoff criada com {count} partidas!",
@@ -338,5 +340,6 @@
   "doubles": "Duplas",
   "automatic": "Automático",
   "manual": "Manual",
-  "close": "Fechar"
+  "close": "Fechar",
+  "searchTournament": "Buscar torneios..."
 }

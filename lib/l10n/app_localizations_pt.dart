@@ -265,16 +265,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get rank => 'Ranking';
 
   @override
-  String get wins => 'V';
+  String get wins => 'Vitórias';
 
   @override
-  String get losses => 'D';
+  String get losses => 'Derrotas';
 
   @override
   String get loses => 'Derrotas';
 
   @override
-  String get points => 'Pts';
+  String get points => 'Pontos';
 
   @override
   String get createTournament => 'Criar Torneio';
@@ -378,7 +378,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createProfile => 'Create Profile';
 
   @override
-  String get following => 'Following';
+  String get following => 'Seguindo';
 
   @override
   String get unknownPlayer => 'Unknown Player';
@@ -390,7 +390,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get stats => 'Estatísticas';
 
   @override
-  String get notFollowingAnyone => 'Not following anyone yet.';
+  String get notFollowingAnyone => 'Você ainda não segue ninguém.';
 
   @override
   String get simulationDebug => 'Simulation & Debug';
@@ -1051,7 +1051,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get standings => 'Classificação';
 
   @override
-  String get played => 'J';
+  String get winsShort => 'V';
+
+  @override
+  String get lossesShort => 'D';
+
+  @override
+  String get playedShort => 'J';
+
+  @override
+  String get pointsShort => 'Pts';
 
   @override
   String get generatingPlayoffBracket => 'Gerando chave de playoff...';
@@ -1086,4 +1095,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get freePlanTournament => 'Torneio do Plano Gratuito';
+
+  @override
+  String get searchTournament => 'Buscar torneios...';
 }

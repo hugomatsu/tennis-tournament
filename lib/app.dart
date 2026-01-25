@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/core/theme/app_theme.dart';
 import 'package:tennis_tournament/core/theme/theme_provider.dart';
 import 'package:tennis_tournament/core/widgets/scaffold_with_nav_bar.dart';
-import 'package:tennis_tournament/features/admin/presentation/admin_dashboard_screen.dart';
 import 'package:tennis_tournament/features/admin/presentation/create_tournament_screen.dart';
 import 'package:tennis_tournament/features/locations/presentation/location_management_screen.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
@@ -166,22 +165,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SubscriptionScreen(),
       ),
       GoRoute(
-        path: '/admin',
-        builder: (context, state) => const AdminDashboardScreen(),
-        routes: [
-          GoRoute(
-            path: 'create-tournament',
-            builder: (context, state) => const CreateTournamentScreen(),
-          ),
-          GoRoute(
-            path: 'simulation',
-            builder: (context, state) => const SimulationScreen(),
-          ),
-          GoRoute(
-            path: 'locations',
-            builder: (context, state) => const LocationManagementScreen(),
-          ),
-        ],
+        path: '/admin/create-tournament',
+        builder: (context, state) => const CreateTournamentScreen(),
+      ),
+      GoRoute(
+        path: '/admin/simulation',
+        builder: (context, state) => const SimulationScreen(),
+      ),
+      GoRoute(
+        path: '/admin/locations',
+        builder: (context, state) => const LocationManagementScreen(),
       ),
       GoRoute(
         path: '/media-library',

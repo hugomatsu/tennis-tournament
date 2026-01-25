@@ -352,10 +352,10 @@ class _GroupCard extends StatelessWidget {
                     TableRow(
                       children: [
                         Text(loc.player, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.wins, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.losses, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.played, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.points, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.winsShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.lossesShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.playedShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.pointsShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                     ...standings.asMap().entries.map((entry) {

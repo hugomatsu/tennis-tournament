@@ -611,13 +611,13 @@ abstract class AppLocalizations {
   /// No description provided for @wins.
   ///
   /// In en, this message translates to:
-  /// **'W'**
+  /// **'Wins'**
   String get wins;
 
   /// No description provided for @losses.
   ///
   /// In en, this message translates to:
-  /// **'L'**
+  /// **'Losses'**
   String get losses;
 
   /// No description provided for @loses.
@@ -629,7 +629,7 @@ abstract class AppLocalizations {
   /// No description provided for @points.
   ///
   /// In en, this message translates to:
-  /// **'Pts'**
+  /// **'Points'**
   String get points;
 
   /// No description provided for @createTournament.
@@ -2066,11 +2066,29 @@ abstract class AppLocalizations {
   /// **'Standings'**
   String get standings;
 
-  /// No description provided for @played.
+  /// No description provided for @winsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get winsShort;
+
+  /// No description provided for @lossesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get lossesShort;
+
+  /// No description provided for @playedShort.
   ///
   /// In en, this message translates to:
   /// **'P'**
-  String get played;
+  String get playedShort;
+
+  /// No description provided for @pointsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Pts'**
+  String get pointsShort;
 
   /// No description provided for @generatingPlayoffBracket.
   ///
@@ -2119,6 +2137,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free Plan Tournament'**
   String get freePlanTournament;
+
+  /// No description provided for @searchTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tournaments...'**
+  String get searchTournament;
 }
 
 class _AppLocalizationsDelegate

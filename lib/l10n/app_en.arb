@@ -343,10 +343,10 @@
   "groupLabel": "Group {id}",
   "standings": "Standings",
   "player": "Player",
-  "wins": "W",
-  "losses": "L",
-  "played": "P",
-  "points": "Pts",
+  "winsShort": "W",
+  "lossesShort": "L",
+  "playedShort": "P",
+  "pointsShort": "Pts",
   "matches": "Matches",
   "generatingPlayoffBracket": "Generating playoff bracket...",
   "playoffBracketCreated": "Playoff bracket created with {count} matches!",
@@ -359,5 +359,6 @@
   "doubles": "Doubles",
   "automatic": "Automatic",
   "manual": "Manual",
-  "close": "Close"
+  "close": "Close",
+  "searchTournament": "Search tournaments..."
 }

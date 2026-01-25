@@ -23,6 +23,8 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   bool _filterTeam = false;
   bool _filterOpen = false;
   bool _filtersLoaded = false;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
   
   // Pagination state
   int _currentPage = 0;
@@ -32,6 +34,12 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   void initState() {
     super.initState();
     _loadFilters();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadFilters() async {
@@ -77,6 +85,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       single: _filterSingle,
       team: _filterTeam,
       open: _filterOpen,
+      searchQuery: _searchQuery,
     );
     
     final tournamentsAsync = ref.watch(filteredTournamentsProvider(filterParams));
@@ -93,6 +102,39 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       ),
       body: Column(
         children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: loc.searchTournament,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            _searchQuery = '';
+                            _currentPage = 0;
+                          });
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                  _currentPage = 0;
+                });
+              },
+            ),
+          ),
           // Filter chips
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -282,12 +324,14 @@ class TournamentFilterParams {
   final bool single;
   final bool team;
   final bool open;
+  final String searchQuery;
 
   const TournamentFilterParams({
     this.mine = false,
     this.single = false,
     this.team = false,
     this.open = false,
+    this.searchQuery = '',
   });
 
   @override
@@ -298,10 +342,11 @@ class TournamentFilterParams {
           mine == other.mine &&
           single == other.single &&
           team == other.team &&
-          open == other.open;
+          open == other.open &&
+          searchQuery == other.searchQuery;
 
   @override
-  int get hashCode => mine.hashCode ^ single.hashCode ^ team.hashCode ^ open.hashCode;
+  int get hashCode => mine.hashCode ^ single.hashCode ^ team.hashCode ^ open.hashCode ^ searchQuery.hashCode;
 }
 
 final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, TournamentFilterParams>((ref, params) async {
@@ -317,18 +362,28 @@ final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, Tour
   
   // Apply additional filters
   return tournaments.where((t) {
-    // Single filter - check if tournament has singles categories
+    // Search filter - check name
+    if (params.searchQuery.isNotEmpty) {
+      if (!t.name.toLowerCase().contains(params.searchQuery)) {
+        return false;
+      }
+    }
+    
+    // Single filter - check tournament type or name for singles
     if (params.single) {
-      // Check tournament name or type for singles indication
-      final isSingles = t.name.toLowerCase().contains('single') || 
+      // Check tournamentType field first, then fall back to name
+      final isSingles = t.tournamentType == 'singles' ||
+                        t.name.toLowerCase().contains('single') || 
                         t.name.toLowerCase().contains('simples');
       if (!isSingles) return false;
     }
     
-    // Team filter - check if tournament has doubles/team categories
+    // Team filter - check tournament type for doubles/team
     if (params.team) {
-      final isTeam = t.name.toLowerCase().contains('double') || 
+      final isTeam = t.tournamentType == 'doubles' ||
+                     t.name.toLowerCase().contains('double') || 
                      t.name.toLowerCase().contains('dupla') ||
+                     t.name.toLowerCase().contains('duplas') ||
                      t.name.toLowerCase().contains('team');
       if (!isTeam) return false;
     }

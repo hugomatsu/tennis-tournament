@@ -265,16 +265,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rank => 'Rank';
 
   @override
-  String get wins => 'W';
+  String get wins => 'Wins';
 
   @override
-  String get losses => 'L';
+  String get losses => 'Losses';
 
   @override
   String get loses => 'Losses';
 
   @override
-  String get points => 'Pts';
+  String get points => 'Points';
 
   @override
   String get createTournament => 'Create Tournament';
@@ -1050,7 +1050,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get standings => 'Standings';
 
   @override
-  String get played => 'P';
+  String get winsShort => 'W';
+
+  @override
+  String get lossesShort => 'L';
+
+  @override
+  String get playedShort => 'P';
+
+  @override
+  String get pointsShort => 'Pts';
 
   @override
   String get generatingPlayoffBracket => 'Generating playoff bracket...';
@@ -1085,4 +1094,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freePlanTournament => 'Free Plan Tournament';
+
+  @override
+  String get searchTournament => 'Search tournaments...';
 }
