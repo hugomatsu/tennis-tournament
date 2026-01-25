@@ -30,7 +30,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
 
     return tournamentAsync.when(
       data: (tournament) {
-        if (tournament == null) return const Scaffold(body: Center(child: Text('Tournament not found')));
+        if (tournament == null) return Scaffold(body: Center(child: Text(AppLocalizations.of(context)!.tournamentNotFound)));
         
         if (!_initialized) {
           _initializeSchedules(tournament);
@@ -46,7 +46,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Schedule Settings'),
+            title: Text(AppLocalizations.of(context)!.scheduleSettings),
             actions: [
               IconButton( 
                 icon: const Icon(Icons.save),
@@ -72,9 +72,9 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                       ),
                     ),
                     SegmentedButton<bool>(
-                      segments: const [
-                        ButtonSegment(value: false, icon: Icon(Icons.list), label: Text('List')),
-                        ButtonSegment(value: true, icon: Icon(Icons.calendar_month), label: Text('Calendar')),
+                      segments: [
+                        ButtonSegment(value: false, icon: const Icon(Icons.list), label: Text(AppLocalizations.of(context)!.list)),
+                        ButtonSegment(value: true, icon: const Icon(Icons.calendar_month), label: Text(AppLocalizations.of(context)!.calendar)),
                       ],
                       selected: {_isCalendarView},
                       onSelectionChanged: (Set<bool> newSelection) {
@@ -92,7 +92,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                    child: FilledButton.tonal(
                       onPressed: () => _showBulkEditDialog(),
-                      child: const Text('Bulk Apply'),
+                      child: Text(AppLocalizations.of(context)!.bulkApply),
                     ),
                  ),
               const Divider(),
@@ -104,7 +104,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
         );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+      error: (err, stack) => Scaffold(body: Center(child: Text(AppLocalizations.of(context)!.errorOccurred(err.toString())))),
     );
   }
 
@@ -328,7 +328,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                _deleteDaySchedule(index);
                Navigator.pop(context);
              },
-             child: const Text('Delete'),
+             child: Text(AppLocalizations.of(context)!.delete),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -342,7 +342,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                 courtCount: int.tryParse(courtsController.text) ?? 1,
               ));
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -363,11 +363,11 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
     final apply = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Bulk Apply Settings'),
+        title: Text(AppLocalizations.of(context)!.bulkApplySettings),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Apply these settings to ALL days:'),
+            Text(AppLocalizations.of(context)!.applySettingsToAllDays),
             const SizedBox(height: 16),
             TextField(
               controller: startTimeController,
@@ -393,7 +393,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Apply All'),
+            child: Text(AppLocalizations.of(context)!.applyAll),
           ),
         ],
       ),
@@ -423,7 +423,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
       // Check if already exists
       if (_schedules.any((s) => s.date == dateStr)) {
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date already exists')));
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.dateAlreadyExists)));
         }
         return;
       }
@@ -455,14 +455,14 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
       ref.invalidate(tournamentDetailProvider(tournament.id));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Schedule settings saved')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.scheduleSettingsSaved)),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOccurred(e.toString()))),
         );
       }
     } finally {

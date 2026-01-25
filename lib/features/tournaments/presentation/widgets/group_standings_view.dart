@@ -10,6 +10,8 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/core/sharing/widgets/share_preview_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:tennis_tournament/l10n/app_localizations.dart';
+
 /// Stream provider for real-time group standings updates
 final groupStandingsStreamProvider = StreamProvider.family<Map<String, List<GroupStanding>>, (String, String)>((ref, params) {
   final (tournamentId, categoryId) = params;
@@ -60,6 +62,7 @@ class GroupStandingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final standingsAsync = ref.watch(groupStandingsStreamProvider((tournamentId, categoryId)));
     final matchesStream = ref.watch(matchRepositoryProvider).watchMatchesForTournament(tournamentId);
 
@@ -78,13 +81,13 @@ class GroupStandingsView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.group, color: Colors.blue),
-                  SizedBox(width: 8),
+                  const Icon(Icons.group, color: Colors.blue),
+                  const SizedBox(width: 8),
                   Text(
-                    'Open Tennis Mode',
-                    style: TextStyle(
+                    loc.openTennisMode,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Colors.blue,
@@ -94,7 +97,7 @@ class GroupStandingsView extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Points per win: ${tournament.pointsPerWin}',
+                loc.pointsPerWinLabel(tournament.pointsPerWin),
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -120,7 +123,7 @@ class GroupStandingsView extends ConsumerWidget {
                 child: FilledButton.icon(
                   onPressed: () => _generatePlayoffBracket(context, ref),
                   icon: const Icon(Icons.emoji_events),
-                  label: const Text('Generate Playoff Bracket'),
+                  label: Text(loc.generatePlayoffBracket),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.amber,
                     foregroundColor: Colors.black,
@@ -138,14 +141,14 @@ class GroupStandingsView extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.green.withOpacity(0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 8),
+                    const Icon(Icons.check_circle, color: Colors.green),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Playoff bracket generated! Group stage complete.',
-                        style: TextStyle(color: Colors.green),
+                        loc.playoffBracketGenerated,
+                        style: const TextStyle(color: Colors.green),
                       ),
                     ),
                   ],
@@ -162,8 +165,8 @@ class GroupStandingsView extends ConsumerWidget {
           child: standingsAsync.when(
             data: (groupedStandings) {
               if (groupedStandings.isEmpty) {
-                return const Center(
-                  child: Text('No standings yet. Generate bracket to create groups.'),
+                return Center(
+                  child: Text(loc.noStandingsYet),
                 );
               }
 
@@ -202,7 +205,7 @@ class GroupStandingsView extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            error: (e, _) => Center(child: Text(loc.errorOccurred(e.toString()))),
           ),
         ),
       ],
@@ -211,10 +214,11 @@ class GroupStandingsView extends ConsumerWidget {
 
   Future<void> _generatePlayoffBracket(BuildContext context, WidgetRef ref) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final loc = AppLocalizations.of(context)!;
     
     try {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Generating playoff bracket...')),
+        SnackBar(content: Text(loc.generatingPlayoffBracket)),
       );
       
       final openTennisService = ref.read(openTennisServiceProvider);
@@ -231,12 +235,12 @@ class GroupStandingsView extends ConsumerWidget {
       
       scaffoldMessenger.hideCurrentSnackBar();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Playoff bracket created with ${playoffMatches.length} matches!')),
+        SnackBar(content: Text(loc.playoffBracketCreated(playoffMatches.length))),
       );
     } catch (e) {
       scaffoldMessenger.hideCurrentSnackBar();
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Error generating playoff: $e')),
+        SnackBar(content: Text(loc.errorGeneratingPlayoff(e.toString()))),
       );
     }
   }
@@ -259,6 +263,7 @@ class _GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final groupLeader = standings.isNotEmpty ? standings.first : null;
     
     return Card(
@@ -283,7 +288,7 @@ class _GroupCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        'Group $groupId',
+                        loc.groupLabel(groupId),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -318,7 +323,7 @@ class _GroupCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.share, size: 20),
                   onPressed: () => _shareGroup(context),
-                  tooltip: 'Share Group $groupId',
+                  tooltip: loc.shareGroupLabel(groupId),
                 ),
               ],
             ),
@@ -330,9 +335,9 @@ class _GroupCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Standings',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  loc.standings,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Table(
@@ -344,13 +349,13 @@ class _GroupCard extends StatelessWidget {
                     4: FixedColumnWidth(45),
                   },
                   children: [
-                    const TableRow(
+                    TableRow(
                       children: [
-                        Text('Player', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('W', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('L', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('P', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('Pts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.player, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.wins, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.losses, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.played, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.points, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                     ...standings.asMap().entries.map((entry) {
@@ -459,9 +464,9 @@ class _GroupCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Matches',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Text(
+                    loc.matches,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   ...matches.map((match) => _MatchTile(match: match)),

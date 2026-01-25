@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
-import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
-import 'package:tennis_tournament/features/players/data/player_repository.dart';
-import 'package:tennis_tournament/features/players/domain/player.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/tournament_detail_screen.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
-import 'package:uuid/uuid.dart';
 
 class ParticipantManagementScreen extends ConsumerWidget {
   final String tournamentId;
@@ -22,63 +18,113 @@ class ParticipantManagementScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final participantsAsync = ref.watch(participantsProvider(tournamentId));
+    final tournamentAsync = ref.watch(tournamentDetailProvider(tournamentId));
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.managePlayers),
       ),
-      body: participantsAsync.when(
-        data: (participants) {
-          final pending = participants.where((p) => p.status == 'pending').toList();
-          final approved = participants.where((p) => p.status == 'approved').toList();
+      body: tournamentAsync.when(
+        data: (tournament) {
+          if (tournament == null) {
+            return Center(child: Text(loc.tournamentNotFound));
+          }
+          
+          // Check if tournament is in progress or completed
+          final isLocked = tournament.status == 'In Progress' || tournament.status == 'Completed';
+          
+          return participantsAsync.when(
+            data: (participants) {
+              final pending = participants.where((p) => p.status == 'pending').toList();
+              final approved = participants.where((p) => p.status == 'approved').toList();
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (pending.isNotEmpty) ...[
-                Text(
-                  '${loc.pendingRequests} (${pending.length})',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Show warning if locked
+                  if (isLocked)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.withOpacity(0.3)),
                       ),
-                ),
-                const SizedBox(height: 8),
-                ...pending.map((p) => _ParticipantTile(
-                      participant: p,
-                      tournamentId: tournamentId,
-                      isPending: true,
-                    )),
-                const SizedBox(height: 24),
-              ],
-              Text(
-                '${loc.approvedPlayers} (${approved.length})',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.lock, color: Colors.orange),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              tournament.status == 'In Progress' 
+                                  ? loc.tournamentInProgress 
+                                  : loc.tournamentCompleted,
+                              style: const TextStyle(color: Colors.orange),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-              ),
-              const SizedBox(height: 8),
-              if (approved.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(loc.noApprovedPlayers),
-                ),
-              ...approved.map((p) => _ParticipantTile(
-                    participant: p,
-                    tournamentId: tournamentId,
-                    isPending: false,
-                  )),
-            ],
+                  if (pending.isNotEmpty) ...[
+                    Text(
+                      '${loc.pendingRequests} (${pending.length})',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...pending.map((p) => _ParticipantTile(
+                          participant: p,
+                          tournamentId: tournamentId,
+                          isPending: true,
+                          isLocked: isLocked,
+                        )),
+                    const SizedBox(height: 24),
+                  ],
+                  Text(
+                    '${loc.approvedPlayers} (${approved.length})',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (approved.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(loc.noApprovedPlayers),
+                    ),
+                  ...approved.map((p) => _ParticipantTile(
+                        participant: p,
+                        tournamentId: tournamentId,
+                        isPending: false,
+                        isLocked: isLocked,
+                      )),
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddOptions(context, ref),
-        child: const Icon(Icons.add),
+      floatingActionButton: tournamentAsync.when(
+        data: (tournament) {
+          if (tournament == null) return null;
+          final isLocked = tournament.status == 'In Progress' || tournament.status == 'Completed';
+          if (isLocked) return null; // Hide FAB if locked
+          return FloatingActionButton(
+            onPressed: () => _showAddOptions(context, ref),
+            child: const Icon(Icons.add),
+          );
+        },
+        loading: () => null,
+        error: (_, __) => null,
       ),
     );
   }
@@ -317,11 +363,13 @@ class _ParticipantTile extends ConsumerWidget {
   final Participant participant;
   final String tournamentId;
   final bool isPending;
+  final bool isLocked;
 
   const _ParticipantTile({
     required this.participant,
     required this.tournamentId,
     required this.isPending,
+    this.isLocked = false,
   });
 
   @override
@@ -361,28 +409,30 @@ class _ParticipantTile extends ConsumerWidget {
             );
           },
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isPending) ...[
-              IconButton(
-                icon: const Icon(Icons.check, color: Colors.green),
-                onPressed: () => _updateStatus(ref, 'approved'),
-                tooltip: loc.accept,
+        trailing: isLocked 
+            ? null // Hide actions when locked
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isPending) ...[
+                    IconButton(
+                      icon: const Icon(Icons.check, color: Colors.green),
+                      onPressed: () => _updateStatus(ref, 'approved'),
+                      tooltip: loc.accept,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.red),
+                      onPressed: () => _updateStatus(ref, 'rejected'),
+                      tooltip: loc.deny,
+                    ),
+                  ] else
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.grey),
+                      onPressed: () => _updateStatus(ref, 'rejected'), // Or delete
+                      tooltip: loc.remove,
+                    ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.red),
-                onPressed: () => _updateStatus(ref, 'rejected'),
-                tooltip: loc.deny,
-              ),
-            ] else
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.grey),
-                onPressed: () => _updateStatus(ref, 'rejected'), // Or delete
-                tooltip: loc.remove,
-              ),
-          ],
-        ),
       ),
     );
   }

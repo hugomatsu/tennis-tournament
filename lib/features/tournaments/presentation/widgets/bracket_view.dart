@@ -68,7 +68,7 @@ class BracketView extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error loading categories: $err')),
+      error: (err, stack) => Center(child: Text(AppLocalizations.of(context)!.errorOccurred(err.toString()))),
     );
   }
 }
@@ -104,17 +104,17 @@ class _SingleBracketView extends ConsumerWidget {
               .toList();
           
           if (categoryParticipants.isEmpty) {
-            return const Center(child: Text('No matches generated and no players in this category yet.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noMatchesNoPlayers));
           }
 
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('No matches generated yet.'),
+                Text(AppLocalizations.of(context)!.noMatchesGenerated),
                 const SizedBox(height: 16),
                 Text(
-                  'Players in this category (${categoryParticipants.length}):',
+                  AppLocalizations.of(context)!.playersInCategory(categoryParticipants.length),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 16),
@@ -138,7 +138,7 @@ class _SingleBracketView extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Error loading players: $e')),
+        error: (e, s) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingPlayers(e.toString()))),
       );
     }
 
@@ -341,7 +341,7 @@ class _SingleBracketView extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
+      error: (err, stack) => Center(child: Text(AppLocalizations.of(context)!.errorOccurred(err.toString()))),
     );
   }
 

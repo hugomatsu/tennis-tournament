@@ -319,17 +319,17 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               DropdownButtonFormField<String>(
                 value: _tournamentType,
                 decoration: InputDecoration(
-                  labelText: 'Tournament Mode',
+                  labelText: l10n.tournamentMode,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.sports_tennis),
                   helperText: _tournamentType == 'mataMata' 
-                      ? 'Direct elimination: lose once and you\'re out'
-                      : 'Round-robin groups + playoff bracket',
+                      ? l10n.mataMataDescription
+                      : l10n.openTennisDescription,
                   helperMaxLines: 2,
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'mataMata', child: Text('Mata-Mata (Elimination)')),
-                  DropdownMenuItem(value: 'openTennis', child: Text('Open Tennis (Groups)')),
+                items: [
+                  DropdownMenuItem(value: 'mataMata', child: Text(l10n.mataMataElimination)),
+                  DropdownMenuItem(value: 'openTennis', child: Text(l10n.openTennisGroups)),
                 ],
                 onChanged: (value) => setState(() => _tournamentType = value ?? 'mataMata'),
               ),
@@ -344,24 +344,23 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.blue.withOpacity(0.3)),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.info_outline, size: 18, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Text('Open Tennis Mode', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Players are divided into groups. Each player plays against all others in their group. '
-                        'Points are awarded for wins. Top players from each group advance to the playoff bracket.',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ],
-                  ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.info_outline, size: 18, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Text(l10n.openTennisMode, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.openTennisExplanation,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -369,11 +368,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     Expanded(
                       child: TextFormField(
                         initialValue: _groupCount.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Number of Groups',
-                          helperText: '0 = automatic (half of players)',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.group),
+                        decoration: InputDecoration(
+                          labelText: l10n.numberOfGroups,
+                          helperText: l10n.autoGroupsHint,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.group),
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (v) => _groupCount = int.tryParse(v) ?? 0,
@@ -383,11 +382,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     Expanded(
                       child: TextFormField(
                         initialValue: _pointsPerWin.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Points per Win',
-                          helperText: 'Points awarded for each victory',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.emoji_events),
+                        decoration: InputDecoration(
+                          labelText: l10n.pointsPerWin,
+                          helperText: l10n.pointsPerWinHint,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.emoji_events),
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,

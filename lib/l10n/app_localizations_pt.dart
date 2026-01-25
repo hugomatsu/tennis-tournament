@@ -21,7 +21,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tournaments => 'Torneios';
 
   @override
-  String get matches => 'Jogos';
+  String get matches => 'Partidas';
 
   @override
   String get noMatchesScheduled => 'Nenhum jogo agendado ainda.';
@@ -54,7 +54,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statusCompleted => 'Concluído';
 
   @override
-  String get statusCancelled => 'Cancelled';
+  String get statusCancelled => 'Cancelado';
 
   @override
   String get matchDetails => 'Detalhes do Jogo';
@@ -265,16 +265,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get rank => 'Ranking';
 
   @override
-  String get wins => 'Vitórias';
+  String get wins => 'V';
 
   @override
-  String get losses => 'Derrotas';
+  String get losses => 'D';
 
   @override
   String get loses => 'Derrotas';
 
   @override
-  String get points => 'Pontos';
+  String get points => 'Pts';
 
   @override
   String get createTournament => 'Criar Torneio';
@@ -847,4 +847,243 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get myAvailability => 'Minha Disponibilidade';
+
+  @override
+  String get noLocationsAddedYet => 'Nenhum local adicionado ainda.';
+
+  @override
+  String get deleteLocationTitle => 'Excluir Local?';
+
+  @override
+  String deleteLocationConfirm(Object name) {
+    return 'Tem certeza que deseja excluir \"$name\"?';
+  }
+
+  @override
+  String get scheduleSettings => 'Configurações de Agenda';
+
+  @override
+  String get list => 'Lista';
+
+  @override
+  String get bulkApply => 'Aplicar em Massa';
+
+  @override
+  String get bulkApplySettings => 'Aplicar Configurações em Massa';
+
+  @override
+  String get applySettingsToAllDays =>
+      'Aplicar estas configurações a TODOS os dias:';
+
+  @override
+  String get applyAll => 'Aplicar Todos';
+
+  @override
+  String get dateAlreadyExists => 'Data já existe';
+
+  @override
+  String get scheduleSettingsSaved => 'Configurações de agenda salvas';
+
+  @override
+  String get notEnoughParticipants => 'Participantes aprovados insuficientes';
+
+  @override
+  String generatedMatches(Object count) {
+    return 'Geradas $count partidas!';
+  }
+
+  @override
+  String get bracketDeleted => 'Chave excluída';
+
+  @override
+  String get refresh => 'Atualizar';
+
+  @override
+  String get invitePlayers => 'Convidar Jogadores';
+
+  @override
+  String get tournamentOptions => 'Opções do Torneio';
+
+  @override
+  String get tournamentNotFound => 'Torneio não encontrado';
+
+  @override
+  String get metadata => 'Metadados';
+
+  @override
+  String get accessDenied => 'Acesso Negado';
+
+  @override
+  String get comingSoon => 'Em Breve';
+
+  @override
+  String get mataMataElimination => 'Mata-Mata (Eliminatória)';
+
+  @override
+  String get openTennisGroups => 'Open Tennis (Grupos)';
+
+  @override
+  String get openTennisMode => 'Modo Open Tennis';
+
+  @override
+  String get goToHome => 'Ir para Início';
+
+  @override
+  String get notAvailable => 'N/D';
+
+  @override
+  String errorAddingParticipants(Object error) {
+    return 'Erro ao adicionar participantes: $error';
+  }
+
+  @override
+  String editSchedule(Object date) {
+    return 'Editar $date';
+  }
+
+  @override
+  String get startTime => 'Horário de Início';
+
+  @override
+  String get endTime => 'Horário de Término';
+
+  @override
+  String get numberOfCourts => 'Número de Quadras';
+
+  @override
+  String get tournamentMode => 'Modo do Torneio';
+
+  @override
+  String get mataMataDescription =>
+      'Eliminatória direta: perde uma vez e está fora';
+
+  @override
+  String get openTennisDescription => 'Grupos + eliminatórias';
+
+  @override
+  String get openTennisExplanation =>
+      'Jogadores são divididos em grupos. Cada jogador joga contra todos os outros do seu grupo. Pontos são dados por vitória. Os melhores de cada grupo avançam para as eliminatórias.';
+
+  @override
+  String get numberOfGroups => 'Número de Grupos';
+
+  @override
+  String get autoGroupsHint => '0 = automático (metade dos jogadores)';
+
+  @override
+  String get pointsPerWin => 'Pontos por Vitória';
+
+  @override
+  String get pointsPerWinHint => 'Pontos dados por cada vitória';
+
+  @override
+  String get noMatchesGenerated => 'Nenhuma partida gerada ainda.';
+
+  @override
+  String get noMatchesNoPlayers =>
+      'Nenhuma partida gerada e nenhum jogador nesta categoria ainda.';
+
+  @override
+  String errorLoadingPlayers(Object error) {
+    return 'Erro ao carregar jogadores: $error';
+  }
+
+  @override
+  String get editInfo => 'Editar Informações';
+
+  @override
+  String get categories => 'Categorias';
+
+  @override
+  String get clearBracket => 'Limpar Chave';
+
+  @override
+  String get deleteTournamentTitle => 'Excluir Torneio';
+
+  @override
+  String get deleteBracketTitle => 'Excluir Chave?';
+
+  @override
+  String get deleteTournamentWarning =>
+      'Isso excluirá tudo. Não pode ser desfeito.';
+
+  @override
+  String get deleteBracketWarning =>
+      'Isso excluirá todas as partidas. Não pode ser desfeito.';
+
+  @override
+  String get singles => 'Simples';
+
+  @override
+  String get statusInProgress => 'Em Andamento';
+
+  @override
+  String get statusPending => 'Pendente';
+
+  @override
+  String get statusFinished => 'Finalizado';
+
+  @override
+  String pointsPerWinLabel(Object count) {
+    return 'Pontos por vitória: $count';
+  }
+
+  @override
+  String get generatePlayoffBracket => 'Gerar Chave de Playoff';
+
+  @override
+  String get playoffBracketGenerated =>
+      'Chave de playoff gerada! Fase de grupos concluída.';
+
+  @override
+  String get noStandingsYet =>
+      'Sem classificação ainda. Gere a chave para criar os grupos.';
+
+  @override
+  String groupLabel(Object id) {
+    return 'Grupo $id';
+  }
+
+  @override
+  String get standings => 'Classificação';
+
+  @override
+  String get played => 'J';
+
+  @override
+  String get generatingPlayoffBracket => 'Gerando chave de playoff...';
+
+  @override
+  String playoffBracketCreated(Object count) {
+    return 'Chave de playoff criada com $count partidas!';
+  }
+
+  @override
+  String errorGeneratingPlayoff(Object error) {
+    return 'Erro ao gerar playoff: $error';
+  }
+
+  @override
+  String shareGroupLabel(Object id) {
+    return 'Compartilhar Grupo $id';
+  }
+
+  @override
+  String playersInCategory(Object count) {
+    return 'Jogadores nesta categoria ($count):';
+  }
+
+  @override
+  String get tournamentInProgress =>
+      'Torneio em andamento. Alterações de participação estão bloqueadas.';
+
+  @override
+  String get tournamentCompleted =>
+      'Torneio concluído. Alterações de participação estão bloqueadas.';
+
+  @override
+  String get freePlanTournament => 'Torneio do Plano Gratuito';
 }

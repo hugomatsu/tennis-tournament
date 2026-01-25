@@ -14,14 +14,15 @@ class LocationManagementScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locationsAsync = ref.watch(locationsProvider);
 
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Locations'),
+        title: Text(loc.manageLocations),
       ),
       body: locationsAsync.when(
         data: (locations) {
           if (locations.isEmpty) {
-            return const Center(child: Text('No locations added yet.'));
+            return Center(child: Text(loc.noLocationsAddedYet));
           }
           return ListView.builder(
             itemCount: locations.length,
@@ -52,7 +53,7 @@ class LocationManagementScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Error: $e')),
+        error: (e, s) => Center(child: Text(loc.errorOccurred(e.toString()))),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(context, ref),
@@ -71,18 +72,21 @@ class LocationManagementScreen extends ConsumerWidget {
   Future<void> _deleteLocation(BuildContext context, WidgetRef ref, TournamentLocation location) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Location?'),
-        content: Text('Are you sure you want to delete "${location.name}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final loc = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(loc.deleteLocationTitle),
+          content: Text(loc.deleteLocationConfirm(location.name)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(loc.cancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(loc.delete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true) {
@@ -144,7 +148,7 @@ class _AddEditLocationDialogState extends ConsumerState<_AddEditLocationDialog> 
         builder: (context, scrollController) => Column(
           children: [
             AppBar(
-              title: const Text('Select Image'),
+              title: Text(AppLocalizations.of(context)!.selectImage),
               leading: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -190,7 +194,7 @@ class _AddEditLocationDialogState extends ConsumerState<_AddEditLocationDialog> 
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.errorOccurred(e.toString()))));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -256,7 +260,7 @@ class _AddEditLocationDialogState extends ConsumerState<_AddEditLocationDialog> 
         TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
         FilledButton(
           onPressed: _isLoading ? null : _save,
-          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
+          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Text(AppLocalizations.of(context)!.save),
         ),
       ],
     );

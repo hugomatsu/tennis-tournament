@@ -20,7 +20,7 @@ class AdminDashboardScreen extends ConsumerWidget {
       body: userAsync.when(
         data: (user) {
           if (user == null || user.userType != 'admin') {
-            return const Center(child: Text('Access Denied'));
+            return Center(child: Text(loc.accessDenied));
           }
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -37,7 +37,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                 onTap: () {
                   // TODO: Implement player management
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Coming Soon')),
+                    SnackBar(content: Text(loc.comingSoon)),
                   );
                 },
               ),
@@ -51,7 +51,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
       ),
     );
   }

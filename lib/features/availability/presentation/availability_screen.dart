@@ -19,7 +19,7 @@ class _AvailabilityScreenState extends ConsumerState<AvailabilityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Availability')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.myAvailability)),
       body: Column(
         children: [
           // Simple Calendar View

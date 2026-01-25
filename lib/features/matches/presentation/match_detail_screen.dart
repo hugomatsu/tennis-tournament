@@ -452,7 +452,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
            );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Error: $e')),
+        error: (e, s) => Center(child: Text(AppLocalizations.of(context)!.errorOccurred(e.toString()))),
       ),
     );
   }

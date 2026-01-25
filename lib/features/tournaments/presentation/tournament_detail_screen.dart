@@ -39,7 +39,7 @@ class TournamentDetailScreen extends ConsumerWidget {
     return tournamentAsync.when(
       data: (tournament) {
         if (tournament == null) {
-          return const Scaffold(body: Center(child: Text('Tournament not found'))); // TODO: Localize
+          return Scaffold(body: Center(child: Text(loc.tournamentNotFound)));
         }
         return DefaultTabController(
           length: 3,
@@ -53,7 +53,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                     actions: [
                       IconButton(
                         icon: const Icon(Icons.refresh),
-                        tooltip: 'Refresh',
+                        tooltip: loc.refresh,
                         onPressed: () {
                           ref.invalidate(tournamentDetailProvider(id));
                           ref.invalidate(tournamentCategoriesProvider(id));
@@ -61,7 +61,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.share),
-                        tooltip: 'Invite Players',
+                        tooltip: loc.invitePlayers,
                         onPressed: () {
                            // TODO: Get base URL from env
                            final url = 'https://entresets.com/t/${tournament.id}'; 
@@ -83,7 +83,7 @@ class TournamentDetailScreen extends ConsumerWidget {
 
                             return PopupMenuButton<String>(
                               icon: const Icon(Icons.settings),
-                              tooltip: 'Tournament Options',
+                              tooltip: loc.tournamentOptions,
                               onSelected: (value) async {
                                 switch (value) {
                                   case 'edit':
@@ -166,13 +166,13 @@ class TournamentDetailScreen extends ConsumerWidget {
                                         }
 
                                         if (allMatches.isEmpty) {
-                                          scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Not enough approved participants')));
+                                          scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.notEnoughParticipants)));
                                           return;
                                         }
                                         await ref.read(matchRepositoryProvider).createMatches(allMatches);
-                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Generated $generatedCount matches!')));
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatedMatches(generatedCount))));
                                       } catch (e) {
-                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Error: $e')));
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
                                       }
                                     break;
                                   case 'delete_bracket':
@@ -190,9 +190,9 @@ class TournamentDetailScreen extends ConsumerWidget {
                                     if (confirm == true && context.mounted) {
                                       try {
                                         await ref.read(matchRepositoryProvider).deleteMatchesForTournament(tournament.id);
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bracket deleted')));
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.bracketDeleted)));
                                       } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
                                       }
                                     }
                                     break;
@@ -213,24 +213,24 @@ class TournamentDetailScreen extends ConsumerWidget {
                                         await ref.read(tournamentRepositoryProvider).deleteTournament(tournament.id);
                                         if (context.mounted) context.pop(); 
                                       } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
                                       }
                                     }
                                     break;
                                 }
                               },
                               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                const PopupMenuItem<String>(value: 'edit', child: ListTile(leading: Icon(Icons.edit), title: Text('Edit Info'))),
-                                const PopupMenuItem<String>(value: 'categories', child: ListTile(leading: Icon(Icons.category), title: Text('Categories'))),
+                                PopupMenuItem<String>(value: 'edit', child: ListTile(leading: const Icon(Icons.edit), title: Text(loc.editInfo))),
+                                PopupMenuItem<String>(value: 'categories', child: ListTile(leading: const Icon(Icons.category), title: Text(loc.categories))),
                                 if (isOwner)
-                                  const PopupMenuItem<String>(value: 'admins', child: ListTile(leading: Icon(Icons.admin_panel_settings), title: Text('Manage Admins'))),
-                                const PopupMenuItem<String>(value: 'participants', child: ListTile(leading: Icon(Icons.people), title: Text('Participants'))),
-                                const PopupMenuItem<String>(value: 'schedule_settings', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('Schedule Settings'))),
-                                const PopupMenuItem<String>(value: 'generate_bracket', child: ListTile(leading: Icon(Icons.shuffle), title: Text('Generate Bracket'))),
+                                  PopupMenuItem<String>(value: 'admins', child: ListTile(leading: const Icon(Icons.admin_panel_settings), title: Text(loc.manageAdmins))),
+                                PopupMenuItem<String>(value: 'participants', child: ListTile(leading: const Icon(Icons.people), title: Text(loc.participants))),
+                                PopupMenuItem<String>(value: 'schedule_settings', child: ListTile(leading: const Icon(Icons.calendar_month), title: Text(loc.scheduleSettings))),
+                                PopupMenuItem<String>(value: 'generate_bracket', child: ListTile(leading: const Icon(Icons.shuffle), title: Text(loc.generateBracket))),
                                 if (isOwner) ...[
                                   const PopupMenuDivider(),
-                                  const PopupMenuItem<String>(value: 'delete_bracket', child: ListTile(leading: Icon(Icons.delete_sweep, color: Colors.red), title: Text('Clear Bracket', style: TextStyle(color: Colors.red)))),
-                                  const PopupMenuItem<String>(value: 'delete_tournament', child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Delete Tournament', style: TextStyle(color: Colors.red)))),
+                                  PopupMenuItem<String>(value: 'delete_bracket', child: ListTile(leading: const Icon(Icons.delete_sweep, color: Colors.red), title: Text(loc.clearBracket, style: const TextStyle(color: Colors.red)))),
+                                  PopupMenuItem<String>(value: 'delete_tournament', child: ListTile(leading: const Icon(Icons.delete, color: Colors.red), title: Text(loc.deleteTournamentTitle, style: const TextStyle(color: Colors.red)))),
                                 ]
                               ],
                             );
@@ -289,7 +289,7 @@ class TournamentDetailScreen extends ConsumerWidget {
         );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+      error: (err, stack) => Scaffold(body: Center(child: Text(loc.errorOccurred(err.toString())))),
     );
   }
 

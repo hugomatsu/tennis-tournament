@@ -611,13 +611,13 @@ abstract class AppLocalizations {
   /// No description provided for @wins.
   ///
   /// In en, this message translates to:
-  /// **'Wins'**
+  /// **'W'**
   String get wins;
 
   /// No description provided for @losses.
   ///
   /// In en, this message translates to:
-  /// **'Losses'**
+  /// **'L'**
   String get losses;
 
   /// No description provided for @loses.
@@ -629,7 +629,7 @@ abstract class AppLocalizations {
   /// No description provided for @points.
   ///
   /// In en, this message translates to:
-  /// **'Points'**
+  /// **'Pts'**
   String get points;
 
   /// No description provided for @createTournament.
@@ -1705,6 +1705,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @myAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'My Availability'**
+  String get myAvailability;
+
+  /// No description provided for @noLocationsAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No locations added yet.'**
+  String get noLocationsAddedYet;
+
+  /// No description provided for @deleteLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Location?'**
+  String get deleteLocationTitle;
+
+  /// No description provided for @deleteLocationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"?'**
+  String deleteLocationConfirm(Object name);
+
+  /// No description provided for @scheduleSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Settings'**
+  String get scheduleSettings;
+
+  /// No description provided for @list.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get list;
+
+  /// No description provided for @bulkApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk Apply'**
+  String get bulkApply;
+
+  /// No description provided for @bulkApplySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk Apply Settings'**
+  String get bulkApplySettings;
+
+  /// No description provided for @applySettingsToAllDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply these settings to ALL days:'**
+  String get applySettingsToAllDays;
+
+  /// No description provided for @applyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply All'**
+  String get applyAll;
+
+  /// No description provided for @dateAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Date already exists'**
+  String get dateAlreadyExists;
+
+  /// No description provided for @scheduleSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule settings saved'**
+  String get scheduleSettingsSaved;
+
+  /// No description provided for @notEnoughParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough approved participants'**
+  String get notEnoughParticipants;
+
+  /// No description provided for @generatedMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated {count} matches!'**
+  String generatedMatches(Object count);
+
+  /// No description provided for @bracketDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Bracket deleted'**
+  String get bracketDeleted;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @invitePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Players'**
+  String get invitePlayers;
+
+  /// No description provided for @tournamentOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Options'**
+  String get tournamentOptions;
+
+  /// No description provided for @tournamentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament not found'**
+  String get tournamentNotFound;
+
+  /// No description provided for @metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get metadata;
+
+  /// No description provided for @accessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Denied'**
+  String get accessDenied;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// No description provided for @mataMataElimination.
+  ///
+  /// In en, this message translates to:
+  /// **'Mata-Mata (Elimination)'**
+  String get mataMataElimination;
+
+  /// No description provided for @openTennisGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis (Groups)'**
+  String get openTennisGroups;
+
+  /// No description provided for @openTennisMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis Mode'**
+  String get openTennisMode;
+
+  /// No description provided for @goToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get goToHome;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get notAvailable;
+
+  /// No description provided for @errorAddingParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Error adding participants: {error}'**
+  String errorAddingParticipants(Object error);
+
+  /// No description provided for @editSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {date}'**
+  String editSchedule(Object date);
+
+  /// No description provided for @startTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get startTime;
+
+  /// No description provided for @endTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End Time'**
+  String get endTime;
+
+  /// No description provided for @numberOfCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Courts'**
+  String get numberOfCourts;
+
+  /// No description provided for @tournamentMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Mode'**
+  String get tournamentMode;
+
+  /// No description provided for @mataMataDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct elimination: lose once and you\'re out'**
+  String get mataMataDescription;
+
+  /// No description provided for @openTennisDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Round-robin groups + playoff bracket'**
+  String get openTennisDescription;
+
+  /// No description provided for @openTennisExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Players are divided into groups. Each player plays against all others in their group. Points are awarded for wins. Top players from each group advance to the playoff bracket.'**
+  String get openTennisExplanation;
+
+  /// No description provided for @numberOfGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Groups'**
+  String get numberOfGroups;
+
+  /// No description provided for @autoGroupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 = automatic (half of players)'**
+  String get autoGroupsHint;
+
+  /// No description provided for @pointsPerWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Points per Win'**
+  String get pointsPerWin;
+
+  /// No description provided for @pointsPerWinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Points awarded for each victory'**
+  String get pointsPerWinHint;
+
+  /// No description provided for @noMatchesGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches generated yet.'**
+  String get noMatchesGenerated;
+
+  /// No description provided for @noMatchesNoPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches generated and no players in this category yet.'**
+  String get noMatchesNoPlayers;
+
+  /// No description provided for @errorLoadingPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading players: {error}'**
+  String errorLoadingPlayers(Object error);
+
+  /// No description provided for @editInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Info'**
+  String get editInfo;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @clearBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Bracket'**
+  String get clearBracket;
+
+  /// No description provided for @deleteTournamentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Tournament'**
+  String get deleteTournamentTitle;
+
+  /// No description provided for @deleteBracketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Bracket?'**
+  String get deleteBracketTitle;
+
+  /// No description provided for @deleteTournamentWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete everything. Cannot be undone.'**
+  String get deleteTournamentWarning;
+
+  /// No description provided for @deleteBracketWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all matches. Cannot be undone.'**
+  String get deleteBracketWarning;
+
+  /// No description provided for @singles.
+  ///
+  /// In en, this message translates to:
+  /// **'Singles'**
+  String get singles;
+
+  /// No description provided for @statusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get statusInProgress;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get statusFinished;
+
+  /// No description provided for @pointsPerWinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points per win: {count}'**
+  String pointsPerWinLabel(Object count);
+
+  /// No description provided for @generatePlayoffBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Playoff Bracket'**
+  String get generatePlayoffBracket;
+
+  /// No description provided for @playoffBracketGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Playoff bracket generated! Group stage complete.'**
+  String get playoffBracketGenerated;
+
+  /// No description provided for @noStandingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No standings yet. Generate bracket to create groups.'**
+  String get noStandingsYet;
+
+  /// No description provided for @groupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Group {id}'**
+  String groupLabel(Object id);
+
+  /// No description provided for @standings.
+  ///
+  /// In en, this message translates to:
+  /// **'Standings'**
+  String get standings;
+
+  /// No description provided for @played.
+  ///
+  /// In en, this message translates to:
+  /// **'P'**
+  String get played;
+
+  /// No description provided for @generatingPlayoffBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating playoff bracket...'**
+  String get generatingPlayoffBracket;
+
+  /// No description provided for @playoffBracketCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Playoff bracket created with {count} matches!'**
+  String playoffBracketCreated(Object count);
+
+  /// No description provided for @errorGeneratingPlayoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Error generating playoff: {error}'**
+  String errorGeneratingPlayoff(Object error);
+
+  /// No description provided for @shareGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Group {id}'**
+  String shareGroupLabel(Object id);
+
+  /// No description provided for @playersInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Players in this category ({count}):'**
+  String playersInCategory(Object count);
+
+  /// No description provided for @tournamentInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament is in progress. Participation changes are locked.'**
+  String get tournamentInProgress;
+
+  /// No description provided for @tournamentCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament is completed. Participation changes are locked.'**
+  String get tournamentCompleted;
+
+  /// No description provided for @freePlanTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Plan Tournament'**
+  String get freePlanTournament;
 }
 
 class _AppLocalizationsDelegate

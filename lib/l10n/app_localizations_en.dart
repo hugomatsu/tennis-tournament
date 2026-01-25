@@ -265,16 +265,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rank => 'Rank';
 
   @override
-  String get wins => 'Wins';
+  String get wins => 'W';
 
   @override
-  String get losses => 'Losses';
+  String get losses => 'L';
 
   @override
   String get loses => 'Losses';
 
   @override
-  String get points => 'Points';
+  String get points => 'Pts';
 
   @override
   String get createTournament => 'Create Tournament';
@@ -847,4 +847,242 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get myAvailability => 'My Availability';
+
+  @override
+  String get noLocationsAddedYet => 'No locations added yet.';
+
+  @override
+  String get deleteLocationTitle => 'Delete Location?';
+
+  @override
+  String deleteLocationConfirm(Object name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
+
+  @override
+  String get scheduleSettings => 'Schedule Settings';
+
+  @override
+  String get list => 'List';
+
+  @override
+  String get bulkApply => 'Bulk Apply';
+
+  @override
+  String get bulkApplySettings => 'Bulk Apply Settings';
+
+  @override
+  String get applySettingsToAllDays => 'Apply these settings to ALL days:';
+
+  @override
+  String get applyAll => 'Apply All';
+
+  @override
+  String get dateAlreadyExists => 'Date already exists';
+
+  @override
+  String get scheduleSettingsSaved => 'Schedule settings saved';
+
+  @override
+  String get notEnoughParticipants => 'Not enough approved participants';
+
+  @override
+  String generatedMatches(Object count) {
+    return 'Generated $count matches!';
+  }
+
+  @override
+  String get bracketDeleted => 'Bracket deleted';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get invitePlayers => 'Invite Players';
+
+  @override
+  String get tournamentOptions => 'Tournament Options';
+
+  @override
+  String get tournamentNotFound => 'Tournament not found';
+
+  @override
+  String get metadata => 'Metadata';
+
+  @override
+  String get accessDenied => 'Access Denied';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get mataMataElimination => 'Mata-Mata (Elimination)';
+
+  @override
+  String get openTennisGroups => 'Open Tennis (Groups)';
+
+  @override
+  String get openTennisMode => 'Open Tennis Mode';
+
+  @override
+  String get goToHome => 'Go to Home';
+
+  @override
+  String get notAvailable => 'N/A';
+
+  @override
+  String errorAddingParticipants(Object error) {
+    return 'Error adding participants: $error';
+  }
+
+  @override
+  String editSchedule(Object date) {
+    return 'Edit $date';
+  }
+
+  @override
+  String get startTime => 'Start Time';
+
+  @override
+  String get endTime => 'End Time';
+
+  @override
+  String get numberOfCourts => 'Number of Courts';
+
+  @override
+  String get tournamentMode => 'Tournament Mode';
+
+  @override
+  String get mataMataDescription =>
+      'Direct elimination: lose once and you\'re out';
+
+  @override
+  String get openTennisDescription => 'Round-robin groups + playoff bracket';
+
+  @override
+  String get openTennisExplanation =>
+      'Players are divided into groups. Each player plays against all others in their group. Points are awarded for wins. Top players from each group advance to the playoff bracket.';
+
+  @override
+  String get numberOfGroups => 'Number of Groups';
+
+  @override
+  String get autoGroupsHint => '0 = automatic (half of players)';
+
+  @override
+  String get pointsPerWin => 'Points per Win';
+
+  @override
+  String get pointsPerWinHint => 'Points awarded for each victory';
+
+  @override
+  String get noMatchesGenerated => 'No matches generated yet.';
+
+  @override
+  String get noMatchesNoPlayers =>
+      'No matches generated and no players in this category yet.';
+
+  @override
+  String errorLoadingPlayers(Object error) {
+    return 'Error loading players: $error';
+  }
+
+  @override
+  String get editInfo => 'Edit Info';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get clearBracket => 'Clear Bracket';
+
+  @override
+  String get deleteTournamentTitle => 'Delete Tournament';
+
+  @override
+  String get deleteBracketTitle => 'Delete Bracket?';
+
+  @override
+  String get deleteTournamentWarning =>
+      'This will delete everything. Cannot be undone.';
+
+  @override
+  String get deleteBracketWarning =>
+      'This will delete all matches. Cannot be undone.';
+
+  @override
+  String get singles => 'Singles';
+
+  @override
+  String get statusInProgress => 'In Progress';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusFinished => 'Finished';
+
+  @override
+  String pointsPerWinLabel(Object count) {
+    return 'Points per win: $count';
+  }
+
+  @override
+  String get generatePlayoffBracket => 'Generate Playoff Bracket';
+
+  @override
+  String get playoffBracketGenerated =>
+      'Playoff bracket generated! Group stage complete.';
+
+  @override
+  String get noStandingsYet =>
+      'No standings yet. Generate bracket to create groups.';
+
+  @override
+  String groupLabel(Object id) {
+    return 'Group $id';
+  }
+
+  @override
+  String get standings => 'Standings';
+
+  @override
+  String get played => 'P';
+
+  @override
+  String get generatingPlayoffBracket => 'Generating playoff bracket...';
+
+  @override
+  String playoffBracketCreated(Object count) {
+    return 'Playoff bracket created with $count matches!';
+  }
+
+  @override
+  String errorGeneratingPlayoff(Object error) {
+    return 'Error generating playoff: $error';
+  }
+
+  @override
+  String shareGroupLabel(Object id) {
+    return 'Share Group $id';
+  }
+
+  @override
+  String playersInCategory(Object count) {
+    return 'Players in this category ($count):';
+  }
+
+  @override
+  String get tournamentInProgress =>
+      'Tournament is in progress. Participation changes are locked.';
+
+  @override
+  String get tournamentCompleted =>
+      'Tournament is completed. Participation changes are locked.';
+
+  @override
+  String get freePlanTournament => 'Free Plan Tournament';
 }
