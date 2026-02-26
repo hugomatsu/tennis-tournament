@@ -32,6 +32,7 @@ import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
 import 'package:tennis_tournament/features/splash/presentation/splash_screen.dart';
 import 'package:tennis_tournament/features/notifications/presentation/notifications_screen.dart';
 import 'package:tennis_tournament/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:tennis_tournament/features/notifications/application/notification_providers.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -230,6 +231,9 @@ class TennisApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+
+    // Eagerly initialize FCM push notifications when user is authenticated
+    ref.watch(notificationServiceProvider);
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
