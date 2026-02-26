@@ -240,7 +240,7 @@ class _SingleBracketView extends ConsumerWidget {
                   final loc = AppLocalizations.of(context)!;
                   return ShareButton(
                     shareSubject: loc.tournamentBracket,
-                    shareUrl: 'https://entresets.com/t/$tournamentId', // TODO: Dynamic host
+                    shareUrl: 'https://tennis-tournment.web.app/t/$tournamentId', // TODO: Dynamic host
                     label: loc.shareBracket,
                     shareWidget: Theme(
                   data: ThemeData.light(),
@@ -322,7 +322,7 @@ class _SingleBracketView extends ConsumerWidget {
                                     children: [
                                       const Icon(Icons.share, size: 16, color: Colors.grey),
                                       const SizedBox(width: 8),
-                                      const Text('tennis-tournament.web.app', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                                      const Text('tennis-tournment.web.app', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ),

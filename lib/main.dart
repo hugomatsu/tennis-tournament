@@ -5,9 +5,13 @@ import 'package:tennis_tournament/app.dart';
 import 'package:tennis_tournament/firebase_options.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Add Portuguese locale for timeago
+  timeago.setLocaleMessages('pt', timeago.PtBrMessages());
   
   const env = String.fromEnvironment('ENV', defaultValue: 'dev');
   final envFile = env == 'prod' ? 'assets/env.prod' : 'assets/env.dev';

@@ -440,6 +440,13 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         ),
                         const Divider(),
+                        ListTile(
+                          leading: const Icon(Icons.notifications_outlined),
+                          title: Text(loc.notificationSettings),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/notifications/settings'),
+                        ),
+                        const Divider(),
                          ListTile(
                           leading: const Icon(Icons.star_rate_rounded, color: Colors.amber),
                           title: Text(loc.evaluateApp),
@@ -457,7 +464,7 @@ class ProfileScreen extends ConsumerWidget {
                           title: Text(loc.privacyPolicy),
                           onTap: () async {
                              // TODO: Replace with actual Privacy Policy URL
-                             final url = Uri.parse('https://entresets.com/privacy');
+                             final url = Uri.parse('https://tennis-tournment.web.app/privacy');
                              await launchUrl(url);
                           },
                         ),
@@ -466,7 +473,7 @@ class ProfileScreen extends ConsumerWidget {
                           title: Text(loc.termsOfUse),
                           onTap: () async {
                              // TODO: Replace with actual Terms URL
-                             final url = Uri.parse('https://entresets.com/terms');
+                             final url = Uri.parse('https://tennis-tournment.web.app/terms');
                              await launchUrl(url);
                           },
                         ),

@@ -1097,4 +1097,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchTournament => 'Search tournaments...';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get noNotifications => 'No notifications yet.';
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get matchNotifications => 'Match Notifications';
+
+  @override
+  String get matchScheduleChanges => 'Schedule Changes';
+
+  @override
+  String get matchScheduleChangesDesc => 'When a match date or time changes';
+
+  @override
+  String get matchResultsNotif => 'Match Results';
+
+  @override
+  String get matchResultsNotifDesc => 'When a match you\'re in is completed';
+
+  @override
+  String get socialNotifications => 'Social';
+
+  @override
+  String get followedUpdatesNotif => 'Followed Updates';
+
+  @override
+  String get followedUpdatesNotifDesc =>
+      'Updates on matches and players you follow';
+
+  @override
+  String get otherNotifications => 'Other';
+
+  @override
+  String get generalAnnouncementsNotif => 'Announcements';
+
+  @override
+  String get generalAnnouncementsNotifDesc =>
+      'Tournament news and general updates';
 }

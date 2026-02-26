@@ -341,5 +341,21 @@
   "automatic": "Automático",
   "manual": "Manual",
   "close": "Fechar",
-  "searchTournament": "Buscar torneios..."
+  "searchTournament": "Buscar torneios...",
+
+  "notifications": "Notificações",
+  "noNotifications": "Nenhuma notificação ainda.",
+  "markAllAsRead": "Marcar todas como lidas",
+  "notificationSettings": "Configurações de Notificações",
+  "matchNotifications": "Notificações de Partidas",
+  "matchScheduleChanges": "Mudanças de Agenda",
+  "matchScheduleChangesDesc": "Quando a data ou hora de uma partida muda",
+  "matchResultsNotif": "Resultados de Partidas",
+  "matchResultsNotifDesc": "Quando uma partida que você participa é concluída",
+  "socialNotifications": "Social",
+  "followedUpdatesNotif": "Atualizações de Seguidos",
+  "followedUpdatesNotifDesc": "Atualizações de partidas e jogadores que você segue",
+  "otherNotifications": "Outros",
+  "generalAnnouncementsNotif": "Anúncios",
+  "generalAnnouncementsNotifDesc": "Novidades de torneios e atualizações gerais"
 }

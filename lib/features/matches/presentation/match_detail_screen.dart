@@ -79,7 +79,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   final loc = AppLocalizations.of(context)!;
                   return ShareButton(
                     shareSubject: loc.shareMatch,
-                    shareUrl: 'https://entresets.com/matches/${match.id}', // TODO: Dynamic host
+                    shareUrl: 'https://tennis-tournment.web.app/matches/${match.id}', // TODO: Dynamic host
 
                 shareWidget: Theme(
                   data: ThemeData.light(),
@@ -223,7 +223,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                                 children: [
                                   const Icon(Icons.sports_tennis, size: 14, color: Colors.white54),
                                   const SizedBox(width: 6),
-                                  const Text('entresets.com', style: TextStyle(fontSize: 11, color: Colors.white54)),
+                                  const Text('tennis-tournment.web.app', style: TextStyle(fontSize: 11, color: Colors.white54)),
                                 ],
                               ),
                             ],
@@ -330,7 +330,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                               children: [
                                 const Icon(Icons.sports_tennis, size: 16, color: Colors.white70),
                                 const SizedBox(width: 8),
-                                const Text('entresets.com', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                                const Text('tennis-tournment.web.app', style: TextStyle(fontSize: 12, color: Colors.white70)),
                               ],
                             ),
                           ],

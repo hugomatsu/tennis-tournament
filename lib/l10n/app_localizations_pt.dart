@@ -1098,4 +1098,53 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get searchTournament => 'Buscar torneios...';
+
+  @override
+  String get notifications => 'Notificações';
+
+  @override
+  String get noNotifications => 'Nenhuma notificação ainda.';
+
+  @override
+  String get markAllAsRead => 'Marcar todas como lidas';
+
+  @override
+  String get notificationSettings => 'Configurações de Notificações';
+
+  @override
+  String get matchNotifications => 'Notificações de Partidas';
+
+  @override
+  String get matchScheduleChanges => 'Mudanças de Agenda';
+
+  @override
+  String get matchScheduleChangesDesc =>
+      'Quando a data ou hora de uma partida muda';
+
+  @override
+  String get matchResultsNotif => 'Resultados de Partidas';
+
+  @override
+  String get matchResultsNotifDesc =>
+      'Quando uma partida que você participa é concluída';
+
+  @override
+  String get socialNotifications => 'Social';
+
+  @override
+  String get followedUpdatesNotif => 'Atualizações de Seguidos';
+
+  @override
+  String get followedUpdatesNotifDesc =>
+      'Atualizações de partidas e jogadores que você segue';
+
+  @override
+  String get otherNotifications => 'Outros';
+
+  @override
+  String get generalAnnouncementsNotif => 'Anúncios';
+
+  @override
+  String get generalAnnouncementsNotifDesc =>
+      'Novidades de torneios e atualizações gerais';
 }

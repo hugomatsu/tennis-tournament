@@ -652,7 +652,7 @@ class _GroupCard extends StatelessWidget {
                 Icon(Icons.sports_tennis, size: 14, color: Colors.grey.shade400),
                 const SizedBox(width: 6),
                 Text(
-                  'entresets.com',
+                  'tennis-tournment.web.app',
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
                 ),
               ],

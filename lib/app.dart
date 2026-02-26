@@ -30,6 +30,8 @@ import 'package:tennis_tournament/features/debug/presentation/simulation_screen.
 
 import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
 import 'package:tennis_tournament/features/splash/presentation/splash_screen.dart';
+import 'package:tennis_tournament/features/notifications/presentation/notifications_screen.dart';
+import 'package:tennis_tournament/features/notifications/presentation/notification_settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -190,6 +192,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/help',
         builder: (context, state) => const HelpScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+        routes: [
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/players/:id',

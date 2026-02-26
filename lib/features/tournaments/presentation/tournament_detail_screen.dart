@@ -64,7 +64,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                         tooltip: loc.invitePlayers,
                         onPressed: () {
                            // TODO: Get base URL from env
-                           final url = 'https://entresets.com/t/${tournament.id}'; 
+                           final url = 'https://tennis-tournment.web.app/t/${tournament.id}'; 
                            ref.read(sharingServiceProvider).shareUrl(
                              url,
                              subject: 'Join ${tournament.name} on EntreSets!', 

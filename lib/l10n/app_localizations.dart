@@ -2143,6 +2143,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search tournaments...'**
   String get searchTournament;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet.'**
+  String get noNotifications;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllAsRead;
+
+  /// No description provided for @notificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get notificationSettings;
+
+  /// No description provided for @matchNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Notifications'**
+  String get matchNotifications;
+
+  /// No description provided for @matchScheduleChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Changes'**
+  String get matchScheduleChanges;
+
+  /// No description provided for @matchScheduleChangesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When a match date or time changes'**
+  String get matchScheduleChangesDesc;
+
+  /// No description provided for @matchResultsNotif.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Results'**
+  String get matchResultsNotif;
+
+  /// No description provided for @matchResultsNotifDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When a match you\'re in is completed'**
+  String get matchResultsNotifDesc;
+
+  /// No description provided for @socialNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Social'**
+  String get socialNotifications;
+
+  /// No description provided for @followedUpdatesNotif.
+  ///
+  /// In en, this message translates to:
+  /// **'Followed Updates'**
+  String get followedUpdatesNotif;
+
+  /// No description provided for @followedUpdatesNotifDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on matches and players you follow'**
+  String get followedUpdatesNotifDesc;
+
+  /// No description provided for @otherNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get otherNotifications;
+
+  /// No description provided for @generalAnnouncementsNotif.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get generalAnnouncementsNotif;
+
+  /// No description provided for @generalAnnouncementsNotifDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament news and general updates'**
+  String get generalAnnouncementsNotifDesc;
 }
 
 class _AppLocalizationsDelegate
