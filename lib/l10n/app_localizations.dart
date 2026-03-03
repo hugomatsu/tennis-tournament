@@ -2233,6 +2233,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tournament news and general updates'**
   String get generalAnnouncementsNotifDesc;
+
+  /// No description provided for @groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get groups;
+
+  /// No description provided for @ptsPerWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pts/Win'**
+  String get ptsPerWin;
+
+  /// No description provided for @defaultSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Schedule'**
+  String get defaultSchedule;
+
+  /// No description provided for @selectWeekdayTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Select default days and times'**
+  String get selectWeekdayTimes;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get fridayShort;
+
+  /// No description provided for @saturdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get saturdayShort;
+
+  /// No description provided for @sundayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get sundayShort;
 }
 
 class _AppLocalizationsDelegate

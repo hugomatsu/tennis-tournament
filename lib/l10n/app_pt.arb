@@ -357,5 +357,17 @@
   "followedUpdatesNotifDesc": "Atualizações de partidas e jogadores que você segue",
   "otherNotifications": "Outros",
   "generalAnnouncementsNotif": "Anúncios",
-  "generalAnnouncementsNotifDesc": "Novidades de torneios e atualizações gerais"
+  "generalAnnouncementsNotifDesc": "Novidades de torneios e atualizações gerais",
+
+  "groups": "Grupos",
+  "ptsPerWin": "Pts/Vitória",
+  "defaultSchedule": "Horário Padrão",
+  "selectWeekdayTimes": "Selecione os dias e horários padrão",
+  "mondayShort": "Seg",
+  "tuesdayShort": "Ter",
+  "wednesdayShort": "Qua",
+  "thursdayShort": "Qui",
+  "fridayShort": "Sex",
+  "saturdayShort": "Sáb",
+  "sundayShort": "Dom"
 }

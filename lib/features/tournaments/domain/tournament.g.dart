@@ -31,6 +31,11 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
   tournamentType: json['tournamentType'] as String? ?? 'mataMata',
   groupCount: (json['groupCount'] as num?)?.toInt() ?? 0,
   pointsPerWin: (json['pointsPerWin'] as num?)?.toInt() ?? 3,
+  defaultWeekdayTimes:
+      (json['defaultWeekdayTimes'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const {},
 );
 
 Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
@@ -53,6 +58,7 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'tournamentType': instance.tournamentType,
       'groupCount': instance.groupCount,
       'pointsPerWin': instance.pointsPerWin,
+      'defaultWeekdayTimes': instance.defaultWeekdayTimes,
     };
 
 _DailySchedule _$DailyScheduleFromJson(Map<String, dynamic> json) =>

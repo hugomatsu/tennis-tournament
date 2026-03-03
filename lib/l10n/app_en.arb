@@ -376,5 +376,17 @@
   "followedUpdatesNotifDesc": "Updates on matches and players you follow",
   "otherNotifications": "Other",
   "generalAnnouncementsNotif": "Announcements",
-  "generalAnnouncementsNotifDesc": "Tournament news and general updates"
+  "generalAnnouncementsNotifDesc": "Tournament news and general updates",
+
+  "groups": "Groups",
+  "ptsPerWin": "Pts/Win",
+  "defaultSchedule": "Default Schedule",
+  "selectWeekdayTimes": "Select default days and times",
+  "mondayShort": "Mon",
+  "tuesdayShort": "Tue",
+  "wednesdayShort": "Wed",
+  "thursdayShort": "Thu",
+  "fridayShort": "Fri",
+  "saturdayShort": "Sat",
+  "sundayShort": "Sun"
 }

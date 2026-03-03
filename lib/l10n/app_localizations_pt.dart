@@ -1147,4 +1147,37 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get generalAnnouncementsNotifDesc =>
       'Novidades de torneios e atualizações gerais';
+
+  @override
+  String get groups => 'Grupos';
+
+  @override
+  String get ptsPerWin => 'Pts/Vitória';
+
+  @override
+  String get defaultSchedule => 'Horário Padrão';
+
+  @override
+  String get selectWeekdayTimes => 'Selecione os dias e horários padrão';
+
+  @override
+  String get mondayShort => 'Seg';
+
+  @override
+  String get tuesdayShort => 'Ter';
+
+  @override
+  String get wednesdayShort => 'Qua';
+
+  @override
+  String get thursdayShort => 'Qui';
+
+  @override
+  String get fridayShort => 'Sex';
+
+  @override
+  String get saturdayShort => 'Sáb';
+
+  @override
+  String get sundayShort => 'Dom';
 }

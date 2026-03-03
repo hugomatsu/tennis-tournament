@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -624,6 +625,13 @@ class _InfoTab extends ConsumerWidget {
     final participantsAsync = ref.watch(participantsProvider(tournament.id));
     final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournament.id));
 
+    // Only show free-plan tag if the current user is the owner and still on free plan
+    final currentUser = userAsync.asData?.value;
+    final showFreePlanTag = tournament.subscriptionTier == 'Free' &&
+        currentUser != null &&
+        currentUser.id == tournament.ownerId &&
+        !currentUser.isPremium;
+
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 24),
       children: [
@@ -633,7 +641,7 @@ class _InfoTab extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               if (tournament.subscriptionTier == 'Free')
+               if (showFreePlanTag)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   margin: const EdgeInsets.only(bottom: 12),
@@ -649,7 +657,7 @@ class _InfoTab extends ConsumerWidget {
                        const SizedBox(width: 8),
                        Flexible(
                          child: Text(
-                           AppLocalizations.of(context)!.createdUnderFreePlan, 
+                           loc.freePlanTournament,
                            style: TextStyle(
                              fontSize: 12, 
                              color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -660,13 +668,26 @@ class _InfoTab extends ConsumerWidget {
                     ],
                   ),
                 ),
-              Text(
-                tournament.description.isNotEmpty ? tournament.description : loc.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
-                  height: 1.5,
+              if (tournament.description.isNotEmpty)
+                MarkdownBody(
+                  data: tournament.description,
+                  shrinkWrap: true,
+                  selectable: true,
+                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                    p: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
+                      height: 1.5,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  loc.description,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
+                    height: 1.5,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -706,8 +727,8 @@ class _InfoTab extends ConsumerWidget {
                       children: [
                         Text(
                           tournament.tournamentType == 'openTennis' 
-                              ? 'Open Tennis Mode' 
-                              : 'Mata-Mata (Elimination)',
+                              ? loc.openTennisMode
+                              : loc.mataMataElimination,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -718,8 +739,8 @@ class _InfoTab extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           tournament.tournamentType == 'openTennis' 
-                              ? 'Round-robin groups with playoff bracket'
-                              : 'Direct elimination - lose once and you\'re out',
+                              ? loc.openTennisDescription
+                              : loc.mataMataDescription,
                           style: TextStyle(
                             fontSize: 13,
                             color: Theme.of(context).textTheme.bodySmall?.color,
@@ -738,19 +759,19 @@ class _InfoTab extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
                           children: [
                             Text(
-                              '${tournament.groupCount == 0 ? 'Auto' : tournament.groupCount}',
+                              '${tournament.groupCount == 0 ? loc.automatic : tournament.groupCount}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
                             ),
-                            const Text('Groups', style: TextStyle(fontSize: 12)),
+                            Text(loc.groups, style: const TextStyle(fontSize: 12)),
                           ],
                         ),
                       ),
@@ -760,7 +781,7 @@ class _InfoTab extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -772,7 +793,7 @@ class _InfoTab extends ConsumerWidget {
                                 fontSize: 20,
                               ),
                             ),
-                            const Text('Pts/Win', style: TextStyle(fontSize: 12)),
+                            Text(loc.ptsPerWin, style: const TextStyle(fontSize: 12)),
                           ],
                         ),
                       ),

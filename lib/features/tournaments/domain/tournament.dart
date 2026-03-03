@@ -26,6 +26,7 @@ abstract class Tournament with _$Tournament {
     @Default('mataMata') String tournamentType, // 'mataMata', 'openTennis'
     @Default(0) int groupCount, // 0 = auto (half of players)
     @Default(3) int pointsPerWin, // Points awarded for each win
+    @Default({}) Map<String, String> defaultWeekdayTimes, // e.g. {"1":"18:00","3":"18:00"}
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>

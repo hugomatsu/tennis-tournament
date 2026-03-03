@@ -33,6 +33,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   int _groupCount = 0; // 0 = auto
   int _pointsPerWin = 3;
   bool _isLoading = false;
+  // Weekday schedule: key = weekday (1=Mon..7=Sun), value = TimeOfDay
+  final Map<int, TimeOfDay> _weekdayTimes = {};
 
   @override
   void dispose() {
@@ -95,6 +97,75 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _endDate = picked.end;
       });
     }
+  }
+
+  Widget _buildWeekdayRow(BuildContext context, int weekday, String label) {
+    final isSelected = _weekdayTimes.containsKey(weekday);
+    final time = _weekdayTimes[weekday];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            child: Checkbox(
+              value: isSelected,
+              onChanged: (val) {
+                setState(() {
+                  if (val == true) {
+                    _weekdayTimes[weekday] = const TimeOfDay(hour: 18, minute: 0);
+                  } else {
+                    _weekdayTimes.remove(weekday);
+                  }
+                });
+              },
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 40,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? null : Theme.of(context).hintColor,
+              ),
+            ),
+          ),
+          const Spacer(),
+          if (isSelected)
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () async {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: time ?? const TimeOfDay(hour: 18, minute: 0),
+                );
+                if (picked != null) {
+                  setState(() => _weekdayTimes[weekday] = picked);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  time?.format(context) ?? '18:00',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   void _showMediaLibrary() {
@@ -193,6 +264,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         tournamentType: _tournamentType,
         groupCount: _groupCount,
         pointsPerWin: _pointsPerWin,
+        defaultWeekdayTimes: _weekdayTimes.map(
+          (key, value) => MapEntry(key.toString(), '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}'),
+        ),
       );
 
       await tournamentRepo.createTournament(tournament);
@@ -297,12 +371,47 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                         ? '${dateFormat.format(_startDate!)} - ${dateFormat.format(_endDate!)}'
                         : l10n.selectDates,
                     style: TextStyle(
-                      color: _startDate != null ? Colors.black : Colors.grey[600],
+                      color: _startDate != null
+                          ? Theme.of(context).textTheme.bodyLarge?.color
+                          : Theme.of(context).hintColor,
                     ),
                   ),
                 ),
               ),
               
+              const SizedBox(height: 16),
+
+              // Default Weekday Schedule
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.schedule, size: 18),
+                        const SizedBox(width: 8),
+                        Text(l10n.defaultSchedule, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(l10n.selectWeekdayTimes, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 12),
+                    _buildWeekdayRow(context, 1, l10n.mondayShort),
+                    _buildWeekdayRow(context, 2, l10n.tuesdayShort),
+                    _buildWeekdayRow(context, 3, l10n.wednesdayShort),
+                    _buildWeekdayRow(context, 4, l10n.thursdayShort),
+                    _buildWeekdayRow(context, 5, l10n.fridayShort),
+                    _buildWeekdayRow(context, 6, l10n.saturdayShort),
+                    _buildWeekdayRow(context, 7, l10n.sundayShort),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
@@ -311,7 +420,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.description),
                 ),
-                maxLines: 3,
+                maxLines: 6,
+                minLines: 3,
               ),
               const SizedBox(height: 16),
               

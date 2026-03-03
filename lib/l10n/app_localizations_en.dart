@@ -1144,4 +1144,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get generalAnnouncementsNotifDesc =>
       'Tournament news and general updates';
+
+  @override
+  String get groups => 'Groups';
+
+  @override
+  String get ptsPerWin => 'Pts/Win';
+
+  @override
+  String get defaultSchedule => 'Default Schedule';
+
+  @override
+  String get selectWeekdayTimes => 'Select default days and times';
+
+  @override
+  String get mondayShort => 'Mon';
+
+  @override
+  String get tuesdayShort => 'Tue';
+
+  @override
+  String get wednesdayShort => 'Wed';
+
+  @override
+  String get thursdayShort => 'Thu';
+
+  @override
+  String get fridayShort => 'Fri';
+
+  @override
+  String get saturdayShort => 'Sat';
+
+  @override
+  String get sundayShort => 'Sun';
 }

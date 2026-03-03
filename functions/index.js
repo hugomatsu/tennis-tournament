@@ -38,20 +38,30 @@ exports.onMatchUpdated = onDocumentUpdated("matches/{matchId}", async (event) =>
     let body = "";
     let type = "matchUpdate";
 
-    const matchLabel = `${afterData.player1Name || "TBD"} vs ${afterData.player2Name || "TBD"}`;
+    const matchLabel = `${afterData.player1Name || "A definir"} vs ${afterData.player2Name || "A definir"}`;
+
+    const statusTranslations = {
+        "Preparing": "Preparando",
+        "Scheduled": "Agendado",
+        "Confirmed": "Confirmado",
+        "Live": "Live",
+        "Completed": "Concluído",
+        "Cancelled": "Cancelado"
+    };
 
     if (winnerSet || scoreChanged) {
         type = "result";
-        title = "Match Result";
-        body = `${matchLabel}: ${afterData.score || ""}. Winner: ${afterData.winner || "TBD"}`;
+        title = "Resultado do Jogo";
+        body = `${matchLabel}: ${afterData.score || ""}. Vencedor: ${afterData.winner || "A definir"}`;
     } else if (statusChanged) {
         type = "statusChange";
-        title = "Match Status Updated";
-        body = `${matchLabel} is now ${afterData.status}`;
+        title = "Status do Jogo Atualizado";
+        const localizedStatus = statusTranslations[afterData.status] || afterData.status;
+        body = `${matchLabel} agora está ${localizedStatus}`;
     } else if (dateChanged) {
         type = "dateChange";
-        title = "Match Rescheduled";
-        body = `${matchLabel} date has been updated`;
+        title = "Jogo Reagendado";
+        body = `A data de ${matchLabel} foi atualizada`;
     }
 
     // Collect all relevant user IDs (participants + followers)
