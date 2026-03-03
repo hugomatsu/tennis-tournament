@@ -34,14 +34,16 @@ import 'package:tennis_tournament/features/notifications/presentation/notificati
 import 'package:tennis_tournament/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:tennis_tournament/features/notifications/application/notification_providers.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateChangesProvider);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
+    observers: [ref.watch(analyticsServiceProvider).observer],
     initialLocation: '/splash',
     redirect: (context, state) {
       final isLoading = authState.isLoading;
@@ -68,14 +70,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(
+        name: 'SplashScreen',
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
+        name: 'LoginScreen',
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        name: 'RegisterScreen',
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
       ),
@@ -87,10 +92,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                name: 'TournamentsScreen',
                 path: '/tournaments',
                 builder: (context, state) => const TournamentsScreen(),
                 routes: [
                   GoRoute(
+                    name: 'TournamentDetailScreen',
                     path: ':id',
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
@@ -98,6 +105,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                     },
                     routes: [
                       GoRoute(
+                        name: 'ParticipantManagementScreen',
                         path: 'participants',
                         builder: (context, state) {
                           final id = state.pathParameters['id']!;
@@ -105,6 +113,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                         },
                       ),
                       GoRoute(
+                        name: 'ScheduleSettingsScreen',
                         path: 'schedule-settings',
                         builder: (context, state) {
                           final id = state.pathParameters['id']!;
@@ -112,6 +121,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                         },
                       ),
                       GoRoute(
+                        name: 'ManageAdminsScreen',
                         path: 'manage-admins',
                         builder: (context, state) {
                           final id = state.pathParameters['id']!;
@@ -137,6 +147,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                name: 'ScheduleScreen',
                 path: '/schedule',
                 builder: (context, state) => const ScheduleScreen(),
               ),
@@ -145,14 +156,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                name: 'ProfileScreen',
                 path: '/profile',
                 builder: (context, state) => const ProfileScreen(),
                 routes: [
                   GoRoute(
+                    name: 'EditProfileScreen',
                     path: 'edit',
                     builder: (context, state) => const EditProfileScreen(),
                   ),
                   GoRoute(
+                    name: 'AvailabilityScreen',
                     path: 'availability',
                     builder: (context, state) => const AvailabilityScreen(),
                   ),
@@ -164,26 +178,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        name: 'SubscriptionScreen',
         path: '/subscription',
         builder: (context, state) => const SubscriptionScreen(),
       ),
       GoRoute(
+        name: 'CreateTournamentScreen',
         path: '/admin/create-tournament',
         builder: (context, state) => const CreateTournamentScreen(),
       ),
       GoRoute(
+        name: 'SimulationScreen',
         path: '/admin/simulation',
         builder: (context, state) => const SimulationScreen(),
       ),
       GoRoute(
+        name: 'LocationManagementScreen',
         path: '/admin/locations',
         builder: (context, state) => const LocationManagementScreen(),
       ),
       GoRoute(
+        name: 'MediaLibraryScreen',
         path: '/media-library',
         builder: (context, state) => const MediaLibraryScreen(),
       ),
       GoRoute(
+        name: 'MatchDetailScreen',
         path: '/matches/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
@@ -191,20 +211,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        name: 'HelpScreen',
         path: '/help',
         builder: (context, state) => const HelpScreen(),
       ),
       GoRoute(
+        name: 'NotificationsScreen',
         path: '/notifications',
         builder: (context, state) => const NotificationsScreen(),
         routes: [
           GoRoute(
+            name: 'NotificationSettingsScreen',
             path: 'settings',
             builder: (context, state) => const NotificationSettingsScreen(),
           ),
         ],
       ),
       GoRoute(
+        name: 'PlayerProfileScreen',
         path: '/players/:id',
         builder: (context, state) {
            final id = state.pathParameters['id']!;
@@ -212,6 +236,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        name: 'TournamentDynamicLinkRedirect',
         path: '/t/:id',
         redirect: (context, state) {
           final id = state.pathParameters['id'];

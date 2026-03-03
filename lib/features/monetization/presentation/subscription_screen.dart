@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class SubscriptionScreen extends ConsumerStatefulWidget {
@@ -14,6 +15,14 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
 class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logViewPremiumOffer();
+    });
+  }
+
   Future<void> _subscribe() async {
     setState(() => _isLoading = true);
     
@@ -21,6 +30,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       final user = await ref.read(playerRepositoryProvider).getCurrentUser();
       if (user != null) {
         await ref.read(playerRepositoryProvider).setPremiumStatus(user.id, true);
+        ref.read(analyticsServiceProvider).logPurchasePremium();
         if (mounted) {
            ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.subscribedSuccessfully)),

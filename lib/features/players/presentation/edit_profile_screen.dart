@@ -7,6 +7,7 @@ import 'package:tennis_tournament/features/players/application/player_providers.
 import 'package:tennis_tournament/features/media/presentation/media_library_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -237,6 +238,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           );
 
       await ref.read(playerRepositoryProvider).updateUser(updatedPlayer);
+      ref.read(analyticsServiceProvider).logUpdateProfile();
       
       if (mounted) {
         context.pop();

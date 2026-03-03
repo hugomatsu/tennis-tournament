@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -26,6 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             _emailController.text.trim(),
             _passwordController.text.trim(),
           );
+      ref.read(analyticsServiceProvider).logSignUp(method: 'email');
       // Navigation is handled by the router redirect
     } catch (e) {
       if (mounted) {

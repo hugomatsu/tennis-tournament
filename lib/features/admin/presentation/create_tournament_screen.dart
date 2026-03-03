@@ -11,6 +11,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/tournaments_screen.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 class CreateTournamentScreen extends ConsumerStatefulWidget {
   const CreateTournamentScreen({super.key});
@@ -270,6 +271,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       );
 
       await tournamentRepo.createTournament(tournament);
+      
+      ref.read(analyticsServiceProvider).logCreateTournament(
+        tournamentType: _tournamentType,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

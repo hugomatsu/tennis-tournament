@@ -7,6 +7,7 @@ class ShareButton extends ConsumerWidget {
   final String shareUrl;
   final Widget shareWidget;
   final String label;
+  final VoidCallback? onShare;
 
   const ShareButton({
     super.key,
@@ -14,6 +15,7 @@ class ShareButton extends ConsumerWidget {
     required this.shareUrl,
     required this.shareWidget,
     this.label = 'Share',
+    this.onShare,
   });
 
   @override
@@ -30,6 +32,7 @@ class ShareButton extends ConsumerWidget {
       context: context,
       shareWidget: shareWidget,
       shareSubject: shareSubject,
+      onShare: onShare,
     );
   }
 }

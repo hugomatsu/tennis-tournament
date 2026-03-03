@@ -12,6 +12,7 @@ import 'package:tennis_tournament/features/tournaments/data/tournament_repositor
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 final matchDetailProvider = StreamProvider.family<TennisMatch?, String>((ref, matchId) {
   return ref.watch(matchRepositoryProvider).watchMatch(matchId);
@@ -36,6 +37,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   String? _pendingStatus;
   String? _pendingWinner;
   
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logViewMatchDetail();
+    });
+  }
+
   @override
   void dispose() {
     _scoreController.dispose();
@@ -80,6 +89,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   return ShareButton(
                     shareSubject: loc.shareMatch,
                     shareUrl: 'https://tennis-tournment.web.app/matches/${match.id}', // TODO: Dynamic host
+                    onShare: () {
+                      ref.read(analyticsServiceProvider).logShareMatch(
+                        matchId: match.id,
+                        tournamentName: match.tournamentName,
+                      );
+                    },
 
                 shareWidget: Theme(
                   data: ThemeData.light(),
@@ -370,6 +385,9 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                           await ref.read(playerRepositoryProvider).updateUser(
                             user.copyWith(followedMatchIds: newList),
                           );
+                          if (!isFollowing) {
+                            ref.read(analyticsServiceProvider).logFollowMatch();
+                          }
                         },
                       );
                     },
@@ -484,6 +502,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         match.id, 
         _scoreController.text, 
         _pendingWinner!
+      );
+      ref.read(analyticsServiceProvider).logSubmitMatchScore(
+        matchId: match.id,
+        tournamentName: match.tournamentName,
       );
     } else {
       // Just update match details

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
@@ -242,6 +243,11 @@ class _SingleBracketView extends ConsumerWidget {
                     shareSubject: loc.tournamentBracket,
                     shareUrl: 'https://tennis-tournment.web.app/t/$tournamentId', // TODO: Dynamic host
                     label: loc.shareBracket,
+                    onShare: () {
+                      ref.read(analyticsServiceProvider).logShareBracket(
+                        tournamentName: tournamentName,
+                      );
+                    },
                     shareWidget: Theme(
                   data: ThemeData.light(),
                   child: Builder(

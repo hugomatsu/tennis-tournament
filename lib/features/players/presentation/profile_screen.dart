@@ -9,10 +9,7 @@ import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/presentation/widgets/user_search_dialog.dart';
 import 'package:tennis_tournament/core/theme/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-
-
-class ProfileScreen extends ConsumerWidget {
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
@@ -27,6 +24,7 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
+              ref.read(analyticsServiceProvider).logLogout();
               await ref.read(authRepositoryProvider).signOut();
             },
           ),

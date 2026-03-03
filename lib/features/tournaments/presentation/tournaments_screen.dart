@@ -6,6 +6,7 @@ import 'package:tennis_tournament/features/tournaments/application/tournament_fi
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
@@ -34,6 +35,9 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   void initState() {
     super.initState();
     _loadFilters();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logViewTournamentList();
+    });
   }
 
   @override

@@ -21,6 +21,7 @@ import 'package:tennis_tournament/features/locations/data/location_repository.da
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/core/sharing/sharing_service.dart';
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -71,6 +72,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                              subject: 'Join ${tournament.name} on EntreSets!', 
                              context: context,
                            );
+                           ref.read(analyticsServiceProvider).logShareTournament(tournamentName: tournament.name);
                         },
                       ),
                       if (userAsync.asData?.value != null) ...[
@@ -172,6 +174,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                         }
                                         await ref.read(matchRepositoryProvider).createMatches(allMatches);
                                         scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatedMatches(generatedCount))));
+                                        ref.read(analyticsServiceProvider).logGenerateBracket(generationMethod: method);
                                       } catch (e) {
                                         scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
                                       }
@@ -1266,6 +1269,12 @@ class _JoinTournamentButtonState extends ConsumerState<_JoinTournamentButton> {
         }
         
         await repo.joinTournament(tournamentId, userIdsToJoin, categoryId);
+        
+        // Log join tournament analytics
+        ref.read(analyticsServiceProvider).logJoinTournamentRequest(
+          tournamentName: widget.tournament.name,
+          categoryName: category.name,
+        );
       }
 
       for (final categoryId in toRemove) {

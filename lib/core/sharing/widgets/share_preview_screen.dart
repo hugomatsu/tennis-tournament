@@ -8,11 +8,13 @@ import 'package:tennis_tournament/core/sharing/sharing_service.dart';
 class SharePreviewScreen extends ConsumerStatefulWidget {
   final Widget shareWidget;
   final String shareSubject;
+  final VoidCallback? onShare;
 
   const SharePreviewScreen({
     super.key,
     required this.shareWidget,
     required this.shareSubject,
+    this.onShare,
   });
 
   /// Show the share preview screen as a modal
@@ -20,6 +22,7 @@ class SharePreviewScreen extends ConsumerStatefulWidget {
     required BuildContext context,
     required Widget shareWidget,
     required String shareSubject,
+    VoidCallback? onShare,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -28,6 +31,7 @@ class SharePreviewScreen extends ConsumerStatefulWidget {
       builder: (context) => SharePreviewScreen(
         shareWidget: shareWidget,
         shareSubject: shareSubject,
+        onShare: onShare,
       ),
     );
   }
@@ -438,6 +442,7 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
         customColor: _customColor,
         context: context,
       );
+      widget.onShare?.call();
       if (mounted) Navigator.pop(context);
     } finally {
       if (mounted) setState(() => _isLoading = false);
