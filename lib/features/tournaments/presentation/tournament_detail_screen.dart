@@ -52,7 +52,11 @@ class TournamentDetailScreen extends ConsumerWidget {
                   SliverAppBar(
                     expandedHeight: 250,
                     pinned: true,
+                    // Solid background so body never shows through when pinned
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    surfaceTintColor: Colors.transparent,
                     forceElevated: innerBoxIsScrolled,
+                    title: Text(tournament.name),
                     bottom: TabBar(
                       tabs: [
                         Tab(text: loc.info),
@@ -251,28 +255,45 @@ class TournamentDetailScreen extends ConsumerWidget {
                       ],
                     ],
                     flexibleSpace: FlexibleSpaceBar(
-                      title: Text(tournament.name),
-                      background: tournament.imageUrl.isNotEmpty
-                          ? Image.network(
-                              tournament.imageUrl,
-                              fit: BoxFit.cover,
-                              color: Colors.black.withValues(alpha: 0.4),
-                              colorBlendMode: BlendMode.darken,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
+                      // title is on SliverAppBar.title above — no title here to
+                      // avoid colliding with the bottom TabBar.
+                      collapseMode: CollapseMode.parallax,
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          tournament.imageUrl.isNotEmpty
+                              ? Image.network(
+                                  tournament.imageUrl,
+                                  fit: BoxFit.cover,
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  colorBlendMode: BlendMode.darken,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    'assets/images/tournament_placeholder.png',
+                                    fit: BoxFit.cover,
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    colorBlendMode: BlendMode.darken,
+                                  ),
+                                )
+                              : Image.asset(
                                   'assets/images/tournament_placeholder.png',
                                   fit: BoxFit.cover,
                                   color: Colors.black.withValues(alpha: 0.4),
                                   colorBlendMode: BlendMode.darken,
-                                );
-                              },
-                            )
-                          : Image.asset(
-                              'assets/images/tournament_placeholder.png',
-                              fit: BoxFit.cover,
-                              color: Colors.black.withValues(alpha: 0.4),
-                              colorBlendMode: BlendMode.darken,
+                                ),
+                          // Bottom gradient so the image fades into the tab bar
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0.5, 1.0],
+                                colors: [Colors.transparent, Colors.black54],
+                              ),
                             ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ];

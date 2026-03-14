@@ -967,10 +967,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Players are divided into groups. Each player plays against all others in their group. Points are awarded for wins. Top players from each group advance to the playoff bracket.';
 
   @override
-  String get numberOfGroups => 'Number of Groups';
+  String get numberOfGroups => 'Max Players per Group';
 
   @override
-  String get autoGroupsHint => '0 = automatic (half of players)';
+  String get autoGroupsHint => 'Recommended: 3–4 players per group';
 
   @override
   String get pointsPerWin => 'Points per Win';

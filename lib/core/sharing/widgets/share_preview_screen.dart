@@ -44,6 +44,27 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   ShareBackgroundColor _selectedColor = ShareBackgroundColor.blue;
   Color? _customColor;
   bool _isLoading = false;
+  final _transformController = TransformationController();
+
+  @override
+  void dispose() {
+    _transformController.dispose();
+    super.dispose();
+  }
+
+  void _resetZoom() => _transformController.value = Matrix4.identity();
+
+  void _adjustZoom(double factor) {
+    final m = _transformController.value;
+    final currentScale = m.entry(0, 0);
+    final newScale = (currentScale * factor).clamp(0.1, 5.0);
+    final sf = newScale / currentScale;
+    _transformController.value = Matrix4.identity()
+      ..setEntry(0, 0, newScale)
+      ..setEntry(1, 1, newScale)
+      ..setEntry(0, 3, m.entry(0, 3) * sf)
+      ..setEntry(1, 3, m.entry(1, 3) * sf);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,33 +212,70 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   Widget _buildPreview(SharingService service) {
     final gradientColors = service.getGradientColors(_selectedColor, _customColor);
     final hasBackground = gradientColors.isNotEmpty;
+    final theme = Theme.of(context);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-          constraints: BoxConstraints(
-            minWidth: MediaQuery.of(context).size.width - 32,
-            minHeight: 200,
-          ),
-          decoration: hasBackground
-              ? BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: gradientColors,
-                  ),
-                )
-              : BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: widget.shareWidget,
+    final content = Container(
+      constraints: BoxConstraints(
+        minWidth: MediaQuery.of(context).size.width - 32,
+        minHeight: 200,
+      ),
+      decoration: hasBackground
+          ? BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors,
+              ),
+            )
+          : BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+            ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: widget.shareWidget,
+      ),
+    );
+
+    return Stack(
+      children: [
+        // Zoomable / pannable preview
+        InteractiveViewer(
+          transformationController: _transformController,
+          constrained: false,
+          minScale: 0.1,
+          maxScale: 5.0,
+          boundaryMargin: const EdgeInsets.all(double.infinity),
+          child: content,
+        ),
+
+        // Zoom controls — top-right corner of the preview box
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _PreviewZoomButton(
+                icon: Icons.add,
+                tooltip: 'Zoom in',
+                onTap: () => _adjustZoom(1.3),
+              ),
+              const SizedBox(height: 4),
+              _PreviewZoomButton(
+                icon: Icons.remove,
+                tooltip: 'Zoom out',
+                onTap: () => _adjustZoom(1 / 1.3),
+              ),
+              const SizedBox(height: 4),
+              _PreviewZoomButton(
+                icon: Icons.fit_screen,
+                tooltip: 'Reset zoom',
+                onTap: _resetZoom,
+              ),
+            ],
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -447,5 +505,36 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+}
+
+class _PreviewZoomButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _PreviewZoomButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(icon, size: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -69,21 +69,27 @@ class OpenTennisService implements SchedulingService {
     final players = List<Participant>.from(participants);
     if (shuffle) players.shuffle();
 
-    // Determine number of groups
-    int groupCount = tournament.groupCount;
-    if (groupCount <= 0) {
-      // Auto: half of players, minimum 2
-      groupCount = (players.length / 2).ceil().clamp(2, players.length ~/ 2);
-    }
-    if (groupCount > players.length) groupCount = players.length;
-    if (groupCount < 1) groupCount = 1;
+    // tournament.groupCount stores the max players per group.
+    // Compute how many groups we need so each has at most maxPerGroup players.
+    // Allow one group to have ±1 player so all players fit evenly.
+    int maxPerGroup = tournament.groupCount;
+    if (maxPerGroup <= 1) maxPerGroup = 4; // default: up to 4 players per group
 
-    // Split players into groups
+    int groupCount = (players.length / maxPerGroup).ceil();
+    groupCount = groupCount.clamp(1, players.length);
+
+    // Distribute players as evenly as possible.
+    // baseSize players per group; the first `extras` groups get one extra player.
+    final baseSize = players.length ~/ groupCount;
+    final extras = players.length % groupCount;
+
     final groups = <String, List<Participant>>{};
-    for (int i = 0; i < players.length; i++) {
-      final groupId = String.fromCharCode('A'.codeUnitAt(0) + (i % groupCount));
-      groups.putIfAbsent(groupId, () => []);
-      groups[groupId]!.add(players[i]);
+    int playerIdx = 0;
+    for (int g = 0; g < groupCount; g++) {
+      final groupId = String.fromCharCode('A'.codeUnitAt(0) + g);
+      final size = baseSize + (g < extras ? 1 : 0);
+      groups[groupId] = players.sublist(playerIdx, playerIdx + size);
+      playerIdx += size;
     }
 
     // Generate group standings

@@ -1925,13 +1925,13 @@ abstract class AppLocalizations {
   /// No description provided for @numberOfGroups.
   ///
   /// In en, this message translates to:
-  /// **'Number of Groups'**
+  /// **'Max Players per Group'**
   String get numberOfGroups;
 
   /// No description provided for @autoGroupsHint.
   ///
   /// In en, this message translates to:
-  /// **'0 = automatic (half of players)'**
+  /// **'Recommended: 3–4 players per group'**
   String get autoGroupsHint;
 
   /// No description provided for @pointsPerWin.

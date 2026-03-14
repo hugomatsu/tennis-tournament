@@ -13,13 +13,19 @@ This workflow builds the Android APK in release mode and uploads it to Firebase 
 
 ## Steps
 
-1. Build the Android APK
+1. Stamp build_info.dart with the current version and UTC timestamp
+```bash
+// turbo
+BUILD_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //') && BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && printf "// AUTO-GENERATED — do not edit manually.\n// Updated by the build script before each release build.\n// ignore_for_file: constant_identifier_names\n\nconst String kBuildVersion = '$BUILD_VERSION';\nconst String kBuildTime = '$BUILD_TIME';\n" > lib/core/build_info.dart
+```
+
+2. Build the Android APK
 ```bash
 // turbo
 flutter build apk --release
 ```
 
-2. Upload to Firebase App Distribution
+3. Upload to Firebase App Distribution
 ```bash
 // turbo
 firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \

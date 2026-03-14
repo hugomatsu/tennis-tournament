@@ -968,10 +968,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Jogadores são divididos em grupos. Cada jogador joga contra todos os outros do seu grupo. Pontos são dados por vitória. Os melhores de cada grupo avançam para as eliminatórias.';
 
   @override
-  String get numberOfGroups => 'Número de Grupos';
+  String get numberOfGroups => 'Máx. Jogadores por Grupo';
 
   @override
-  String get autoGroupsHint => '0 = automático (metade dos jogadores)';
+  String get autoGroupsHint => 'Recomendado: 3–4 jogadores por grupo';
 
   @override
   String get pointsPerWin => 'Pontos por Vitória';

@@ -9,7 +9,10 @@ import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/presentation/widgets/user_search_dialog.dart';
 import 'package:tennis_tournament/core/theme/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tennis_tournament/core/analytics/analytics_service.dart';class ProfileScreen extends ConsumerWidget {
+import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/core/build_info.dart';
+
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
@@ -515,24 +518,35 @@ import 'package:tennis_tournament/core/analytics/analytics_service.dart';class P
 
                   const SizedBox(height: 32),
                   Center(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
+                    child: Column(
+                      children: [
+                        Text.rich(
                           TextSpan(
-                            text: '${loc.madeBy} ',
-                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                            children: [
+                              TextSpan(
+                                text: '${loc.madeBy} ',
+                                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                              const TextSpan(
+                                text: 'Hugomatsu',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
-                          const TextSpan(
-                            text: 'Hugomatsu', // Brand name, likely kept as is or localized if needed
-                            style: TextStyle(
-                              // Using primary color or a specific highlight color
-                              color: Colors.blue, 
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'v$kBuildVersion · $kBuildTime',
+                          style: TextStyle(
+                            color: Colors.grey.withValues(alpha: 0.6),
+                            fontSize: 11,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 32),
