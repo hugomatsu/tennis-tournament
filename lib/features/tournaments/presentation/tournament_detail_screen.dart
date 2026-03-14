@@ -50,8 +50,16 @@ class TournamentDetailScreen extends ConsumerWidget {
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverAppBar(
-                    expandedHeight: 200,
+                    expandedHeight: 250,
                     pinned: true,
+                    forceElevated: innerBoxIsScrolled,
+                    bottom: TabBar(
+                      tabs: [
+                        Tab(text: loc.info),
+                        Tab(text: loc.bracket),
+                        Tab(text: loc.calendar),
+                      ],
+                    ),
                     actions: [
                       IconButton(
                         icon: const Icon(Icons.refresh),
@@ -266,18 +274,6 @@ class TournamentDetailScreen extends ConsumerWidget {
                               colorBlendMode: BlendMode.darken,
                             ),
                     ),
-                  ),
-                  SliverPersistentHeader(
-                    delegate: _SliverAppBarDelegate(
-                      TabBar(
-                        tabs: [
-                          Tab(text: loc.info),
-                          Tab(text: loc.bracket),
-                          Tab(text: loc.calendar),
-                        ],
-                      ),
-                    ),
-                    pinned: true,
                   ),
                 ];
               },
@@ -1407,29 +1403,6 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-
-  _SliverAppBarDelegate(this._tabBar);
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
-}
 
 class _ManualBracketOrderingDialog extends StatefulWidget {
   final String categoryName;

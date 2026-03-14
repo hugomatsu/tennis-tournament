@@ -52,6 +52,12 @@ Thumbs.db
 # Environment variables
 assets/env
 
+# Android signing secrets — NEVER commit these
+android/key.properties
+android/app/upload-keystore.jks
+*.jks
+*.keystore
+
 # Build stuff
 .dart_tool/chrome-device/Default/Cookies
 /.dart_tool/chrome-device

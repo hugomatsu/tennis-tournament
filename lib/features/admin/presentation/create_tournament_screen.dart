@@ -34,8 +34,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   int _groupCount = 0; // 0 = auto
   int _pointsPerWin = 3;
   bool _isLoading = false;
-  // Weekday schedule: key = weekday (1=Mon..7=Sun), value = TimeOfDay
-  final Map<int, TimeOfDay> _weekdayTimes = {};
+  // Weekday schedule: key = weekday (1=Mon..7=Sun), value = (start, end) TimeOfDay
+  final Map<int, ({TimeOfDay start, TimeOfDay end})> _weekdayTimes = {};
 
   @override
   void dispose() {
@@ -102,10 +102,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
 
   Widget _buildWeekdayRow(BuildContext context, int weekday, String label) {
     final isSelected = _weekdayTimes.containsKey(weekday);
-    final time = _weekdayTimes[weekday];
+    final range = _weekdayTimes[weekday];
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           SizedBox(
@@ -115,7 +116,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               onChanged: (val) {
                 setState(() {
                   if (val == true) {
-                    _weekdayTimes[weekday] = const TimeOfDay(hour: 18, minute: 0);
+                    _weekdayTimes[weekday] = (
+                      start: const TimeOfDay(hour: 9, minute: 0),
+                      end: const TimeOfDay(hour: 18, minute: 0),
+                    );
                   } else {
                     _weekdayTimes.remove(weekday);
                   }
@@ -136,35 +140,64 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               ),
             ),
           ),
-          const Spacer(),
-          if (isSelected)
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () async {
-                final picked = await showTimePicker(
-                  context: context,
-                  initialTime: time ?? const TimeOfDay(hour: 18, minute: 0),
-                );
-                if (picked != null) {
-                  setState(() => _weekdayTimes[weekday] = picked);
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  time?.format(context) ?? '18:00',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
+          if (isSelected) ...[
+            const Spacer(),
+            _buildTimePicker(
+              context,
+              label: l10n.startTime,
+              time: range!.start,
+              onPicked: (picked) => setState(() {
+                _weekdayTimes[weekday] = (start: picked, end: range.end);
+              }),
             ),
+            const SizedBox(width: 8),
+            Text('–', style: TextStyle(color: Theme.of(context).hintColor)),
+            const SizedBox(width: 8),
+            _buildTimePicker(
+              context,
+              label: l10n.endTime,
+              time: range.end,
+              onPicked: (picked) => setState(() {
+                _weekdayTimes[weekday] = (start: range.start, end: picked);
+              }),
+            ),
+          ] else
+            const Spacer(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTimePicker(
+    BuildContext context, {
+    required String label,
+    required TimeOfDay time,
+    required ValueChanged<TimeOfDay> onPicked,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () async {
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: time,
+          helpText: label,
+        );
+        if (picked != null) onPicked(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          time.format(context),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
       ),
     );
   }
@@ -266,7 +299,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         groupCount: _groupCount,
         pointsPerWin: _pointsPerWin,
         defaultWeekdayTimes: _weekdayTimes.map(
-          (key, value) => MapEntry(key.toString(), '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}'),
+          (key, range) {
+            String fmt(TimeOfDay t) =>
+                '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+            return MapEntry(key.toString(), '${fmt(range.start)}-${fmt(range.end)}');
+          },
         ),
       );
 
@@ -478,36 +515,28 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     ),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: _groupCount.toString(),
-                        decoration: InputDecoration(
-                          labelText: l10n.numberOfGroups,
-                          helperText: l10n.autoGroupsHint,
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.group),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (v) => _groupCount = int.tryParse(v) ?? 0,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: _pointsPerWin.toString(),
-                        decoration: InputDecoration(
-                          labelText: l10n.pointsPerWin,
-                          helperText: l10n.pointsPerWinHint,
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.emoji_events),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
-                      ),
-                    ),
-                  ],
+                TextFormField(
+                  initialValue: _groupCount.toString(),
+                  decoration: InputDecoration(
+                    labelText: l10n.numberOfGroups,
+                    helperText: l10n.autoGroupsHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.group),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) => _groupCount = int.tryParse(v) ?? 0,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  initialValue: _pointsPerWin.toString(),
+                  decoration: InputDecoration(
+                    labelText: l10n.pointsPerWin,
+                    helperText: l10n.pointsPerWinHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.emoji_events),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
                 ),
               ],
               
