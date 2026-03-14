@@ -2299,6 +2299,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sun'**
   String get sundayShort;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Link'**
+  String get copyLink;
+
+  /// No description provided for @shareOnTwitter.
+  ///
+  /// In en, this message translates to:
+  /// **'Share on X (Twitter)'**
+  String get shareOnTwitter;
+
+  /// No description provided for @shareOnWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share on WhatsApp'**
+  String get shareOnWhatsApp;
+
+  /// No description provided for @downloadImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Image'**
+  String get downloadImage;
+
+  /// No description provided for @imageSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Image saved successfully!'**
+  String get imageSaved;
+
+  /// No description provided for @errorSavingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving image: {error}'**
+  String errorSavingImage(Object error);
+
+  /// No description provided for @imageDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Image downloaded!'**
+  String get imageDownloaded;
+
+  /// No description provided for @imageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Image copied to clipboard!'**
+  String get imageCopied;
+
+  /// No description provided for @errorCopying.
+  ///
+  /// In en, this message translates to:
+  /// **'Error copying: {error}'**
+  String errorCopying(Object error);
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordMinLength;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @helpAndGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Guide'**
+  String get helpAndGuide;
+
+  /// No description provided for @selectCustomColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Custom Color'**
+  String get selectCustomColor;
+
+  /// No description provided for @joinTournamentShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {name} on EntreSets!'**
+  String joinTournamentShare(Object name);
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Name (e.g. Men\'s A)'**
+  String get categoryNameHint;
+
+  /// No description provided for @typeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get typeLabel;
+
+  /// No description provided for @configureAvailableTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure available times.'**
+  String get configureAvailableTimes;
+
+  /// No description provided for @metadataJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata (JSON)'**
+  String get metadataJson;
+
+  /// No description provided for @errorUploadingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error uploading image: {error}'**
+  String errorUploadingImage(Object error);
+
+  /// No description provided for @errorDeletingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting image: {error}'**
+  String errorDeletingImage(Object error);
+
+  /// No description provided for @changeStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Status'**
+  String get changeStatus;
+
+  /// No description provided for @nSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String nSelected(Object count);
+
+  /// No description provided for @updatedMatchesStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {count} matches to {status}'**
+  String updatedMatchesStatus(Object count, Object status);
+
+  /// No description provided for @errorUpdatingMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating matches: {error}'**
+  String errorUpdatingMatches(Object error);
+
+  /// No description provided for @markScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Scheduled'**
+  String get markScheduled;
+
+  /// No description provided for @markConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Confirmed'**
+  String get markConfirmed;
+
+  /// No description provided for @markStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Started'**
+  String get markStarted;
+
+  /// No description provided for @markFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Finished'**
+  String get markFinished;
+
+  /// No description provided for @markCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Cancelled'**
+  String get markCancelled;
+
+  /// No description provided for @tournamentScenarios.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Scenarios'**
+  String get tournamentScenarios;
+
+  /// No description provided for @tournamentScenariosDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create tournaments with pre-filled data to test bracket generation and user flows.'**
+  String get tournamentScenariosDesc;
+
+  /// No description provided for @openTennisRoundRobinDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Round-robin groups with playoff bracket for group winners.'**
+  String get openTennisRoundRobinDesc;
+
+  /// No description provided for @simulationCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation \"{name}\" created successfully!'**
+  String simulationCreated(Object name);
+
+  /// No description provided for @openTennisCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis \"{name}\" created successfully!'**
+  String openTennisCreated(Object name);
+
+  /// No description provided for @simSmallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Small Tournament'**
+  String get simSmallTitle;
+
+  /// No description provided for @simSmallDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'4 Players, 1 Category. Simple bracket.'**
+  String get simSmallDesc;
+
+  /// No description provided for @simStandardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard Tournament'**
+  String get simStandardTitle;
+
+  /// No description provided for @simStandardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'8 Players, 1 Category. Quarter-finals start.'**
+  String get simStandardDesc;
+
+  /// No description provided for @simLargeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Large Tournament'**
+  String get simLargeTitle;
+
+  /// No description provided for @simLargeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'16 Players, 1 Category. Round of 16.'**
+  String get simLargeDesc;
+
+  /// No description provided for @simOddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd Players (Byes)'**
+  String get simOddTitle;
+
+  /// No description provided for @simOddDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'5 Players. Tests bye generation logic.'**
+  String get simOddDesc;
+
+  /// No description provided for @simMultiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-Category'**
+  String get simMultiTitle;
+
+  /// No description provided for @simMultiDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Categories, 4 Players each (Total 8).'**
+  String get simMultiDesc;
+
+  /// No description provided for @simOT4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis - 4 Players'**
+  String get simOT4Title;
+
+  /// No description provided for @simOT4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Groups, 3 points/win. Round-robin groups.'**
+  String get simOT4Desc;
+
+  /// No description provided for @simOT6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis - 6 Players'**
+  String get simOT6Title;
+
+  /// No description provided for @simOT6Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Groups, 3 points/win. 3 players per group.'**
+  String get simOT6Desc;
+
+  /// No description provided for @simOT8_2gTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis - 8 Players (2 Groups)'**
+  String get simOT8_2gTitle;
+
+  /// No description provided for @simOT8_2gDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Groups, 3 points/win. 4 players per group.'**
+  String get simOT8_2gDesc;
+
+  /// No description provided for @simOT8_4gTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Tennis - 8 Players (4 Groups)'**
+  String get simOT8_4gTitle;
+
+  /// No description provided for @simOT8_4gDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'4 Groups, 3 points/win. 2 players per group.'**
+  String get simOT8_4gDesc;
 }
 
 class _AppLocalizationsDelegate

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/debug/application/simulation_service.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class SimulationScreen extends ConsumerStatefulWidget {
   const SimulationScreen({super.key});
@@ -25,14 +26,16 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
           );
       
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Simulation "$name" created successfully!')),
+          SnackBar(content: Text(loc.simulationCreated(name))),
         );
       }
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
         );
       }
     } finally {
@@ -53,16 +56,18 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
             groupCount: groups,
             pointsPerWin: points,
           );
-      
+
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Open Tennis "$name" created successfully!')),
+          SnackBar(content: Text(loc.openTennisCreated(name))),
         );
       }
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
         );
       }
     } finally {
@@ -74,93 +79,94 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Simulation & Debug'),
+        title: Text(loc.simulationDebug),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            'Tournament Scenarios',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            loc.tournamentScenarios,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Create tournaments with pre-filled data to test bracket generation and user flows.',
-            style: TextStyle(color: Colors.grey),
+          Text(
+            loc.tournamentScenariosDesc,
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
           _SimulationCard(
-            title: 'Small Tournament',
-            description: '4 Players, 1 Category. Simple bracket.',
+            title: loc.simSmallTitle,
+            description: loc.simSmallDesc,
             icon: Icons.person_outline,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Small (4P)', 4, 1),
           ),
           _SimulationCard(
-            title: 'Standard Tournament',
-            description: '8 Players, 1 Category. Quarter-finals start.',
+            title: loc.simStandardTitle,
+            description: loc.simStandardDesc,
             icon: Icons.people_outline,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Standard (8P)', 8, 1),
           ),
           _SimulationCard(
-            title: 'Large Tournament',
-            description: '16 Players, 1 Category. Round of 16.',
+            title: loc.simLargeTitle,
+            description: loc.simLargeDesc,
             icon: Icons.groups_outlined,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Large (16P)', 16, 1),
           ),
           _SimulationCard(
-            title: 'Odd Players (Byes)',
-            description: '5 Players. Tests bye generation logic.',
+            title: loc.simOddTitle,
+            description: loc.simOddDesc,
             icon: Icons.filter_5,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Odd (5P)', 5, 1),
           ),
           _SimulationCard(
-            title: 'Multi-Category',
-            description: '2 Categories, 4 Players each (Total 8).',
+            title: loc.simMultiTitle,
+            description: loc.simMultiDesc,
             icon: Icons.category_outlined,
             isLoading: _isLoading,
             onTap: () => _runSimulation('Sim: Multi (2x4P)', 4, 2),
           ),
           const Divider(height: 32),
-          const Text(
-            'Open Tennis Mode',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            loc.openTennisMode,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Round-robin groups with playoff bracket for group winners.',
-            style: TextStyle(color: Colors.grey),
+          Text(
+            loc.openTennisRoundRobinDesc,
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 16),
           _SimulationCard(
-            title: 'Open Tennis - 4 Players',
-            description: '2 Groups, 3 points/win. Round-robin groups.',
+            title: loc.simOT4Title,
+            description: loc.simOT4Desc,
             icon: Icons.group,
             isLoading: _isLoading,
             onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (4P)', 4, 2, 3),
           ),
           _SimulationCard(
-            title: 'Open Tennis - 6 Players',
-            description: '2 Groups, 3 points/win. 3 players per group.',
+            title: loc.simOT6Title,
+            description: loc.simOT6Desc,
             icon: Icons.group,
             isLoading: _isLoading,
             onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (6P)', 6, 2, 3),
           ),
           _SimulationCard(
-            title: 'Open Tennis - 8 Players (2 Groups)',
-            description: '2 Groups, 3 points/win. 4 players per group.',
+            title: loc.simOT8_2gTitle,
+            description: loc.simOT8_2gDesc,
             icon: Icons.group,
             isLoading: _isLoading,
             onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (8P 2G)', 8, 2, 3),
           ),
           _SimulationCard(
-            title: 'Open Tennis - 8 Players (4 Groups)',
-            description: '4 Groups, 3 points/win. 2 players per group.',
+            title: loc.simOT8_4gTitle,
+            description: loc.simOT8_4gDesc,
             icon: Icons.group,
             isLoading: _isLoading,
             onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (8P 4G)', 8, 4, 3),
@@ -169,7 +175,7 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
           FilledButton.icon(
             onPressed: () => context.go('/'),
             icon: const Icon(Icons.home),
-            label: const Text('Go to Home'),
+            label: Text(loc.goToHome),
           ),
         ],
       ),

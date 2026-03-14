@@ -83,7 +83,7 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error uploading image: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage(e.toString()))),
         );
       }
       print('Error uploading image: $e');
@@ -119,7 +119,7 @@ class _MediaLibraryPickerState extends ConsumerState<MediaLibraryPicker> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting image: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorDeletingImage(e.toString()))),
         );
       }
     }

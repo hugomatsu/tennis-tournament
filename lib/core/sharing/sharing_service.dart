@@ -9,6 +9,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tennis_tournament/core/widgets/web_share_modal.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
 final sharingServiceProvider = Provider((ref) => SharingService());
@@ -79,15 +80,17 @@ class SharingService {
       );
       
       if (context != null && context.mounted) {
+        final loc = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image saved successfully!')),
+          SnackBar(content: Text(loc.imageSaved)),
         );
       }
     } catch (e) {
       debugPrint('Error saving widget: $e');
       if (context != null && context.mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving image: $e')),
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.errorSavingImage(e.toString()))),
         );
       }
       rethrow;
@@ -168,8 +171,9 @@ class SharingService {
           mimeType: MimeType.png,
         );
         if (context != null && context.mounted) {
+          final loc = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Image downloaded!')),
+            SnackBar(content: Text(loc.imageDownloaded)),
           );
         }
       } else {
@@ -178,22 +182,24 @@ class SharingService {
         if (clipboard == null) {
           throw Exception('Clipboard not available');
         }
-        
+
         final item = DataWriterItem();
         item.add(Formats.png(image));
         await clipboard.write([item]);
-        
+
         if (context != null && context.mounted) {
+          final loc = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Image copied to clipboard!')),
+            SnackBar(content: Text(loc.imageCopied)),
           );
         }
       }
     } catch (e) {
       debugPrint('Error copying to clipboard: $e');
       if (context != null && context.mounted) {
+        final loc = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error copying: $e')),
+          SnackBar(content: Text(loc.errorCopying(e.toString()))),
         );
       }
     }

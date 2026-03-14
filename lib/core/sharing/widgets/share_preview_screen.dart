@@ -370,7 +370,7 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Custom Color'),
+        title: Text(AppLocalizations.of(context)!.selectCustomColor),
         content: SizedBox(
           width: 280,
           child: Wrap(
@@ -408,7 +408,7 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),

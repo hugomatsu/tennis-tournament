@@ -1177,4 +1177,191 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sundayShort => 'Sun';
+
+  @override
+  String get copyLink => 'Copy Link';
+
+  @override
+  String get shareOnTwitter => 'Share on X (Twitter)';
+
+  @override
+  String get shareOnWhatsApp => 'Share on WhatsApp';
+
+  @override
+  String get downloadImage => 'Download Image';
+
+  @override
+  String get imageSaved => 'Image saved successfully!';
+
+  @override
+  String errorSavingImage(Object error) {
+    return 'Error saving image: $error';
+  }
+
+  @override
+  String get imageDownloaded => 'Image downloaded!';
+
+  @override
+  String get imageCopied => 'Image copied to clipboard!';
+
+  @override
+  String errorCopying(Object error) {
+    return 'Error copying: $error';
+  }
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get passwordMinLength => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get helpAndGuide => 'Help & Guide';
+
+  @override
+  String get selectCustomColor => 'Select Custom Color';
+
+  @override
+  String joinTournamentShare(Object name) {
+    return 'Join $name on EntreSets!';
+  }
+
+  @override
+  String get categoryNameHint => 'Category Name (e.g. Men\'s A)';
+
+  @override
+  String get typeLabel => 'Type';
+
+  @override
+  String get configureAvailableTimes => 'Configure available times.';
+
+  @override
+  String get metadataJson => 'Metadata (JSON)';
+
+  @override
+  String errorUploadingImage(Object error) {
+    return 'Error uploading image: $error';
+  }
+
+  @override
+  String errorDeletingImage(Object error) {
+    return 'Error deleting image: $error';
+  }
+
+  @override
+  String get changeStatus => 'Change Status';
+
+  @override
+  String nSelected(Object count) {
+    return '$count selected';
+  }
+
+  @override
+  String updatedMatchesStatus(Object count, Object status) {
+    return 'Updated $count matches to $status';
+  }
+
+  @override
+  String errorUpdatingMatches(Object error) {
+    return 'Error updating matches: $error';
+  }
+
+  @override
+  String get markScheduled => 'Mark Scheduled';
+
+  @override
+  String get markConfirmed => 'Mark Confirmed';
+
+  @override
+  String get markStarted => 'Mark Started';
+
+  @override
+  String get markFinished => 'Mark Finished';
+
+  @override
+  String get markCancelled => 'Mark Cancelled';
+
+  @override
+  String get tournamentScenarios => 'Tournament Scenarios';
+
+  @override
+  String get tournamentScenariosDesc =>
+      'Create tournaments with pre-filled data to test bracket generation and user flows.';
+
+  @override
+  String get openTennisRoundRobinDesc =>
+      'Round-robin groups with playoff bracket for group winners.';
+
+  @override
+  String simulationCreated(Object name) {
+    return 'Simulation \"$name\" created successfully!';
+  }
+
+  @override
+  String openTennisCreated(Object name) {
+    return 'Open Tennis \"$name\" created successfully!';
+  }
+
+  @override
+  String get simSmallTitle => 'Small Tournament';
+
+  @override
+  String get simSmallDesc => '4 Players, 1 Category. Simple bracket.';
+
+  @override
+  String get simStandardTitle => 'Standard Tournament';
+
+  @override
+  String get simStandardDesc => '8 Players, 1 Category. Quarter-finals start.';
+
+  @override
+  String get simLargeTitle => 'Large Tournament';
+
+  @override
+  String get simLargeDesc => '16 Players, 1 Category. Round of 16.';
+
+  @override
+  String get simOddTitle => 'Odd Players (Byes)';
+
+  @override
+  String get simOddDesc => '5 Players. Tests bye generation logic.';
+
+  @override
+  String get simMultiTitle => 'Multi-Category';
+
+  @override
+  String get simMultiDesc => '2 Categories, 4 Players each (Total 8).';
+
+  @override
+  String get simOT4Title => 'Open Tennis - 4 Players';
+
+  @override
+  String get simOT4Desc => '2 Groups, 3 points/win. Round-robin groups.';
+
+  @override
+  String get simOT6Title => 'Open Tennis - 6 Players';
+
+  @override
+  String get simOT6Desc => '2 Groups, 3 points/win. 3 players per group.';
+
+  @override
+  String get simOT8_2gTitle => 'Open Tennis - 8 Players (2 Groups)';
+
+  @override
+  String get simOT8_2gDesc => '2 Groups, 3 points/win. 4 players per group.';
+
+  @override
+  String get simOT8_4gTitle => 'Open Tennis - 8 Players (4 Groups)';
+
+  @override
+  String get simOT8_4gDesc => '4 Groups, 3 points/win. 2 players per group.';
 }

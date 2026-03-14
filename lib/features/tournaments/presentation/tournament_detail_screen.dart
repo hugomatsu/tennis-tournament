@@ -69,7 +69,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                            final url = 'https://tennis-tournment.web.app/t/${tournament.id}'; 
                            ref.read(sharingServiceProvider).shareUrl(
                              url,
-                             subject: 'Join ${tournament.name} on EntreSets!', 
+                             subject: loc.joinTournamentShare(tournament.name),
                              context: context,
                            );
                            ref.read(analyticsServiceProvider).logShareTournament(tournamentName: tournament.name);
@@ -307,102 +307,106 @@ class TournamentDetailScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Tournament'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: descController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-              ),
-              TextField(
-                controller: locationController,
-                decoration: const InputDecoration(labelText: 'Location'),
-              ),
-              TextField(
-                controller: dateController,
-                decoration: const InputDecoration(labelText: 'Date Range'),
-              ),
-              const SizedBox(height: 16),
-              // Tournament Mode indicator
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: tournament.tournamentType == 'openTennis' 
-                      ? Colors.blue.withOpacity(0.1) 
-                      : Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+      builder: (context) {
+        final loc = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(loc.editTournament),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: loc.name),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      tournament.tournamentType == 'openTennis' 
-                          ? Icons.group : Icons.emoji_events,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      tournament.tournamentType == 'openTennis' 
-                          ? 'Open Tennis (Groups)' 
-                          : 'Mata-Mata (Elimination)',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                TextField(
+                  controller: descController,
+                  decoration: InputDecoration(labelText: loc.description),
+                  maxLines: 3,
                 ),
-              ),
-              // Open Tennis specific fields
-              if (tournament.tournamentType == 'openTennis') ...[
+                TextField(
+                  controller: locationController,
+                  decoration: InputDecoration(labelText: loc.location),
+                ),
+                TextField(
+                  controller: dateController,
+                  decoration: InputDecoration(labelText: loc.dateRange),
+                ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: groupCountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Number of Groups',
-                    helperText: '0 = automatic',
+                // Tournament Mode indicator
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: tournament.tournamentType == 'openTennis'
+                        ? Colors.blue.withOpacity(0.1)
+                        : Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: pointsPerWinController,
-                  decoration: const InputDecoration(
-                    labelText: 'Points per Win',
+                  child: Row(
+                    children: [
+                      Icon(
+                        tournament.tournamentType == 'openTennis'
+                            ? Icons.group
+                            : Icons.emoji_events,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        tournament.tournamentType == 'openTennis'
+                            ? loc.openTennisGroups
+                            : loc.mataMataElimination,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                  keyboardType: TextInputType.number,
                 ),
+                // Open Tennis specific fields
+                if (tournament.tournamentType == 'openTennis') ...[
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: groupCountController,
+                    decoration: InputDecoration(
+                      labelText: loc.numberOfGroups,
+                      helperText: loc.autoGroupsHint,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: pointsPerWinController,
+                    decoration: InputDecoration(
+                      labelText: loc.pointsPerWin,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final updated = tournament.copyWith(
-                name: nameController.text,
-                description: descController.text,
-                location: locationController.text,
-                dateRange: dateController.text,
-                groupCount: int.tryParse(groupCountController.text) ?? tournament.groupCount,
-                pointsPerWin: int.tryParse(pointsPerWinController.text) ?? tournament.pointsPerWin,
-              );
-              await ref.read(tournamentRepositoryProvider).updateTournament(updated);
-              ref.invalidate(tournamentDetailProvider(tournament.id));
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(loc.cancel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final updated = tournament.copyWith(
+                  name: nameController.text,
+                  description: descController.text,
+                  location: locationController.text,
+                  dateRange: dateController.text,
+                  groupCount: int.tryParse(groupCountController.text) ?? tournament.groupCount,
+                  pointsPerWin: int.tryParse(pointsPerWinController.text) ?? tournament.pointsPerWin,
+                );
+                await ref.read(tournamentRepositoryProvider).updateTournament(updated);
+                ref.invalidate(tournamentDetailProvider(tournament.id));
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: Text(loc.save),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -455,13 +459,13 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Text('Error: $err'),
+          error: (err, stack) => Text(AppLocalizations.of(context)!.errorGeneric(err.toString())),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(AppLocalizations.of(context)!.close),
         ),
       ],
     );
@@ -477,36 +481,37 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
+          final loc = AppLocalizations.of(context)!;
           return AlertDialog(
-            title: const Text('Add Category'),
+            title: Text(loc.addCategory),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Category Name (e.g. Men\'s A)'),
+                    decoration: InputDecoration(labelText: loc.categoryNameHint),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: InputDecoration(labelText: loc.description),
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: type,
-                    decoration: const InputDecoration(labelText: 'Type'),
-                    items: const [
-                      DropdownMenuItem(value: 'singles', child: Text('Singles')),
-                      DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                    decoration: InputDecoration(labelText: loc.typeLabel),
+                    items: [
+                      DropdownMenuItem(value: 'singles', child: Text(loc.singles)),
+                      DropdownMenuItem(value: 'doubles', child: Text(loc.doubles)),
                     ],
                     onChanged: (val) => setState(() => type = val!),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: durationController,
-                    decoration: const InputDecoration(labelText: 'Match Duration (minutes)'),
+                    decoration: InputDecoration(labelText: loc.matchDurationMinutes),
                     keyboardType: TextInputType.number,
                   ),
                 ],
@@ -515,7 +520,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
+                child: Text(loc.cancel),
               ),
               FilledButton(
                 onPressed: () async {
@@ -533,7 +538,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                   ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
                   if (context.mounted) Navigator.pop(context);
                 },
-                child: const Text('Add'),
+                child: Text(loc.add),
               ),
             ],
           );
@@ -552,68 +557,69 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
+          final loc = AppLocalizations.of(context)!;
           return AlertDialog(
-            title: const Text('Edit Category'),
+            title: Text(loc.editCategory),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Category Name'),
+                    decoration: InputDecoration(labelText: loc.name),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: InputDecoration(labelText: loc.description),
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: type,
-                    decoration: const InputDecoration(labelText: 'Type'),
-                    items: const [
-                      DropdownMenuItem(value: 'singles', child: Text('Singles')),
-                      DropdownMenuItem(value: 'doubles', child: Text('Doubles')),
+                    decoration: InputDecoration(labelText: loc.typeLabel),
+                    items: [
+                      DropdownMenuItem(value: 'singles', child: Text(loc.singles)),
+                      DropdownMenuItem(value: 'doubles', child: Text(loc.doubles)),
                     ],
                     onChanged: (val) => setState(() => type = val!),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: durationController,
-                    decoration: const InputDecoration(labelText: 'Match Duration (minutes)'),
+                    decoration: InputDecoration(labelText: loc.matchDurationMinutes),
                     keyboardType: TextInputType.number,
                   ),
                 ],
               ),
             ),
             actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (nameController.text.isEmpty) return;
-                final duration = int.tryParse(durationController.text) ?? 90;
-                final updated = category.copyWith(
-                  name: nameController.text,
-                  type: type,
-                  description: descController.text,
-                  matchDurationMinutes: duration,
-                );
-                await ref.read(tournamentRepositoryProvider).updateCategory(updated);
-                ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
-                if (context.mounted) Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-}
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(loc.cancel),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (nameController.text.isEmpty) return;
+                  final duration = int.tryParse(durationController.text) ?? 90;
+                  final updated = category.copyWith(
+                    name: nameController.text,
+                    type: type,
+                    description: descController.text,
+                    matchDurationMinutes: duration,
+                  );
+                  await ref.read(tournamentRepositoryProvider).updateCategory(updated);
+                  ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: Text(loc.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _InfoTab extends ConsumerWidget {
@@ -1061,7 +1067,7 @@ class _InfoTab extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, __) => Text('Error: $e'),
+                error: (e, __) => Text(AppLocalizations.of(context)!.errorGeneric(e.toString())),
               ),
             ],
           ),

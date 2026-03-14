@@ -67,7 +67,7 @@ class _ScheduleSettingsScreenState extends ConsumerState<ScheduleSettingsScreen>
                   children: [
                     Expanded(
                       child: Text(
-                        'Configure available times.',
+                        AppLocalizations.of(context)!.configureAvailableTimes,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),

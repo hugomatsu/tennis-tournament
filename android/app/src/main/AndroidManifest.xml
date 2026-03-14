@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="tennis_tournament"
+        android:label="Entre Sets"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

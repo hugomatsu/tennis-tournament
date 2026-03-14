@@ -134,9 +134,9 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                                 color: Colors.white,
                               ),
                               const SizedBox(height: 8),
-                              const Text(
-                                'WINNER',
-                                style: TextStyle(
+                              Text(
+                                loc.winner.toUpperCase(),
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 4,

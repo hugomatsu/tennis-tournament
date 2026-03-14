@@ -33,8 +33,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // Navigation is handled by the router redirect
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
         );
       }
     } finally {

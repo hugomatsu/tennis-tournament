@@ -49,16 +49,18 @@ class _MatchCalendarTabState extends ConsumerState<MatchCalendarTab> {
         _selectedIds.toList(),
         status,
       );
+      final loc = AppLocalizations.of(context)!;
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Updated ${_selectedIds.length} matches to $status')),
+        SnackBar(content: Text(loc.updatedMatchesStatus(_selectedIds.length, status))),
       );
       setState(() {
         _selectedIds.clear();
         _isSelectionMode = false;
       });
     } catch (e) {
+      final loc = AppLocalizations.of(context)!;
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Error updating matches: $e')),
+        SnackBar(content: Text(loc.errorUpdatingMatches(e.toString()))),
       );
     }
   }
@@ -89,7 +91,7 @@ class _MatchCalendarTabState extends ConsumerState<MatchCalendarTab> {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Center(child: Text('Error: $e')),
+          error: (e, s) => Center(child: Text(loc.errorGeneric(e.toString()))),
         ),
         if (_isSelectionMode)
           Positioned(
@@ -104,20 +106,20 @@ class _MatchCalendarTabState extends ConsumerState<MatchCalendarTab> {
                 child: Row(
                   children: [
                     Text(
-                      '${_selectedIds.length} selected',
+                      loc.nSelected(_selectedIds.length),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.edit_note),
-                      tooltip: 'Change Status',
+                      tooltip: loc.changeStatus,
                       onSelected: _updateStatus,
                       itemBuilder: (context) => [
-                        const PopupMenuItem(value: 'Scheduled', child: Text('Mark Scheduled')),
-                        const PopupMenuItem(value: 'Confirmed', child: Text('Mark Confirmed')),
-                        const PopupMenuItem(value: 'Started', child: Text('Mark Started')),
-                        const PopupMenuItem(value: 'Finished', child: Text('Mark Finished')),
-                        const PopupMenuItem(value: 'Cancelled', child: Text('Mark Cancelled')),
+                        PopupMenuItem(value: 'Scheduled', child: Text(loc.markScheduled)),
+                        PopupMenuItem(value: 'Confirmed', child: Text(loc.markConfirmed)),
+                        PopupMenuItem(value: 'Started', child: Text(loc.markStarted)),
+                        PopupMenuItem(value: 'Finished', child: Text(loc.markFinished)),
+                        PopupMenuItem(value: 'Cancelled', child: Text(loc.markCancelled)),
                       ],
                     ),
                     IconButton(

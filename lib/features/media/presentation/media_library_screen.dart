@@ -60,7 +60,7 @@ class _MediaLibraryScreenState extends ConsumerState<MediaLibraryScreen> {
                     Text('${loc.size}:', style: Theme.of(context).textTheme.titleSmall),
                     Text(_formatBytes(asset.size)),
                     const SizedBox(height: 12),
-                    Text('Metadata (JSON):', style: Theme.of(context).textTheme.titleSmall),
+                    Text('${loc.metadataJson}:', style: Theme.of(context).textTheme.titleSmall),
                     SelectableText(asset.toJson().toString()),
                     const SizedBox(height: 16),
                     ElevatedButton(

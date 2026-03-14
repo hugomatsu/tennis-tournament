@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tennis_tournament/core/theme/app_theme.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WebShareModal extends StatelessWidget {
@@ -19,6 +19,7 @@ class WebShareModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -39,14 +40,14 @@ class WebShareModal extends StatelessWidget {
               _buildOption(
                 context,
                 icon: Icons.copy,
-                label: 'Copy Link',
+                label: loc.copyLink,
                 onTap: () async {
                   final dataToCopy = url ?? text;
                   await Clipboard.setData(ClipboardData(text: dataToCopy));
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard!')),
+                      SnackBar(content: Text(loc.copiedToClipboard)),
                     );
                   }
                 },
@@ -55,8 +56,8 @@ class WebShareModal extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildOption(
                   context,
-                  icon: Icons.alternate_email, // Generic social icon
-                  label: 'Share on X (Twitter)',
+                  icon: Icons.alternate_email,
+                  label: loc.shareOnTwitter,
                   onTap: () {
                     _launchSocial(
                         'https://twitter.com/intent/tweet?text=${Uri.encodeComponent(text)}&url=${Uri.encodeComponent(url!)}');
@@ -66,7 +67,7 @@ class WebShareModal extends StatelessWidget {
                 _buildOption(
                   context,
                   icon: Icons.message,
-                  label: 'Share on WhatsApp',
+                  label: loc.shareOnWhatsApp,
                   onTap: () {
                     _launchSocial(
                         'https://wa.me/?text=${Uri.encodeComponent("$text $url")}');
@@ -78,7 +79,7 @@ class WebShareModal extends StatelessWidget {
                 _buildOption(
                   context,
                   icon: Icons.download,
-                  label: 'Download Image',
+                  label: loc.downloadImage,
                   onTap: () {
                     onDownloadImage!();
                     Navigator.of(context).pop();
@@ -88,7 +89,7 @@ class WebShareModal extends StatelessWidget {
               const SizedBox(height: 24),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                child: Text(loc.close),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -40,7 +41,7 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help & Guide'),
+        title: Text(AppLocalizations.of(context)!.helpAndGuide),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
