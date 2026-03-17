@@ -373,19 +373,18 @@ final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, Tour
       }
     }
     
-    // Single filter - check tournament type or name for singles
+    // Single filter - check tournament format or name for singles
     if (params.single) {
-      // Check tournamentType field first, then fall back to name
-      final isSingles = t.tournamentType == 'singles' ||
-                        t.name.toLowerCase().contains('single') || 
+      final isSingles = t.format == 'singles' ||
+                        t.name.toLowerCase().contains('single') ||
                         t.name.toLowerCase().contains('simples');
       if (!isSingles) return false;
     }
-    
-    // Team filter - check tournament type for doubles/team
+
+    // Team filter - check tournament format for doubles/team
     if (params.team) {
-      final isTeam = t.tournamentType == 'doubles' ||
-                     t.name.toLowerCase().contains('double') || 
+      final isTeam = t.format == 'doubles' ||
+                     t.name.toLowerCase().contains('double') ||
                      t.name.toLowerCase().contains('dupla') ||
                      t.name.toLowerCase().contains('duplas') ||
                      t.name.toLowerCase().contains('team');

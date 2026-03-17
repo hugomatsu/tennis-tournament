@@ -58,7 +58,7 @@ class SharingService {
         ),
       );
     } else {
-      await Share.share(url, subject: subject);
+      await SharePlus.instance.share(ShareParams(text: url, subject: subject));
     }
   }
 
@@ -213,38 +213,7 @@ class SharingService {
   }) async {
     try {
       final image = await _captureWidget(widget, withBackground, context);
-
-      final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}';
-
-      if (kIsWeb && context != null) {
-         await showDialog(
-          context: context,
-          builder: (context) => WebShareModal(
-            title: subject,
-            text: 'Here is the $subject',
-            onDownloadImage: () async {
-              await FileSaver.instance.saveFile(
-                name: fileName,
-                bytes: image,
-                mimeType: MimeType.png,
-              );
-            },
-          ),
-        );
-      } else {
-         final fileNameWithExt = '$fileName.png';
-         await Share.shareXFiles(
-          [
-            XFile.fromData(
-              image,
-              name: fileNameWithExt,
-              mimeType: 'image/png',
-            ),
-          ],
-          subject: subject,
-        );
-      }
-      
+      await shareImageBytes(imageBytes: image, subject: subject);
     } catch (e) {
       debugPrint('Error sharing widget: $e');
       rethrow;
@@ -266,40 +235,80 @@ class SharingService {
         customColor: customColor,
         context: context,
       );
-
-      final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}';
-
-      if (kIsWeb && context != null) {
-        await showDialog(
-          context: context,
-          builder: (context) => WebShareModal(
-            title: subject,
-            text: 'Here is the $subject',
-            onDownloadImage: () async {
-              await FileSaver.instance.saveFile(
-                name: fileName,
-                bytes: image,
-                mimeType: MimeType.png,
-              );
-            },
-          ),
-        );
-      } else {
-        final fileNameWithExt = '$fileName.png';
-        await Share.shareXFiles(
-          [
-            XFile.fromData(
-              image,
-              name: fileNameWithExt,
-              mimeType: 'image/png',
-            ),
-          ],
-          subject: subject,
-        );
-      }
+      await shareImageBytes(imageBytes: image, subject: subject);
     } catch (e) {
       debugPrint('Error sharing widget: $e');
       rethrow;
+    }
+  }
+
+  /// Share raw image bytes. Saves to a temp file first so native apps (e.g.
+  /// Instagram) receive a real content URI instead of in-memory data.
+  Future<void> shareImageBytes({
+    required Uint8List imageBytes,
+    required String subject,
+    BuildContext? context,
+  }) async {
+    final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}';
+
+    if (kIsWeb && context != null) {
+      await showDialog(
+        context: context,
+        builder: (ctx) => WebShareModal(
+          title: subject,
+          text: 'Here is the $subject',
+          onDownloadImage: () async {
+            await FileSaver.instance.saveFile(
+              name: fileName,
+              bytes: imageBytes,
+              mimeType: MimeType.png,
+            );
+          },
+        ),
+      );
+    } else {
+      // Save to a real temp file — required for apps like Instagram that expect
+      // a content URI rather than in-memory data.
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$fileName.png');
+      await file.writeAsBytes(imageBytes);
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], subject: subject),
+      );
+    }
+  }
+
+  /// Copy raw image bytes to clipboard.
+  Future<void> copyImageBytes({
+    required Uint8List imageBytes,
+    BuildContext? context,
+  }) async {
+    if (kIsWeb) {
+      final fileName = 'share_${DateTime.now().millisecondsSinceEpoch}';
+      await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: imageBytes,
+        mimeType: MimeType.png,
+      );
+      if (context != null && context.mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.imageDownloaded)),
+        );
+      }
+    } else {
+      final clipboard = SystemClipboard.instance;
+      if (clipboard == null) throw Exception('Clipboard not available');
+      final item = DataWriterItem();
+      item.add(Formats.png(imageBytes));
+      await clipboard.write([item]);
+
+      if (context != null && context.mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.imageCopied)),
+        );
+      }
     }
   }
 }

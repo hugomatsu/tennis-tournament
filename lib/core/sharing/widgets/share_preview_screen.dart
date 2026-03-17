@@ -1,4 +1,8 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/core/sharing/sharing_service.dart';
@@ -45,6 +49,7 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   Color? _customColor;
   bool _isLoading = false;
   final _transformController = TransformationController();
+  final _previewKey = GlobalKey();
 
   @override
   void dispose() {
@@ -238,14 +243,18 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
 
     return Stack(
       children: [
-        // Zoomable / pannable preview
-        InteractiveViewer(
-          transformationController: _transformController,
-          constrained: false,
-          minScale: 0.1,
-          maxScale: 5.0,
-          boundaryMargin: const EdgeInsets.all(double.infinity),
-          child: content,
+        // Zoomable / pannable preview — wrapped in RepaintBoundary so that
+        // _captureVisiblePreview() captures exactly what the user sees.
+        RepaintBoundary(
+          key: _previewKey,
+          child: InteractiveViewer(
+            transformationController: _transformController,
+            constrained: false,
+            minScale: 0.1,
+            maxScale: 5.0,
+            boundaryMargin: const EdgeInsets.all(double.infinity),
+            child: content,
+          ),
         ),
 
         // Zoom controls — top-right corner of the preview box
@@ -473,17 +482,23 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
     );
   }
 
+  /// Captures exactly what is visible in the preview — respects zoom and pan.
+  Future<Uint8List> _captureVisiblePreview() async {
+    final boundary =
+        _previewKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) throw StateError('Preview not ready');
+    final image = await boundary.toImage(pixelRatio: 3.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
   Future<void> _handleCopy() async {
     setState(() => _isLoading = true);
     try {
+      final bytes = await _captureVisiblePreview();
       final service = ref.read(sharingServiceProvider);
-      await service.copyWidgetToClipboard(
-        widget: widget.shareWidget,
-        backgroundColor: _selectedColor,
-        customColor: _customColor,
-        context: context,
-      );
-      // Note: Snackbar is shown in the service for mobile, not here
+      if (!mounted) return;
+      await service.copyImageBytes(imageBytes: bytes, context: context);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -492,14 +507,9 @@ class _SharePreviewScreenState extends ConsumerState<SharePreviewScreen> {
   Future<void> _handleShare() async {
     setState(() => _isLoading = true);
     try {
+      final bytes = await _captureVisiblePreview();
       final service = ref.read(sharingServiceProvider);
-      await service.shareWidgetWithColor(
-        widget: widget.shareWidget,
-        subject: widget.shareSubject,
-        backgroundColor: _selectedColor,
-        customColor: _customColor,
-        context: context,
-      );
+      await service.shareImageBytes(imageBytes: bytes, subject: widget.shareSubject);
       widget.onShare?.call();
       if (mounted) Navigator.pop(context);
     } finally {
