@@ -38,7 +38,9 @@ exports.onMatchUpdated = onDocumentUpdated("matches/{matchId}", async (event) =>
     let body = "";
     let type = "matchUpdate";
 
-    const matchLabel = `${afterData.player1Name || "A definir"} vs ${afterData.player2Name || "A definir"}`;
+    const p1Name = afterData.player1Name || "TBD";
+    const p2Name = afterData.player2Name || "TBD";
+    const matchLabel = `${p1Name} vs ${p2Name}`;
 
     const statusTranslations = {
         "Preparing": "Preparando",
@@ -50,18 +52,22 @@ exports.onMatchUpdated = onDocumentUpdated("matches/{matchId}", async (event) =>
     };
 
     if (winnerSet || scoreChanged) {
+        const winner = afterData.winner || "";
+        const opponent = winner === p1Name ? p2Name : p1Name;
         type = "result";
-        title = "Resultado do Jogo";
-        body = `${matchLabel}: ${afterData.score || ""}. Vencedor: ${afterData.winner || "A definir"}`;
+        title = winner ? `${winner} 🏆` : "Resultado do Jogo";
+        body = winner
+            ? `${winner} wins a match versus ${opponent}${afterData.score ? ` (${afterData.score})` : ""}`
+            : `${matchLabel}: ${afterData.score || ""}`;
     } else if (statusChanged) {
         type = "statusChange";
-        title = "Status do Jogo Atualizado";
+        title = "Match Updated";
         const localizedStatus = statusTranslations[afterData.status] || afterData.status;
-        body = `${matchLabel} agora está ${localizedStatus}`;
+        body = `${matchLabel} is now ${localizedStatus}`;
     } else if (dateChanged) {
         type = "dateChange";
-        title = "Jogo Reagendado";
-        body = `A data de ${matchLabel} foi atualizada`;
+        title = "Match Rescheduled";
+        body = `${matchLabel} has a new date`;
     }
 
     // Collect all relevant user IDs (participants + followers)

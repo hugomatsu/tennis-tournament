@@ -205,7 +205,15 @@
   "pleaseSelectLocation": "Por favor selecione um local",
   "all": "Todos",
   "mine": "Meus",
+  "participating": "Participando",
   "open": "Abertos",
+  "yours": "SEU",
+  "hostedBy": "Organizado por {name}",
+  "@hostedBy": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
   "mensSingles": "Simples Masc.",
   "womensSingles": "Simples Fem.",
   "doubles": "Duplas",
@@ -342,6 +350,8 @@
   "manual": "Manual",
   "close": "Fechar",
   "searchTournament": "Buscar torneios...",
+  "filter": "Filtros",
+  "clearAll": "Limpar tudo",
 
   "notifications": "Notificações",
   "noNotifications": "Nenhuma notificação ainda.",
@@ -425,5 +435,9 @@
   "simOT8_2gTitle": "Open Tennis - 8 Jogadores (2 Grupos)",
   "simOT8_2gDesc": "2 Grupos, 3 pontos/vitória. 4 jogadores por grupo.",
   "simOT8_4gTitle": "Open Tennis - 8 Jogadores (4 Grupos)",
-  "simOT8_4gDesc": "4 Grupos, 3 pontos/vitória. 2 jogadores por grupo."
+  "simOT8_4gDesc": "4 Grupos, 3 pontos/vitória. 2 jogadores por grupo.",
+  "addResults": "Adicionar Resultado",
+  "selectWinner": "Selecionar Vencedor",
+  "resultsAdded": "Resultado adicionado com sucesso!",
+  "dateAndTime": "Data e Hora"
 }

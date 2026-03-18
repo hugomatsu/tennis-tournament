@@ -184,6 +184,72 @@ class FirestoreTournamentRepository implements TournamentRepository {
   }
 
   @override
+  Future<List<Tournament>> getTournamentsParticipating(String userId) async {
+    try {
+      // Use collection group query to find all participant docs where user is in userIds
+      final participantSnapshot = await _firestore
+          .collectionGroup('participants')
+          .where('userIds', arrayContains: userId)
+          .get();
+
+      if (participantSnapshot.docs.isEmpty) return [];
+
+      // Extract unique tournament IDs from the participant doc paths
+      final tournamentIds = participantSnapshot.docs
+          .map((doc) => doc.reference.parent.parent?.id)
+          .whereType<String>()
+          .toSet();
+
+      if (tournamentIds.isEmpty) return [];
+
+      // Fetch each tournament (Firestore doesn't support whereIn with sets > 10, batch if needed)
+      final batches = <Future<List<Tournament>>>[];
+      final idList = tournamentIds.toList();
+      for (var i = 0; i < idList.length; i += 10) {
+        final batch = idList.sublist(i, i + 10 < idList.length ? i + 10 : idList.length);
+        batches.add(_fetchTournamentsByIds(batch));
+      }
+
+      final results = await Future.wait(batches);
+      return results.expand((list) => list).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<Tournament>> _fetchTournamentsByIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+    final snapshot = await _firestore
+        .collection('tournaments')
+        .where(FieldPath.documentId, whereIn: ids)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Tournament(
+        id: doc.id,
+        name: data['name'] as String,
+        status: data['status'] as String,
+        playersCount: data['playersCount'] as int,
+        location: data['location'] as String,
+        imageUrl: data['imageUrl'] as String,
+        description: data['description'] as String,
+        dateRange: data['dateRange'] as String,
+        category: data['category'] as String? ?? 'Open',
+        format: data['format'] as String? ?? 'singles',
+        locationId: data['locationId'] as String?,
+        ownerId: data['ownerId'] as String?,
+        adminIds: List<String>.from(data['adminIds'] ?? []),
+        scheduleRules: (data['scheduleRules'] as List<dynamic>?)
+            ?.map((e) => DailySchedule.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+        tournamentType: data['tournamentType'] as String? ?? 'mataMata',
+        groupCount: data['groupCount'] as int? ?? 0,
+        pointsPerWin: data['pointsPerWin'] as int? ?? 3,
+      );
+    }).toList();
+  }
+
+  @override
   Future<void> addCategory(TournamentCategory category) async {
     await _firestore
         .collection('tournaments')

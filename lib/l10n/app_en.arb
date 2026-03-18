@@ -224,7 +224,15 @@
   "pleaseSelectLocation": "Please select a location",
   "all": "All",
   "mine": "Mine",
+  "participating": "Participating",
   "open": "Open",
+  "yours": "YOURS",
+  "hostedBy": "Hosted by {name}",
+  "@hostedBy": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
   "mensSingles": "Men's Singles",
   "womensSingles": "Women's Singles",
   "doubles": "Doubles",
@@ -361,6 +369,8 @@
   "manual": "Manual",
   "close": "Close",
   "searchTournament": "Search tournaments...",
+  "filter": "Filters",
+  "clearAll": "Clear all",
 
   "notifications": "Notifications",
   "noNotifications": "No notifications yet.",
@@ -444,5 +454,9 @@
   "simOT8_2gTitle": "Open Tennis - 8 Players (2 Groups)",
   "simOT8_2gDesc": "2 Groups, 3 points/win. 4 players per group.",
   "simOT8_4gTitle": "Open Tennis - 8 Players (4 Groups)",
-  "simOT8_4gDesc": "4 Groups, 3 points/win. 2 players per group."
+  "simOT8_4gDesc": "4 Groups, 3 points/win. 2 players per group.",
+  "addResults": "Add Results",
+  "selectWinner": "Select Winner",
+  "resultsAdded": "Results added successfully!",
+  "dateAndTime": "Date & Time"
 }

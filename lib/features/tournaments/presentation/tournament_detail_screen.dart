@@ -269,14 +269,14 @@ class TournamentDetailScreen extends ConsumerWidget {
                                   colorBlendMode: BlendMode.darken,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Image.asset(
-                                    'assets/images/tournament_placeholder.png',
+                                    'assets/images/default-tournament.png',
                                     fit: BoxFit.cover,
                                     color: Colors.black.withValues(alpha: 0.4),
                                     colorBlendMode: BlendMode.darken,
                                   ),
                                 )
                               : Image.asset(
-                                  'assets/images/tournament_placeholder.png',
+                                  'assets/images/default-tournament.png',
                                   fit: BoxFit.cover,
                                   color: Colors.black.withValues(alpha: 0.4),
                                   colorBlendMode: BlendMode.darken,

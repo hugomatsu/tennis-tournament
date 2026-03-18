@@ -8,17 +8,36 @@ Build a signed Android App Bundle and upload it to Google Play Store (internal t
 
 ## Steps
 
-1. Stamp build_info.dart with the current version and UTC timestamp:
+1. Bump the build number in pubspec.yaml (keeps the version name, increments only the build number):
+```bash
+python3 - <<'EOF'
+import re, sys
+with open("pubspec.yaml", "r") as f:
+    content = f.read()
+m = re.search(r'^version:\s*(\d+\.\d+\.\d+)\+(\d+)', content, re.MULTILINE)
+if not m:
+    print("Could not parse version"); sys.exit(1)
+version_name, build = m.group(1), int(m.group(2))
+old = f"{version_name}+{build}"
+new = f"{version_name}+{build + 1}"
+content = content.replace(f"version: {old}", f"version: {new}", 1)
+with open("pubspec.yaml", "w") as f:
+    f.write(content)
+print(f"Bumped: {old}  →  {new}")
+EOF
+```
+
+2. Stamp build_info.dart with the current version and UTC timestamp:
 ```bash
 BUILD_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //') && BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && printf "// AUTO-GENERATED — do not edit manually.\n// Updated by the build script before each release build.\n// ignore_for_file: constant_identifier_names\n\nconst String kBuildVersion = '$BUILD_VERSION';\nconst String kBuildTime = '$BUILD_TIME';\n" > lib/core/build_info.dart && echo "Stamped: v$BUILD_VERSION @ $BUILD_TIME"
 ```
 
-2. Build the Android App Bundle (AAB) in release mode:
+3. Build the Android App Bundle (AAB) in release mode:
 ```bash
 flutter build appbundle --release
 ```
 
-3. Upload the AAB to Google Play internal track via fastlane supply:
+4. Upload the AAB to Google Play internal track via fastlane supply:
 ```bash
 fastlane supply \
   --aab build/app/outputs/bundle/release/app-release.aab \
@@ -31,5 +50,5 @@ fastlane supply \
   --skip_upload_screenshots true
 ```
 
-Run all three steps sequentially and report the output.
+Run all four steps sequentially and report the output including the new build number.
 After a successful upload, remind the user to promote the release to alpha/beta/production in the Google Play Console if needed.

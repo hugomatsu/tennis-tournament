@@ -2,10 +2,10 @@ Bump the version, build a signed Android App Bundle, and upload it to Google Pla
 
 ## Usage
 Accepts an optional track argument: `internal` (default), `alpha`, `beta`, or `production`
-- `/android-distribute` → uploads to internal testing (team only, no review)
-- `/android-distribute alpha` → closed testing
-- `/android-distribute beta` → open testing
-- `/android-distribute production` → public release (requires Google review)
+- `/android-build-play-store` → uploads to internal testing (team only, no review)
+- `/android-build-play-store alpha` → closed testing
+- `/android-build-play-store beta` → open testing
+- `/android-build-play-store production` → public release (requires Google review)
 
 ## Prerequisites (first-time setup only)
 - Fastlane installed: `gem install fastlane`

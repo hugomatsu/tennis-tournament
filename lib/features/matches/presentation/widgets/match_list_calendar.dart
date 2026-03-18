@@ -60,7 +60,7 @@ class MatchListCalendar extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             alignment: Alignment.centerLeft,
             child: Text(
-              DateFormat('EEEE, MMMM d, y').format(date),
+              DateFormat('EEEE, d \'de\' MMMM \'de\' y', Localizations.localeOf(context).toString()).format(date),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),

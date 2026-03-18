@@ -139,8 +139,13 @@ class MockTournamentRepository implements TournamentRepository {
   @override
   Future<List<Tournament>> getTournamentsForUser(String userId) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    // Mock: just return all for simplicity or filter if we had ownerId in mock data
-    return getLiveTournaments(); 
+    return getLiveTournaments();
+  }
+
+  @override
+  Future<List<Tournament>> getTournamentsParticipating(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return getLiveTournaments();
   }
 
   Tournament _mapToTournament(Map<String, dynamic> data) {

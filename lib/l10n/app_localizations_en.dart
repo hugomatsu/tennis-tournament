@@ -676,7 +676,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mine => 'Mine';
 
   @override
+  String get participating => 'Participating';
+
+  @override
   String get open => 'Open';
+
+  @override
+  String get yours => 'YOURS';
+
+  @override
+  String hostedBy(String name) {
+    return 'Hosted by $name';
+  }
 
   @override
   String get mensSingles => 'Men\'s Singles';
@@ -1099,6 +1110,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTournament => 'Search tournaments...';
 
   @override
+  String get filter => 'Filters';
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
   String get notifications => 'Notifications';
 
   @override
@@ -1364,4 +1381,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get simOT8_4gDesc => '4 Groups, 3 points/win. 2 players per group.';
+
+  @override
+  String get addResults => 'Add Results';
+
+  @override
+  String get selectWinner => 'Select Winner';
+
+  @override
+  String get resultsAdded => 'Results added successfully!';
+
+  @override
+  String get dateAndTime => 'Date & Time';
 }

@@ -1394,11 +1394,29 @@ abstract class AppLocalizations {
   /// **'Mine'**
   String get mine;
 
+  /// No description provided for @participating.
+  ///
+  /// In en, this message translates to:
+  /// **'Participating'**
+  String get participating;
+
   /// No description provided for @open.
   ///
   /// In en, this message translates to:
   /// **'Open'**
   String get open;
+
+  /// No description provided for @yours.
+  ///
+  /// In en, this message translates to:
+  /// **'YOURS'**
+  String get yours;
+
+  /// No description provided for @hostedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted by {name}'**
+  String hostedBy(String name);
 
   /// No description provided for @mensSingles.
   ///
@@ -2144,6 +2162,18 @@ abstract class AppLocalizations {
   /// **'Search tournaments...'**
   String get searchTournament;
 
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filter;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAll;
+
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
@@ -2629,6 +2659,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'4 Groups, 3 points/win. 2 players per group.'**
   String get simOT8_4gDesc;
+
+  /// No description provided for @addResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Results'**
+  String get addResults;
+
+  /// No description provided for @selectWinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Winner'**
+  String get selectWinner;
+
+  /// No description provided for @resultsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Results added successfully!'**
+  String get resultsAdded;
+
+  /// No description provided for @dateAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get dateAndTime;
 }
 
 class _AppLocalizationsDelegate

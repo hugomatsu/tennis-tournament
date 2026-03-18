@@ -23,6 +23,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
   bool _filterSingle = false;
   bool _filterTeam = false;
   bool _filterOpen = false;
+  bool _filterParticipating = false;
   bool _filtersLoaded = false;
   String _searchQuery = '';
   final _searchController = TextEditingController();
@@ -54,6 +55,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
         _filterSingle = filters['single'] ?? false;
         _filterTeam = filters['team'] ?? false;
         _filterOpen = filters['open'] ?? false;
+        _filterParticipating = filters['participating'] ?? false;
         _filtersLoaded = true;
       });
     }
@@ -65,12 +67,137 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       single: _filterSingle,
       team: _filterTeam,
       open: _filterOpen,
+      participating: _filterParticipating,
     );
   }
 
   void _onFilterChanged() {
-    _currentPage = 0; // Reset to first page when filters change
+    _currentPage = 0;
     _saveFilters();
+  }
+
+  int get _activeFilterCount =>
+      (_filterMine ? 1 : 0) +
+      (_filterParticipating ? 1 : 0) +
+      (_filterSingle ? 1 : 0) +
+      (_filterTeam ? 1 : 0) +
+      (_filterOpen ? 1 : 0);
+
+  void _showFilterSheet(BuildContext context, AppLocalizations loc) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(loc.filter, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    TextButton(
+                      onPressed: () {
+                        setSheetState(() {
+                          _filterMine = false;
+                          _filterParticipating = false;
+                          _filterSingle = false;
+                          _filterTeam = false;
+                          _filterOpen = false;
+                        });
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                      child: Text(loc.clearAll),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilterChip(
+                      label: Text(loc.mine),
+                      selected: _filterMine,
+                      onSelected: (v) {
+                        setSheetState(() {
+                          _filterMine = v;
+                          if (v) _filterParticipating = false;
+                        });
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                    ),
+                    FilterChip(
+                      label: Text(loc.participating),
+                      selected: _filterParticipating,
+                      onSelected: (v) {
+                        setSheetState(() {
+                          _filterParticipating = v;
+                          if (v) _filterMine = false;
+                        });
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                    ),
+                    FilterChip(
+                      label: Text(loc.single),
+                      selected: _filterSingle,
+                      onSelected: (v) {
+                        setSheetState(() {
+                          _filterSingle = v;
+                          if (v) _filterTeam = false;
+                        });
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                    ),
+                    FilterChip(
+                      label: Text(loc.team),
+                      selected: _filterTeam,
+                      onSelected: (v) {
+                        setSheetState(() {
+                          _filterTeam = v;
+                          if (v) _filterSingle = false;
+                        });
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                    ),
+                    FilterChip(
+                      label: Text(loc.open),
+                      selected: _filterOpen,
+                      onSelected: (v) {
+                        setSheetState(() => _filterOpen = v);
+                        setState(() {});
+                        _onFilterChanged();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -89,6 +216,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       single: _filterSingle,
       team: _filterTeam,
       open: _filterOpen,
+      participating: _filterParticipating,
       searchQuery: _searchQuery,
     );
     
@@ -106,86 +234,50 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
+          // Search bar + filter button (single row)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: loc.searchTournament,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            _searchQuery = '';
-                            _currentPage = 0;
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                  _currentPage = 0;
-                });
-              },
-            ),
-          ),
-          // Filter chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
               children: [
-                // Mine filter
-                FilterChip(
-                  label: Text(loc.mine),
-                  selected: _filterMine,
-                  onSelected: (selected) {
-                    setState(() => _filterMine = selected);
-                    _onFilterChanged();
-                  },
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: loc.searchTournament,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _searchQuery = '';
+                                  _currentPage = 0;
+                                });
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.toLowerCase();
+                        _currentPage = 0;
+                      });
+                    },
+                  ),
                 ),
-                // Single/Team toggle group
-                FilterChip(
-                  label: Text(loc.single),
-                  selected: _filterSingle,
-                  onSelected: (selected) {
-                    setState(() {
-                      _filterSingle = selected;
-                      if (selected) _filterTeam = false; // Mutually exclusive
-                    });
-                    _onFilterChanged();
-                  },
-                ),
-                FilterChip(
-                  label: Text(loc.team),
-                  selected: _filterTeam,
-                  onSelected: (selected) {
-                    setState(() {
-                      _filterTeam = selected;
-                      if (selected) _filterSingle = false; // Mutually exclusive
-                    });
-                    _onFilterChanged();
-                  },
-                ),
-                // Open filter
-                FilterChip(
-                  label: Text(loc.open),
-                  selected: _filterOpen,
-                  onSelected: (selected) {
-                    setState(() => _filterOpen = selected);
-                    _onFilterChanged();
-                  },
+                const SizedBox(width: 8),
+                Badge(
+                  isLabelVisible: _activeFilterCount > 0,
+                  label: Text('$_activeFilterCount'),
+                  child: IconButton.outlined(
+                    icon: const Icon(Icons.tune),
+                    onPressed: () => _showFilterSheet(context, loc),
+                  ),
                 ),
               ],
             ),
@@ -206,19 +298,24 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                 return Column(
                   children: [
                     Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: paginatedTournaments.length,
-                        itemBuilder: (context, index) {
-                          final tournament = paginatedTournaments[index];
-                          return GestureDetector(
-                            onTap: () => context.go('/tournaments/${tournament.id}'),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: LiveTournamentCard(tournament: tournament),
-                            ),
-                          );
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          ref.invalidate(filteredTournamentsProvider(filterParams));
                         },
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: paginatedTournaments.length,
+                          itemBuilder: (context, index) {
+                            final tournament = paginatedTournaments[index];
+                            return GestureDetector(
+                              onTap: () => context.go('/tournaments/${tournament.id}'),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: LiveTournamentCard(tournament: tournament),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                     // Pagination controls
@@ -259,7 +356,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('${loc.errorOccurred(err.toString())}')),
+              error: (err, stack) => Center(child: Text(loc.errorOccurred(err.toString()))),
             ),
           ),
         ],
@@ -285,7 +382,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                      return FloatingActionButton.extended(
                       onPressed: () => context.go('/admin/create-tournament'),
                       icon: const Icon(Icons.add),
-                      label: Text(isPremium ? loc.createTournament : '${loc.createTournament} (${count}/$limit)'),
+                      label: Text(isPremium ? loc.createTournament : '${loc.createTournament} ($count/$limit)'),
                     );
                   } else {
                      return Column(
@@ -315,7 +412,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
               );
             },
             loading: () => const SizedBox.shrink(),
-            error: (_,__) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           );
         }, 
       ),
@@ -328,6 +425,7 @@ class TournamentFilterParams {
   final bool single;
   final bool team;
   final bool open;
+  final bool participating;
   final String searchQuery;
 
   const TournamentFilterParams({
@@ -335,6 +433,7 @@ class TournamentFilterParams {
     this.single = false,
     this.team = false,
     this.open = false,
+    this.participating = false,
     this.searchQuery = '',
   });
 
@@ -347,21 +446,27 @@ class TournamentFilterParams {
           single == other.single &&
           team == other.team &&
           open == other.open &&
+          participating == other.participating &&
           searchQuery == other.searchQuery;
 
   @override
-  int get hashCode => mine.hashCode ^ single.hashCode ^ team.hashCode ^ open.hashCode ^ searchQuery.hashCode;
+  int get hashCode => mine.hashCode ^ single.hashCode ^ team.hashCode ^ open.hashCode ^ participating.hashCode ^ searchQuery.hashCode;
 }
 
 final filteredTournamentsProvider = FutureProvider.family<List<Tournament>, TournamentFilterParams>((ref, params) async {
   List<Tournament> tournaments;
-  
-  if (params.mine) {
+  final repo = ref.watch(tournamentRepositoryProvider);
+
+  if (params.participating) {
     final user = await ref.watch(currentUserProvider.future);
     if (user == null) return [];
-    tournaments = await ref.watch(tournamentRepositoryProvider).getTournamentsForUser(user.id);
+    tournaments = await repo.getTournamentsParticipating(user.id);
+  } else if (params.mine) {
+    final user = await ref.watch(currentUserProvider.future);
+    if (user == null) return [];
+    tournaments = await repo.getTournamentsForUser(user.id);
   } else {
-    tournaments = await ref.watch(tournamentRepositoryProvider).getLiveTournaments();
+    tournaments = await repo.getLiveTournaments();
   }
   
   // Apply additional filters

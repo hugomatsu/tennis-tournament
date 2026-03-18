@@ -10,7 +10,7 @@ import 'package:tennis_tournament/features/players/application/player_providers.
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tennis_tournament/core/sharing/widgets/share_button.dart';
+import 'package:tennis_tournament/core/sharing/widgets/share_preview_screen.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
 
@@ -36,6 +36,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   bool _isEditing = false;
   String? _pendingStatus;
   String? _pendingWinner;
+  DateTime? _pendingDateTime;
   
   @override
   void initState() {
@@ -53,23 +54,6 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     super.dispose();
   }
 
-  Widget _buildEditButton(TennisMatch match) {
-    if (_isEditing) {
-      return IconButton(
-        icon: const Icon(Icons.save),
-        onPressed: _saveChanges,
-      );
-    } else {
-      return IconButton(
-        icon: const Icon(Icons.edit),
-        onPressed: () {
-          _initializeEditing(match);
-          setState(() => _isEditing = true);
-        },
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final matchAsync = ref.watch(matchDetailProvider(widget.matchId));
@@ -79,395 +63,35 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.matchDetails),
-        actions: [
-          matchAsync.when(
-            data: (match) {
-              if (match == null) return const SizedBox.shrink();
-              return Builder(
-                builder: (context) {
-                  final loc = AppLocalizations.of(context)!;
-                  return ShareButton(
-                    shareSubject: loc.shareMatch,
-                    shareUrl: 'https://tennis-tournment.web.app/matches/${match.id}', // TODO: Dynamic host
-                    onShare: () {
-                      ref.read(analyticsServiceProvider).logShareMatch(
-                        matchId: match.id,
-                        tournamentName: match.tournamentName,
-                      );
-                    },
-
-                shareWidget: Theme(
-                  data: ThemeData.light(),
-                  child: Builder(
-                    builder: (context) {
-                      final isCompleted = match.status == 'Completed' || match.status == 'Finished';
-                      final hasWinner = match.winner != null && match.winner!.isNotEmpty;
-                      
-                      // Winner celebration share widget for completed matches
-                      if (isCompleted && hasWinner) {
-                        final isP1Winner = match.winner == match.player1Name;
-                        final winnerName = match.winner!;
-                        final winnerAvatarUrls = isP1Winner ? match.player1AvatarUrls : match.player2AvatarUrls;
-                        final loserName = isP1Winner ? (match.player2Name ?? 'TBD') : match.player1Name;
-                        final loserAvatarUrls = isP1Winner ? match.player2AvatarUrls : match.player1AvatarUrls;
-                        
-                        return Container(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Tournament name
-                              Text(
-                                match.tournamentName.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              // Trophy
-                              const Icon(
-                                Icons.emoji_events,
-                                size: 56,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                loc.winner.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 4,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Winner avatar
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      blurRadius: 20,
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  radius: 55,
-                                  backgroundColor: Colors.white24,
-                                  backgroundImage: winnerAvatarUrls.isNotEmpty && winnerAvatarUrls.first != null
-                                      ? NetworkImage(winnerAvatarUrls.first!)
-                                      : null,
-                                  child: winnerAvatarUrls.isEmpty
-                                      ? Text(
-                                          winnerName.isNotEmpty ? winnerName[0].toUpperCase() : '?',
-                                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
-                                        )
-                                      : null,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              // Winner name
-                              Text(
-                                winnerName,
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              if (match.score != null && match.score!.isNotEmpty) ...[
-                                const SizedBox(height: 20),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Text(
-                                    match.score!,
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.amber.shade800,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              const SizedBox(height: 20),
-                              // Runner-up
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: Colors.white30,
-                                    backgroundImage: loserAvatarUrls.isNotEmpty && loserAvatarUrls.first != null
-                                        ? NetworkImage(loserAvatarUrls.first!)
-                                        : null,
-                                    child: loserAvatarUrls.isEmpty
-                                        ? Text(loserName.isNotEmpty ? loserName[0] : '?', style: const TextStyle(color: Colors.white))
-                                        : null,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        loserName,
-                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-                                      ),
-                                      const Text(
-                                        'Runner-Up',
-                                        style: TextStyle(fontSize: 11, color: Colors.white60),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              // Branding Footer
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.sports_tennis, size: 14, color: Colors.white54),
-                                  const SizedBox(width: 6),
-                                  const Text('tennis-tournment.web.app', style: TextStyle(fontSize: 11, color: Colors.white54)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      
-                      // Regular VS view for non-completed matches
-                      return Container(
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              match.tournamentName.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            // Simplified VS view for sharing
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 4),
-                                        ),
-                                        child: CircleAvatar(
-                                          radius: 45,
-                                          backgroundColor: Colors.white24,
-                                          backgroundImage: match.player1AvatarUrls.isNotEmpty ? NetworkImage(match.player1AvatarUrls.first!) : null,
-                                          child: match.player1AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        match.player1Name,
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white24,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Text('VS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                       Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 4),
-                                        ),
-                                        child: CircleAvatar(
-                                          radius: 45,
-                                          backgroundColor: Colors.white24,
-                                          backgroundImage: match.player2AvatarUrls.isNotEmpty ? NetworkImage(match.player2AvatarUrls.first!) : null,
-                                           child: match.player2AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        match.player2Name ?? 'TBD',
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                            Text(
-                              DateFormat('EEE, MMM d').format(match.time),
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('h:mm a').format(match.time),
-                              style: const TextStyle(fontSize: 16, color: Colors.white70),
-                            ),
-                            const SizedBox(height: 24),
-                            // Branding Footer
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.sports_tennis, size: 16, color: Colors.white70),
-                                const SizedBox(width: 8),
-                                const Text('tennis-tournment.web.app', style: TextStyle(fontSize: 12, color: Colors.white70)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                   ),
-                   ),
-                 );
-                },
-              );
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-          // Follow button
-          matchAsync.when(
-            data: (match) {
-              if (match == null) return const SizedBox.shrink();
-              return Consumer(
-                builder: (context, ref, _) {
-                  final userAsync = ref.watch(currentUserProvider);
-                  return userAsync.when(
-                    data: (user) {
-                      if (user == null) return const SizedBox.shrink();
-                      final isFollowing = user.followedMatchIds.contains(match.id);
-                      return IconButton(
-                        icon: Icon(
-                          isFollowing ? Icons.bookmark : Icons.bookmark_border,
-                          color: isFollowing ? Theme.of(context).colorScheme.primary : null,
-                        ),
-                        tooltip: isFollowing ? 'Unfollow match' : 'Follow match',
-                        onPressed: () async {
-                          final newList = isFollowing
-                              ? user.followedMatchIds.where((id) => id != match.id).toList()
-                              : [...user.followedMatchIds, match.id];
-                          await ref.read(playerRepositoryProvider).updateUser(
-                            user.copyWith(followedMatchIds: newList),
-                          );
-                          if (!isFollowing) {
-                            ref.read(analyticsServiceProvider).logFollowMatch();
-                          }
-                        },
-                      );
-                    },
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                  );
-                },
-              );
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-          // Edit button - show for admin, owner, or tournament admin
-          matchAsync.when(
-            data: (match) {
-              if (match == null) return const SizedBox.shrink();
-              return FutureBuilder<Player?>(
-                future: ref.watch(currentUserProvider.future),
-                builder: (context, userSnapshot) {
-                  final user = userSnapshot.data;
-                  if (user == null) return const SizedBox.shrink();
-                  
-                  // Check if user is global admin
-                  if (user.userType == 'admin') {
-                    return _buildEditButton(match);
-                  }
-                  
-                  // Check if user is tournament owner or admin
-                  return FutureBuilder(
-                    future: ref.read(tournamentRepositoryProvider).getTournament(match.tournamentId),
-                    builder: (context, tournamentSnapshot) {
-                      final tournament = tournamentSnapshot.data;
-                      if (tournament == null) return const SizedBox.shrink();
-                      
-                      final isOwner = tournament.ownerId == user.id;
-                      final isTournamentAdmin = tournament.adminIds.contains(user.id);
-                      
-                      if (isOwner || isTournamentAdmin) {
-                        return _buildEditButton(match);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  );
-                },
-              );
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-        ],
+      ),
+      bottomNavigationBar: matchAsync.when(
+        data: (match) => match != null ? _buildBottomBar(match) : null,
+        loading: () => null,
+        error: (_, __) => null,
       ),
       body: matchAsync.when(
         data: (match) {
-           if (match == null) return Center(child: Text(loc.matchNotFound));
-
-           // Use local _initializeEditing once if needed, or rely on state
-           // Since we use a provider, valid to just read data.
-
-           final isCompleted = match.status == 'Completed' || match.status == 'Finished';
-           final hasWinner = match.winner != null && match.winner!.isNotEmpty;
-           
-           return SingleChildScrollView(
-             padding: const EdgeInsets.all(16),
-             child: Column(
-               crossAxisAlignment: CrossAxisAlignment.stretch,
-               children: [
-                 if (_isEditing) _buildAdminControls(match),
-                 
-                 // Show winner celebration for completed matches
-                 if (isCompleted && hasWinner)
-                   _buildWinnerCelebration(match, loc)
-                 else
-                   _buildVsView(match),
-                 const SizedBox(height: 24),
-                 _buildInfoSection(match, loc),
-                 const SizedBox(height: 24),
-                 _buildPlayerActions(match, loc),
-               ],
-             ),
-           );
+          if (match == null) return Center(child: Text(loc.matchNotFound));
+          final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+          final hasWinner = match.winner != null && match.winner!.isNotEmpty;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_isEditing) _buildAdminControls(match),
+                if (isCompleted && hasWinner)
+                  _buildWinnerCelebration(match, loc)
+                else
+                  _buildVsView(match),
+                const SizedBox(height: 24),
+                _buildInfoSection(match, loc),
+                const SizedBox(height: 24),
+                _buildPlayerActions(match, loc),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text(AppLocalizations.of(context)!.errorOccurred(e.toString()))),
@@ -475,12 +99,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
+
   void _initializeEditing(TennisMatch match) {
     if (_scoreController.text.isEmpty) {
        _scoreController.text = match.score ?? '';
     }
     _pendingStatus ??= match.status;
     _pendingWinner ??= match.winner;
+    _pendingDateTime ??= match.time;
   }
 
   Future<void> _saveChanges() async {
@@ -492,15 +118,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       score: _scoreController.text,
       status: _pendingStatus ?? match.status,
       winner: _pendingWinner,
-      // Location and Time updates would go here in a full implementation
+      time: _pendingDateTime ?? match.time,
     );
 
-    // If winner changed and status is Finished/Completed, trigger updateMatchScore
-    if ((_pendingStatus == 'Finished' || _pendingStatus == 'Completed') && 
+    if ((_pendingStatus == 'Finished' || _pendingStatus == 'Completed') &&
         _pendingWinner != null && _pendingWinner!.isNotEmpty) {
       await ref.read(matchRepositoryProvider).updateMatchScore(
-        match.id, 
-        _scoreController.text, 
+        match.id,
+        _scoreController.text,
         _pendingWinner!
       );
       ref.read(analyticsServiceProvider).logSubmitMatchScore(
@@ -508,7 +133,6 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         tournamentName: match.tournamentName,
       );
     } else {
-      // Just update match details
       await ref.read(matchRepositoryProvider).updateMatch(updatedMatch);
     }
 
@@ -516,7 +140,403 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       _isEditing = false;
       _pendingStatus = null;
       _pendingWinner = null;
+      _pendingDateTime = null;
     });
+  }
+
+  Future<bool> _checkCanManage(TennisMatch match, Player user) async {
+    if (user.userType == 'admin') return true;
+    final isParticipant = match.player1UserIds.contains(user.id) ||
+        match.player2UserIds.contains(user.id);
+    if (isParticipant) return true;
+    final tournament = await ref.read(tournamentRepositoryProvider).getTournament(match.tournamentId);
+    if (tournament == null) return false;
+    return tournament.ownerId == user.id || tournament.adminIds.contains(user.id);
+  }
+
+  Future<void> _handleFollow(TennisMatch match, Player user) async {
+    final isFollowing = user.followedMatchIds.contains(match.id);
+    final newList = isFollowing
+        ? user.followedMatchIds.where((id) => id != match.id).toList()
+        : [...user.followedMatchIds, match.id];
+    await ref.read(playerRepositoryProvider).updateUser(
+      user.copyWith(followedMatchIds: newList),
+    );
+    if (!isFollowing) {
+      ref.read(analyticsServiceProvider).logFollowMatch();
+    }
+  }
+
+  void _handleShare(TennisMatch match) {
+    final loc = AppLocalizations.of(context)!;
+    ref.read(analyticsServiceProvider).logShareMatch(
+      matchId: match.id,
+      tournamentName: match.tournamentName,
+    );
+    SharePreviewScreen.show(
+      context: context,
+      shareSubject: loc.shareMatch,
+      shareWidget: _buildShareWidget(match),
+    );
+  }
+
+  Widget _buildShareWidget(TennisMatch match) {
+    final loc = AppLocalizations.of(context)!;
+    final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+    final hasWinner = match.winner != null && match.winner!.isNotEmpty;
+
+    if (isCompleted && hasWinner) {
+      final isP1Winner = match.winner == match.player1Name;
+      final winnerName = match.winner!;
+      final winnerAvatarUrls = isP1Winner ? match.player1AvatarUrls : match.player2AvatarUrls;
+      final loserName = isP1Winner ? (match.player2Name ?? 'TBD') : match.player1Name;
+      final loserAvatarUrls = isP1Winner ? match.player2AvatarUrls : match.player1AvatarUrls;
+
+      return Theme(
+        data: ThemeData.light(),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                match.tournamentName.toUpperCase(),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.white70),
+              ),
+              const SizedBox(height: 16),
+              const Icon(Icons.emoji_events, size: 56, color: Colors.white),
+              const SizedBox(height: 8),
+              Text(
+                loc.winner.toUpperCase(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 4, color: Colors.white70),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 5),
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20)],
+                ),
+                child: CircleAvatar(
+                  radius: 55,
+                  backgroundColor: Colors.white24,
+                  backgroundImage: winnerAvatarUrls.isNotEmpty && winnerAvatarUrls.first != null
+                      ? NetworkImage(winnerAvatarUrls.first!)
+                      : null,
+                  child: winnerAvatarUrls.isEmpty
+                      ? Text(winnerName.isNotEmpty ? winnerName[0].toUpperCase() : '?',
+                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white))
+                      : null,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(winnerName,
+                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                  textAlign: TextAlign.center),
+              if (match.score != null && match.score!.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                  child: Text(match.score!,
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.amber.shade800)),
+                ),
+              ],
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white30,
+                    backgroundImage: loserAvatarUrls.isNotEmpty && loserAvatarUrls.first != null
+                        ? NetworkImage(loserAvatarUrls.first!)
+                        : null,
+                    child: loserAvatarUrls.isEmpty
+                        ? Text(loserName.isNotEmpty ? loserName[0] : '?',
+                            style: const TextStyle(color: Colors.white))
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(loserName,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
+                      const Text('Runner-Up', style: TextStyle(fontSize: 11, color: Colors.white60)),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.sports_tennis, size: 14, color: Colors.white54),
+                  SizedBox(width: 6),
+                  Text('tennis-tournment.web.app', style: TextStyle(fontSize: 11, color: Colors.white54)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Regular VS share widget
+    return Theme(
+      data: ThemeData.light(),
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              match.tournamentName.toUpperCase(),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2, color: Colors.white70),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 4),
+                        ),
+                        child: CircleAvatar(
+                          radius: 45,
+                          backgroundColor: Colors.white24,
+                          backgroundImage: match.player1AvatarUrls.isNotEmpty ? NetworkImage(match.player1AvatarUrls.first!) : null,
+                          child: match.player1AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(match.player1Name,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                          textAlign: TextAlign.center,
+                          maxLines: 2),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
+                  child: const Text('VS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 4),
+                        ),
+                        child: CircleAvatar(
+                          radius: 45,
+                          backgroundColor: Colors.white24,
+                          backgroundImage: match.player2AvatarUrls.isNotEmpty ? NetworkImage(match.player2AvatarUrls.first!) : null,
+                          child: match.player2AvatarUrls.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(match.player2Name ?? 'TBD',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                          textAlign: TextAlign.center,
+                          maxLines: 2),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Text(DateFormat('EEE, MMM d').format(match.time),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 4),
+            Text(DateFormat('h:mm a').format(match.time),
+                style: const TextStyle(fontSize: 16, color: Colors.white70)),
+            const SizedBox(height: 24),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.sports_tennis, size: 16, color: Colors.white70),
+                SizedBox(width: 8),
+                Text('tennis-tournment.web.app', style: TextStyle(fontSize: 12, color: Colors.white70)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(TennisMatch match) {
+    final loc = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final userAsync = ref.watch(currentUserProvider);
+    final user = userAsync.value;
+    final isFollowing = user != null && user.followedMatchIds.contains(match.id);
+    final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          border: Border(top: BorderSide(color: theme.dividerColor)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                // Share
+                Expanded(
+                  child: _BottomBarButton(
+                    icon: Icons.share_outlined,
+                    label: loc.share,
+                    onTap: () => _handleShare(match),
+                  ),
+                ),
+                // Follow
+                Expanded(
+                  child: _BottomBarButton(
+                    icon: isFollowing ? Icons.bookmark : Icons.bookmark_border,
+                    label: isFollowing ? loc.following : loc.follow,
+                    color: isFollowing ? theme.colorScheme.primary : null,
+                    onTap: user == null ? null : () => _handleFollow(match, user),
+                  ),
+                ),
+                // Edit — only for authorized users
+                if (user != null)
+                  FutureBuilder<bool>(
+                    future: _checkCanManage(match, user),
+                    builder: (context, snapshot) {
+                      if (snapshot.data != true) return const SizedBox.shrink();
+                      return Expanded(
+                        child: _BottomBarButton(
+                          icon: _isEditing ? Icons.save_outlined : Icons.edit_outlined,
+                          label: _isEditing ? loc.save : loc.edit,
+                          onTap: () {
+                            if (_isEditing) {
+                              _saveChanges();
+                            } else {
+                              _initializeEditing(match);
+                              setState(() => _isEditing = true);
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Add Results — always visible, disabled for non-authorized users
+            if (user != null)
+              FutureBuilder<bool>(
+                future: _checkCanManage(match, user),
+                builder: (context, snapshot) {
+                  final canManage = snapshot.data ?? false;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.scoreboard_outlined),
+                      label: Text(loc.addResults),
+                      onPressed: (canManage && !isCompleted)
+                          ? () => _showAddResultsDialog(match)
+                          : null,
+                    ),
+                  );
+                },
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.scoreboard_outlined),
+                  label: Text(loc.addResults),
+                  onPressed: null,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showAddResultsDialog(TennisMatch match) async {
+    final loc = AppLocalizations.of(context)!;
+    final scoreCtrl = TextEditingController(text: match.score ?? '');
+    String? selectedWinner = match.winner;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(loc.addResults),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: scoreCtrl,
+                decoration: InputDecoration(
+                  labelText: loc.score,
+                  hintText: '6-4, 7-5',
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedWinner,
+                decoration: InputDecoration(labelText: loc.winner),
+                hint: Text(loc.selectWinner),
+                items: [
+                  DropdownMenuItem(value: match.player1Name, child: Text(match.player1Name)),
+                  if (match.player2Name != null)
+                    DropdownMenuItem(value: match.player2Name, child: Text(match.player2Name!)),
+                ],
+                onChanged: (val) => setDialogState(() => selectedWinner = val),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(loc.cancel),
+            ),
+            FilledButton(
+              onPressed: selectedWinner == null
+                  ? null
+                  : () async {
+                      Navigator.pop(context);
+                      await ref.read(matchRepositoryProvider).updateMatchScore(
+                        match.id,
+                        scoreCtrl.text,
+                        selectedWinner!,
+                      );
+                      ref.read(analyticsServiceProvider).logSubmitMatchScore(
+                        matchId: match.id,
+                        tournamentName: match.tournamentName,
+                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(loc.resultsAdded)),
+                        );
+                      }
+                    },
+              child: Text(loc.submit),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _handleDecline(TennisMatch match, String playerId) async {
@@ -607,57 +627,81 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   }
   
   Widget _buildAdminControls(TennisMatch match) {
-      if (!_isEditing) return const SizedBox.shrink();
-      
-      return Card(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.adminControls, 
-                style: const TextStyle(fontWeight: FontWeight.bold)
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _scoreController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.score, 
-                  border: const OutlineInputBorder()
-                ),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _pendingStatus,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.status),
-                items: ['Preparing', 'Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
-                    .map((s) => DropdownMenuItem(value: s, child: Text(_getLocalizedStatus(s, AppLocalizations.of(context)!))))
-                    .toList(),
-                onChanged: (val) => setState(() => _pendingStatus = val),
-              ),
-              const SizedBox(height: 8),
-               DropdownButtonFormField<String>(
-                value: _pendingWinner,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.winner),
-                items: [
-                  match.player1Name, 
-                  if (match.player2Name != null) match.player2Name!
-                ].toSet().map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                onChanged: (val) => setState(() {
-                  _pendingWinner = val;
-                  // Auto-set status to Completed when winner is selected
-                  if (val != null && val.isNotEmpty) {
-                    _pendingStatus = 'Completed';
-                  }
-                }),
-              ),
-            ],
-          ),
+    if (!_isEditing) return const SizedBox.shrink();
+    final loc = AppLocalizations.of(context)!;
+    final displayDt = _pendingDateTime ?? match.time;
+    final dtLabel = DateFormat('EEE, MMM d • h:mm a').format(displayDt);
+
+    return Card(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(loc.adminControls, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            // Date & time picker
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: Text(loc.dateAndTime),
+              subtitle: Text(dtLabel),
+              contentPadding: EdgeInsets.zero,
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: displayDt,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
+                if (picked == null || !mounted) return;
+                final pickedTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(displayDt),
+                );
+                if (pickedTime == null || !mounted) return;
+                setState(() {
+                  _pendingDateTime = DateTime(
+                    picked.year, picked.month, picked.day,
+                    pickedTime.hour, pickedTime.minute,
+                  );
+                });
+              },
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _scoreController,
+              decoration: InputDecoration(labelText: loc.score, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _pendingStatus,
+              decoration: InputDecoration(labelText: loc.status),
+              items: ['Preparing', 'Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
+                  .map((s) => DropdownMenuItem(value: s, child: Text(_getLocalizedStatus(s, loc))))
+                  .toList(),
+              onChanged: (val) => setState(() => _pendingStatus = val),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _pendingWinner,
+              decoration: InputDecoration(labelText: loc.winner),
+              items: [
+                match.player1Name,
+                if (match.player2Name != null) match.player2Name!
+              ].toSet().map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+              onChanged: (val) => setState(() {
+                _pendingWinner = val;
+                if (val != null && val.isNotEmpty) {
+                  _pendingStatus = 'Completed';
+                }
+              }),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildInfoSection(TennisMatch match, AppLocalizations loc) {
@@ -1215,10 +1259,50 @@ class _PlayerCard extends ConsumerWidget {
                     ),
                   ),
                 ),
-             ] else 
+             ] else
                const Spacer(),
-            if (isWinner) 
+            if (isWinner)
               const Icon(Icons.emoji_events, size: 16, color: Colors.amber)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomBarButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final Color? color;
+
+  const _BottomBarButton({
+    required this.icon,
+    required this.label,
+    this.onTap,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final effectiveColor = color ?? theme.colorScheme.onSurface;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: onTap == null ? theme.disabledColor : effectiveColor, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: onTap == null ? theme.disabledColor : effectiveColor,
+              ),
+            ),
           ],
         ),
       ),

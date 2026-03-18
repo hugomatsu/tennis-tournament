@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 class LiveTournamentCard extends ConsumerWidget {
   final Tournament tournament;
@@ -10,6 +11,7 @@ class LiveTournamentCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserProvider);
     final ownerAsync = ref.watch(playerProvider(tournament.ownerId ?? ''));
     
@@ -41,13 +43,13 @@ class LiveTournamentCard extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              'assets/images/tournament_placeholder.png',
+                              'assets/images/default-tournament.png',
                               fit: BoxFit.cover,
                             );
                           },
                         )
                       : Image.asset(
-                          'assets/images/tournament_placeholder.png',
+                          'assets/images/default-tournament.png',
                           fit: BoxFit.cover,
                         ),
                   Container(
@@ -81,13 +83,13 @@ class LiveTournamentCard extends ConsumerWidget {
                           color: Colors.amber,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.star, size: 12, color: Colors.black),
-                            SizedBox(width: 4),
+                            const Icon(Icons.star, size: 12, color: Colors.black),
+                            const SizedBox(width: 4),
                             Text(
-                              'YOURS', // TODO: Localize
-                              style: TextStyle(
+                              loc.yours,
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -125,7 +127,7 @@ class LiveTournamentCard extends ConsumerWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            'Hosted by ${owner.name}', // TODO: Localize
+                            loc.hostedBy(owner.name),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
                             overflow: TextOverflow.ellipsis,
                           ),
