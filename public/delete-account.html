@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exclusão de Conta – Entre Sets</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --danger: #d93025;
+      --text: #202124;
+      --muted: #5f6368;
+      --bg: #ffffff;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 0 16px;
+    }
+    header {
+      background: var(--danger);
+      color: #fff;
+      padding: 32px 24px 24px;
+      margin: 0 -16px 40px;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 6px; }
+    .container { max-width: 720px; margin: 0 auto; padding-bottom: 60px; }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    p  { margin-bottom: 12px; color: var(--text); }
+    ol, ul { margin: 8px 0 12px 20px; }
+    li { margin-bottom: 8px; }
+    a  { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .steps {
+      counter-reset: steps;
+      list-style: none;
+      margin-left: 0;
+    }
+    .steps li {
+      counter-increment: steps;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .steps li::before {
+      content: counter(steps);
+      min-width: 28px;
+      height: 28px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.92rem;
+    }
+    .data-table th {
+      background: #f1f3f4;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .data-table tr:nth-child(even) td { background: #fafafa; }
+
+    .badge-deleted {
+      display: inline-block;
+      background: #fce8e6;
+      color: var(--danger);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .badge-kept {
+      display: inline-block;
+      background: #fef7e0;
+      color: #b06000;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .callout {
+      background: #fce8e6;
+      border-left: 4px solid var(--danger);
+      padding: 14px 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+      font-size: 0.93rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Exclusão de Conta e Dados</h1>
+    <p>Entre Sets – desenvolvido por Hugo Matsumoto</p>
+  </header>
+
+  <div class="container">
+
+    <p>
+      Esta página descreve como solicitar a exclusão da sua conta e de seus dados pessoais
+      no aplicativo <strong>Entre Sets</strong>.
+    </p>
+
+    <div class="callout">
+      ⚠️ A exclusão de conta é <strong>permanente e irreversível</strong>. Todos os dados
+      listados como "Excluído" abaixo serão removidos em até 30 dias e não poderão ser
+      recuperados.
+    </div>
+
+    <h2>Como solicitar a exclusão da conta</h2>
+    <p>Você pode excluir sua conta diretamente pelo aplicativo seguindo os passos abaixo:</p>
+
+    <ol class="steps">
+      <li>Abra o aplicativo <strong>Entre Sets</strong> e faça login na sua conta.</li>
+      <li>Toque no ícone de <strong>Perfil</strong> no canto inferior direito da tela.</li>
+      <li>Role até o final da página de perfil e toque em <strong>"Excluir conta"</strong>.</li>
+      <li>Leia o aviso de confirmação e toque em <strong>"Confirmar exclusão"</strong>.</li>
+      <li>Sua conta e dados pessoais serão removidos em até <strong>30 dias</strong>.</li>
+    </ol>
+
+    <p>
+      Se você não conseguir acessar o aplicativo, envie um e-mail para
+      <a href="mailto:hugomatsu@gmaill.com">hugomatsu@gmaill.com</a> com o assunto
+      <strong>"Solicitação de exclusão de conta"</strong> e o endereço de e-mail associado
+      à sua conta. A exclusão será processada em até 30 dias.
+    </p>
+
+    <h2>O que acontece com seus dados</h2>
+    <p>
+      A tabela abaixo detalha cada tipo de dado coletado, o que ocorre com ele após a
+      exclusão da conta e o prazo de retenção aplicável.
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Tipo de dado</th>
+          <th>Ação após exclusão</th>
+          <th>Prazo de retenção</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nome, e-mail e foto de perfil</td>
+          <td><span class="badge-deleted">Excluído</span></td>
+          <td>Removido em até 30 dias</td>
+        </tr>
+        <tr>
+          <td>Torneios criados</td>
+          <td><span class="badge-kept">Mantido parcialmente</span></td>
+          <td>
+            O torneio permanece visível para os demais participantes, porém
+            desvinculado do seu perfil. Dados de identificação pessoal são removidos
+            em até 30 dias.
+          </td>
+        </tr>
+        <tr>
+          <td>Resultados e estatísticas de partidas</td>
+          <td><span class="badge-kept">Mantido parcialmente</span></td>
+          <td>
+            Os placares permanecem no histórico do torneio sem vínculo ao seu perfil.
+            Seu nome é removido dos registros em até 30 dias.
+          </td>
+        </tr>
+        <tr>
+          <td>Token de notificação (FCM)</td>
+          <td><span class="badge-deleted">Excluído</span></td>
+          <td>Removido imediatamente ao confirmar a exclusão</td>
+        </tr>
+        <tr>
+          <td>Status de assinatura</td>
+          <td><span class="badge-deleted">Excluído</span></td>
+          <td>Removido em até 30 dias</td>
+        </tr>
+        <tr>
+          <td>Dados de análise (Firebase Analytics)</td>
+          <td><span class="badge-kept">Mantido</span></td>
+          <td>
+            Eventos anônimos de uso não são vinculados a contas e são retidos conforme
+            a política de retenção do Google Analytics (padrão: 14 meses).
+          </td>
+        </tr>
+        <tr>
+          <td>Logs de segurança (Firebase Auth)</td>
+          <td><span class="badge-kept">Mantido</span></td>
+          <td>
+            Retidos por até 90 dias por obrigação de segurança e cumprimento legal,
+            conforme a <a href="https://firebase.google.com/support/privacy" target="_blank">política do Firebase</a>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Contato</h2>
+    <p>
+      Para dúvidas ou para solicitar a exclusão por e-mail, entre em contato:
+    </p>
+    <p>
+      <strong>Hugo Matsumoto</strong><br />
+      E-mail: <a href="mailto:hugomatsu@gmaill.com">hugomatsu@gmaill.com</a>
+    </p>
+
+  </div>
+
+  <footer>
+    &copy; 2026 Hugo Matsumoto. Todos os direitos reservados.
+    &nbsp;·&nbsp;
+    <a href="/privacy">Política de Privacidade</a>
+  </footer>
+</body>
+</html>

@@ -463,19 +463,16 @@ class ProfileScreen extends ConsumerWidget {
                         ListTile(
                           leading: const Icon(Icons.privacy_tip_outlined),
                           title: Text(loc.privacyPolicy),
-                          onTap: () async {
-                             // TODO: Replace with actual Privacy Policy URL
-                             final url = Uri.parse('https://tennis-tournment.web.app/privacy');
-                             await launchUrl(url);
-                          },
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/profile/privacy'),
                         ),
-                         ListTile(
+                        ListTile(
                           leading: const Icon(Icons.description_outlined),
                           title: Text(loc.termsOfUse),
+                          trailing: const Icon(Icons.chevron_right),
                           onTap: () async {
-                             // TODO: Replace with actual Terms URL
-                             final url = Uri.parse('https://tennis-tournment.web.app/terms');
-                             await launchUrl(url);
+                            final url = Uri.parse('https://tennis-tournment.web.app/terms');
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
                           },
                         ),
                       ],

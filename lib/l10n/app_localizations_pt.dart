@@ -543,6 +543,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacyPolicy => 'Política de Privacidade';
 
   @override
+  String get privacyPolicyUpdated => 'Atualizado em 17 de março de 2026';
+
+  @override
   String get termsOfUse => 'Termos de Uso';
 
   @override

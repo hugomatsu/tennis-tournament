@@ -1148,6 +1148,12 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get privacyPolicy;
 
+  /// No description provided for @privacyPolicyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: March 17, 2026'**
+  String get privacyPolicyUpdated;
+
   /// No description provided for @termsOfUse.
   ///
   /// In en, this message translates to:
