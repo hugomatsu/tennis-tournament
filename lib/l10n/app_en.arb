@@ -361,6 +361,8 @@
   "playoffBracketCreated": "Playoff bracket created with {count} matches!",
   "errorGeneratingPlayoff": "Error generating playoff: {error}",
   "shareGroupLabel": "Share Group {id}",
+  "advanceFromGroup": "Advance from Group",
+  "advanceFromGroupHint": "How many players from each group advance to playoff",
   "playersInCategory": "Players in this category ({count}):",
   "tournamentInProgress": "Tournament is in progress. Participation changes are locked.",
   "tournamentCompleted": "Tournament is completed. Participation changes are locked.",

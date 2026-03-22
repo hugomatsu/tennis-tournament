@@ -58,13 +58,13 @@ class BracketView extends ConsumerWidget {
               ),
               Expanded(
                 child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
                   children: categories.map((c) {
                     // For Open Tennis mode, show group standings view
                     if (tournament.tournamentType == 'openTennis') {
-                      return GroupStandingsView(
-                        tournamentId: tournament.id,
-                        categoryId: c.id,
+                      return _OpenTennisTabContent(
                         tournament: tournament,
+                        categoryId: c.id,
                       );
                     }
                     // For Mata-Mata mode, show traditional bracket
@@ -88,15 +88,62 @@ class BracketView extends ConsumerWidget {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// For Open Tennis mode: shows group standings, and once playoff matches exist,
+/// shows the bracket graph below (or instead of) the group standings.
+class _OpenTennisTabContent extends ConsumerWidget {
+  final Tournament tournament;
+  final String categoryId;
+
+  const _OpenTennisTabContent({
+    required this.tournament,
+    required this.categoryId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final matchesAsync = ref.watch(bracketMatchesProvider(tournament.id));
+
+    return matchesAsync.when(
+      data: (allMatches) {
+        final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
+        final hasPlayoffMatches = categoryMatches.any((m) => !m.round.startsWith('Group'));
+
+        if (hasPlayoffMatches) {
+          // Show bracket graph for playoff matches
+          return _SingleBracketView(
+            tournamentId: tournament.id,
+            tournamentName: tournament.name,
+            categoryId: categoryId,
+            playoffOnly: true,
+          );
+        }
+
+        // No playoff yet, show group standings
+        return GroupStandingsView(
+          tournamentId: tournament.id,
+          categoryId: categoryId,
+          tournament: tournament,
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.errorOccurred(e.toString()))),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _SingleBracketView extends ConsumerStatefulWidget {
   final String tournamentId;
   final String tournamentName;
   final String categoryId;
+  final bool playoffOnly;
 
   const _SingleBracketView({
     required this.tournamentId,
     required this.tournamentName,
     required this.categoryId,
+    this.playoffOnly = false,
   });
 
   @override
@@ -197,7 +244,19 @@ class _SingleBracketViewState extends ConsumerState<_SingleBracketView> {
 
     return matchesAsync.when(
       data: (allMatches) {
-        final matches = allMatches.where((m) => m.categoryId == widget.categoryId).toList();
+        var matches = allMatches.where((m) => m.categoryId == widget.categoryId).toList();
+
+        // For playoff-only mode (Open Tennis), filter to non-group matches
+        // and remap "Playoff R1", "Playoff R2" rounds to numeric "1", "2"
+        if (widget.playoffOnly) {
+          matches = matches
+              .where((m) => !m.round.startsWith('Group'))
+              .map((m) {
+                final numericRound = m.round.replaceFirst('Playoff R', '');
+                return m.copyWith(round: numericRound);
+              })
+              .toList();
+        }
 
         if (matches.isEmpty) {
           final participantsAsync = ref.watch(participantsProvider(widget.tournamentId));

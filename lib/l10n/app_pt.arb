@@ -342,6 +342,8 @@
   "playoffBracketCreated": "Chave de playoff criada com {count} partidas!",
   "errorGeneratingPlayoff": "Erro ao gerar playoff: {error}",
   "shareGroupLabel": "Compartilhar Grupo {id}",
+  "advanceFromGroup": "Avançam do Grupo",
+  "advanceFromGroupHint": "Quantos jogadores de cada grupo avançam para as eliminatórias",
   "playersInCategory": "Jogadores nesta categoria ({count}):",
   "tournamentInProgress": "Torneio em andamento. Alterações de participação estão bloqueadas.",
   "tournamentCompleted": "Torneio concluído. Alterações de participação estão bloqueadas.",

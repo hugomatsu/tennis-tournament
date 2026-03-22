@@ -293,17 +293,18 @@ class OpenTennisService implements SchedulingService {
     // Get group standings
     final standings = await getGroupStandings(tournament.id, category.id);
     
-    // Get top player from each group
+    // Get top players from each group based on advanceCount
+    final advanceCount = tournament.advanceCount.clamp(1, 99);
     final qualifiedPlayers = <Participant>[];
     for (final group in standings.entries) {
-      if (group.value.isNotEmpty) {
-        final winner = group.value.first; // Already sorted by points
+      final topN = group.value.take(advanceCount);
+      for (final player in topN) {
         qualifiedPlayers.add(Participant(
-          id: winner.participantId,
-          name: winner.participantName,
+          id: player.participantId,
+          name: player.participantName,
           categoryId: category.id,
-          userIds: winner.participantUserIds,
-          avatarUrls: winner.participantAvatarUrls,
+          userIds: player.participantUserIds,
+          avatarUrls: player.participantAvatarUrls,
           status: 'approved',
           joinedAt: DateTime.now(),
         ));

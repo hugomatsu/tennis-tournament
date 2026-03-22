@@ -299,6 +299,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                 ];
               },
               body: TabBarView(
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _InfoTab(tournament: tournament),
                   BracketView(tournament: tournament),
@@ -321,6 +322,7 @@ class TournamentDetailScreen extends ConsumerWidget {
     final dateController = TextEditingController(text: tournament.dateRange);
     final groupCountController = TextEditingController(text: tournament.groupCount.toString());
     final pointsPerWinController = TextEditingController(text: tournament.pointsPerWin.toString());
+    final advanceCountController = TextEditingController(text: tournament.advanceCount.toString());
 
     showDialog(
       context: context,
@@ -396,6 +398,15 @@ class TournamentDetailScreen extends ConsumerWidget {
                     ),
                     keyboardType: TextInputType.number,
                   ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: advanceCountController,
+                    decoration: InputDecoration(
+                      labelText: loc.advanceFromGroup,
+                      helperText: loc.advanceFromGroupHint,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
                 ],
               ],
             ),
@@ -414,6 +425,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                   dateRange: dateController.text,
                   groupCount: int.tryParse(groupCountController.text) ?? tournament.groupCount,
                   pointsPerWin: int.tryParse(pointsPerWinController.text) ?? tournament.pointsPerWin,
+                  advanceCount: int.tryParse(advanceCountController.text) ?? tournament.advanceCount,
                 );
                 await ref.read(tournamentRepositoryProvider).updateTournament(updated);
                 ref.invalidate(tournamentDetailProvider(tournament.id));
@@ -820,6 +832,28 @@ class _InfoTab extends ConsumerWidget {
                               ),
                             ),
                             Text(loc.ptsPerWin, style: const TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${tournament.advanceCount}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Text(loc.advanceFromGroup, style: const TextStyle(fontSize: 12)),
                           ],
                         ),
                       ),

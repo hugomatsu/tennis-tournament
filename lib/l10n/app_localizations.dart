@@ -2138,6 +2138,18 @@ abstract class AppLocalizations {
   /// **'Share Group {id}'**
   String shareGroupLabel(Object id);
 
+  /// No description provided for @advanceFromGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance from Group'**
+  String get advanceFromGroup;
+
+  /// No description provided for @advanceFromGroupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many players from each group advance to playoff'**
+  String get advanceFromGroupHint;
+
   /// No description provided for @playersInCategory.
   ///
   /// In en, this message translates to:

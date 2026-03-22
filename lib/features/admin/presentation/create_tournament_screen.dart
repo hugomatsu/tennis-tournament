@@ -32,6 +32,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   String _tournamentType = 'mataMata';
   int _maxPlayersPerGroup = 4;
   int _pointsPerWin = 3;
+  int _advanceCount = 1;
   bool _isLoading = false;
   final Map<int, ({TimeOfDay start, TimeOfDay end})> _weekdayTimes = {};
 
@@ -300,6 +301,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         tournamentType: _tournamentType,
         groupCount: _maxPlayersPerGroup, // stores maxPlayersPerGroup
         pointsPerWin: _pointsPerWin,
+        advanceCount: _advanceCount,
         defaultWeekdayTimes: _weekdayTimes.map(
           (key, range) {
             String fmt(TimeOfDay t) =>
@@ -523,6 +525,18 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: _advanceCount.toString(),
+                      decoration: InputDecoration(
+                        labelText: l10n.advanceFromGroup,
+                        helperText: l10n.advanceFromGroupHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.arrow_upward),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => _advanceCount = int.tryParse(v) ?? 1,
                     ),
                   ],
                 ],

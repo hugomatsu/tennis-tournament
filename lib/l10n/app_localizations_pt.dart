@@ -1095,6 +1095,13 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get advanceFromGroup => 'Avançam do Grupo';
+
+  @override
+  String get advanceFromGroupHint =>
+      'Quantos jogadores de cada grupo avançam para as eliminatórias';
+
+  @override
   String playersInCategory(Object count) {
     return 'Jogadores nesta categoria ($count):';
   }
