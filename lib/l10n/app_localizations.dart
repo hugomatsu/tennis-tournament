@@ -353,8 +353,14 @@ abstract class AppLocalizations {
   /// No description provided for @bracket.
   ///
   /// In en, this message translates to:
-  /// **'Bracket'**
+  /// **'Progress'**
   String get bracket;
+
+  /// No description provided for @playoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Playoff'**
+  String get playoff;
 
   /// No description provided for @calendar.
   ///
@@ -2701,6 +2707,552 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date & Time'**
   String get dateAndTime;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tutorialDone;
+
+  /// No description provided for @tutorialWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Entre Sets'**
+  String get tutorialWelcomeTitle;
+
+  /// No description provided for @tutorialWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organize and join tennis tournaments with ease.'**
+  String get tutorialWelcomeSubtitle;
+
+  /// No description provided for @tutorialFindTournamentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Tournaments'**
+  String get tutorialFindTournamentsTitle;
+
+  /// No description provided for @tutorialFindTournamentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse, filter, and register for tournaments near you.'**
+  String get tutorialFindTournamentsSubtitle;
+
+  /// No description provided for @tutorialTrackMatchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Matches'**
+  String get tutorialTrackMatchesTitle;
+
+  /// No description provided for @tutorialTrackMatchesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get your schedule, confirm attendance, and follow results live.'**
+  String get tutorialTrackMatchesSubtitle;
+
+  /// No description provided for @tutorialReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Play?'**
+  String get tutorialReadyTitle;
+
+  /// No description provided for @tutorialStartTour.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Tour'**
+  String get tutorialStartTour;
+
+  /// No description provided for @tutorialSkipLetMeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip, let me in'**
+  String get tutorialSkipLetMeIn;
+
+  /// No description provided for @tutorialReplayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replay Tutorial'**
+  String get tutorialReplayTitle;
+
+  /// No description provided for @tutorialReplayPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Tour'**
+  String get tutorialReplayPlayer;
+
+  /// No description provided for @tutorialReplayWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get tutorialReplayWelcome;
+
+  /// No description provided for @tutorialTournamentsTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournaments'**
+  String get tutorialTournamentsTabTitle;
+
+  /// No description provided for @tutorialTournamentsTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your home base. Browse all available tournaments, filter by status, and find your next match.'**
+  String get tutorialTournamentsTabBody;
+
+  /// No description provided for @tutorialScheduleTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get tutorialScheduleTabTitle;
+
+  /// No description provided for @tutorialScheduleTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal match calendar. See upcoming matches you\'re in or following, organized by date.'**
+  String get tutorialScheduleTabBody;
+
+  /// No description provided for @tutorialProfileTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get tutorialProfileTabTitle;
+
+  /// No description provided for @tutorialProfileTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your profile, set your playing level, check your stats, and adjust preferences.'**
+  String get tutorialProfileTabBody;
+
+  /// No description provided for @tutorialSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get tutorialSearchTitle;
+
+  /// No description provided for @tutorialSearchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tournaments by name to quickly find what you\'re looking for.'**
+  String get tutorialSearchBody;
+
+  /// No description provided for @tutorialFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get tutorialFilterTitle;
+
+  /// No description provided for @tutorialFilterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrow results by status: your tournaments, participating, singles, doubles, or open registration.'**
+  String get tutorialFilterBody;
+
+  /// No description provided for @tutorialTournamentCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Card'**
+  String get tutorialTournamentCardTitle;
+
+  /// No description provided for @tutorialTournamentCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each card shows name, cover image, status, player count, and dates. Tap to see full details.'**
+  String get tutorialTournamentCardBody;
+
+  /// No description provided for @tutorialCreateTournamentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tournament'**
+  String get tutorialCreateTournamentTitle;
+
+  /// No description provided for @tutorialCreateTournamentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to create and organize your own tournament.'**
+  String get tutorialCreateTournamentBody;
+
+  /// No description provided for @tutorialInfoTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get tutorialInfoTabTitle;
+
+  /// No description provided for @tutorialInfoTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament description, format, categories, location, and participants list.'**
+  String get tutorialInfoTabBody;
+
+  /// No description provided for @tutorialBracketTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bracket'**
+  String get tutorialBracketTabTitle;
+
+  /// No description provided for @tutorialBracketTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Once generated, view the full match bracket here. Tap any match for details.'**
+  String get tutorialBracketTabBody;
+
+  /// No description provided for @tutorialCalendarTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get tutorialCalendarTabTitle;
+
+  /// No description provided for @tutorialCalendarTabBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See all scheduled matches on a calendar. Dates with matches are marked.'**
+  String get tutorialCalendarTabBody;
+
+  /// No description provided for @tutorialShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get tutorialShareTitle;
+
+  /// No description provided for @tutorialShareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a link so players can find and register. Opens directly in the app if installed.'**
+  String get tutorialShareBody;
+
+  /// No description provided for @tutorialAdminSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Settings'**
+  String get tutorialAdminSettingsTitle;
+
+  /// No description provided for @tutorialAdminSettingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your tournament: edit info, participants, categories, schedule, brackets, and co-admins.'**
+  String get tutorialAdminSettingsBody;
+
+  /// No description provided for @matchRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Rules'**
+  String get matchRules;
+
+  /// No description provided for @matchRulesPreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get matchRulesPreset;
+
+  /// No description provided for @presetQuickMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Match'**
+  String get presetQuickMatch;
+
+  /// No description provided for @presetStandardAmateur.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard Amateur'**
+  String get presetStandardAmateur;
+
+  /// No description provided for @presetFullMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Match'**
+  String get presetFullMatch;
+
+  /// No description provided for @presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get presetCustom;
+
+  /// No description provided for @scoringFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring'**
+  String get scoringFormat;
+
+  /// No description provided for @setsToWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets to win'**
+  String get setsToWin;
+
+  /// No description provided for @gamesPerSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Games per set'**
+  String get gamesPerSet;
+
+  /// No description provided for @advantage.
+  ///
+  /// In en, this message translates to:
+  /// **'Advantage (deuce)'**
+  String get advantage;
+
+  /// No description provided for @tiebreakAtSetEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiebreak at set end'**
+  String get tiebreakAtSetEnd;
+
+  /// No description provided for @tiebreakPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiebreak points'**
+  String get tiebreakPoints;
+
+  /// No description provided for @finalSetMatchTiebreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Final set is match tiebreak'**
+  String get finalSetMatchTiebreak;
+
+  /// No description provided for @matchTiebreakPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Match tiebreak points'**
+  String get matchTiebreakPoints;
+
+  /// No description provided for @timeRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeRules;
+
+  /// No description provided for @matchDurationLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration limit'**
+  String get matchDurationLimit;
+
+  /// No description provided for @matchDurationMinutesValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String matchDurationMinutesValue(int minutes);
+
+  /// No description provided for @noLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'No limit'**
+  String get noLimit;
+
+  /// No description provided for @warmupTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm-up'**
+  String get warmupTime;
+
+  /// No description provided for @restBetweenSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest between sets'**
+  String get restBetweenSets;
+
+  /// No description provided for @changeoverTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Changeover'**
+  String get changeoverTime;
+
+  /// No description provided for @changeoverSecondsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s'**
+  String changeoverSecondsValue(int seconds);
+
+  /// No description provided for @courtAndConduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Court & Conduct'**
+  String get courtAndConduct;
+
+  /// No description provided for @selfRefereeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-refereeing'**
+  String get selfRefereeing;
+
+  /// No description provided for @letServeReplayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Let serve replayed'**
+  String get letServeReplayed;
+
+  /// No description provided for @codeOfConduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Code of conduct'**
+  String get codeOfConduct;
+
+  /// No description provided for @conductEnforce.
+  ///
+  /// In en, this message translates to:
+  /// **'Enforce'**
+  String get conductEnforce;
+
+  /// No description provided for @conductRelaxed.
+  ///
+  /// In en, this message translates to:
+  /// **'Relaxed'**
+  String get conductRelaxed;
+
+  /// No description provided for @ballType.
+  ///
+  /// In en, this message translates to:
+  /// **'Ball type'**
+  String get ballType;
+
+  /// No description provided for @walkoverAndNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Walkover & No-Show'**
+  String get walkoverAndNoShow;
+
+  /// No description provided for @confirmationDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation deadline'**
+  String get confirmationDeadline;
+
+  /// No description provided for @confirmationHoursBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h before'**
+  String confirmationHoursBefore(int hours);
+
+  /// No description provided for @noShowGracePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show grace period'**
+  String get noShowGracePeriod;
+
+  /// No description provided for @noShowResult.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show result'**
+  String get noShowResult;
+
+  /// No description provided for @noShowWalkover.
+  ///
+  /// In en, this message translates to:
+  /// **'Walkover (W.O.)'**
+  String get noShowWalkover;
+
+  /// No description provided for @noShowReschedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule'**
+  String get noShowReschedule;
+
+  /// No description provided for @rulesScoringSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{sets} sets to {games} games'**
+  String rulesScoringSummary(int sets, int games);
+
+  /// No description provided for @rulesNoAdvantage.
+  ///
+  /// In en, this message translates to:
+  /// **'No advantage'**
+  String get rulesNoAdvantage;
+
+  /// No description provided for @rulesAdvantage.
+  ///
+  /// In en, this message translates to:
+  /// **'Advantage'**
+  String get rulesAdvantage;
+
+  /// No description provided for @rulesTiebreakTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiebreak to {points}'**
+  String rulesTiebreakTo(int points);
+
+  /// No description provided for @rulesFinalSetTiebreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Final set: Match tiebreak to {points}'**
+  String rulesFinalSetTiebreak(int points);
+
+  /// No description provided for @rulesMatchLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min limit'**
+  String rulesMatchLimit(int minutes);
+
+  /// No description provided for @rulesWarmup.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min warm-up'**
+  String rulesWarmup(int minutes);
+
+  /// No description provided for @rulesRestBetweenSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min rest between sets'**
+  String rulesRestBetweenSets(int minutes);
+
+  /// No description provided for @rulesConfirmBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm {hours}h before'**
+  String rulesConfirmBefore(int hours);
+
+  /// No description provided for @rulesGracePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min grace'**
+  String rulesGracePeriod(int minutes);
+
+  /// No description provided for @rulesWalkoverOnNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Walkover on no-show'**
+  String get rulesWalkoverOnNoShow;
+
+  /// No description provided for @rulesRescheduleOnNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule on no-show'**
+  String get rulesRescheduleOnNoShow;
+
+  /// No description provided for @rulesSelfRefereeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-refereeing'**
+  String get rulesSelfRefereeing;
+
+  /// No description provided for @rulesLetReplayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Let replayed'**
+  String get rulesLetReplayed;
+
+  /// No description provided for @on.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get on;
+
+  /// No description provided for @off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get off;
 }
 
 class _AppLocalizationsDelegate

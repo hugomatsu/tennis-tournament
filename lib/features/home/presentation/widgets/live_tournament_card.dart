@@ -158,6 +158,28 @@ class LiveTournamentCard extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: tournament.tournamentType == 'openTennis'
+                          ? Colors.teal.withValues(alpha: 0.15)
+                          : Colors.deepPurple.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      tournament.tournamentType == 'openTennis'
+                          ? loc.openTennisGroups
+                          : loc.mataMataElimination,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: tournament.tournamentType == 'openTennis'
+                            ? Colors.teal
+                            : Colors.deepPurple,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

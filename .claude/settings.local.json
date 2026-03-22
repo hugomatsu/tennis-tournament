@@ -4,7 +4,8 @@
       "Bash(flutter build:*)",
       "Bash(firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app 1:751059311860:android:e3c80454d4b5746f0c12a1 --groups Devs)",
       "Bash(grep -l \"FutureProvider\\\\|StreamProvider\\\\|StateNotifierProvider\" /Users/hugomatsumoto/Projects/HMLabs/TennisProjects/tennis-tournament/lib/features/*/application/*.dart)",
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Bash(flutter pub:*)"
     ]
   }
 }

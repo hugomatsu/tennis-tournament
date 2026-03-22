@@ -36,6 +36,8 @@ import 'package:tennis_tournament/features/notifications/presentation/notificati
 import 'package:tennis_tournament/features/notifications/application/notification_providers.dart';
 
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/features/tutorial/presentation/welcome_screen.dart';
+import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -46,7 +48,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     observers: [ref.watch(analyticsServiceProvider).observer],
     initialLocation: '/splash',
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final isLoading = authState.isLoading;
       final hasError = authState.hasError;
       final isAuthenticated = authState.asData?.value != null;
@@ -54,8 +56,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isSplash = state.uri.toString() == '/splash';
       if (isSplash) return null;
 
-      final isLogin = state.uri.toString() == '/login';
-      final isRegister = state.uri.toString() == '/register';
+      final path = state.uri.toString();
+      final isLogin = path == '/login';
+      final isRegister = path == '/register';
+      final isWelcome = path == '/welcome';
 
       if (isLoading || hasError) return null;
 
@@ -63,7 +67,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/login';
       }
 
+      if (isAuthenticated && isWelcome) {
+        return null; // Let them stay on welcome
+      }
+
       if (isAuthenticated && (isLogin || isRegister)) {
+        // Check if welcome screen has been seen; if not, show it first
+        final welcomeSeen = await TutorialRepository().isWelcomeSeen();
+        if (!welcomeSeen) {
+          return '/welcome';
+        }
         return '/tournaments';
       }
 
@@ -84,6 +97,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'RegisterScreen',
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        name: 'WelcomeScreen',
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

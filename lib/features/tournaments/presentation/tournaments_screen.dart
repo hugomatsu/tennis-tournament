@@ -7,6 +7,10 @@ import 'package:tennis_tournament/features/tournaments/data/tournament_repositor
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/features/tutorial/domain/tutorial_keys.dart';
+import 'package:tennis_tournament/features/tutorial/presentation/tutorial_controller.dart';
+import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
+import 'package:tennis_tournament/features/tutorial/data/tutorial_steps_data.dart';
 
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 
@@ -38,7 +42,32 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
     _loadFilters();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(analyticsServiceProvider).logViewTournamentList();
+      _maybeStartTutorial();
     });
+  }
+
+  Future<void> _maybeStartTutorial() async {
+    // Check if we were navigated here with startTutorial flag
+    final extra = GoRouterState.of(context).extra;
+    final shouldStart = extra is Map<String, dynamic> && extra['startTutorial'] == true;
+
+    if (!shouldStart) {
+      // Also auto-start if player tutorial was never completed
+      final completed = await ref.read(tutorialRepositoryProvider).isPlayerTutorialCompleted();
+      final welcomeSeen = await ref.read(tutorialRepositoryProvider).isWelcomeSeen();
+      if (completed || !welcomeSeen) return;
+    }
+
+    // Small delay to let the screen fully render
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    final loc = AppLocalizations.of(context)!;
+    ref.read(tutorialControllerProvider).startPlayerTutorial(
+      context: context,
+      steps: getPlayerTutorialSteps(loc),
+      source: shouldStart ? 'welcome_cta' : 'auto',
+    );
   }
 
   @override
@@ -241,6 +270,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
               children: [
                 Expanded(
                   child: TextField(
+                    key: TutorialKeys.searchBar,
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: loc.searchTournament,
@@ -275,6 +305,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                   isLabelVisible: _activeFilterCount > 0,
                   label: Text('$_activeFilterCount'),
                   child: IconButton.outlined(
+                    key: TutorialKeys.filterButton,
                     icon: const Icon(Icons.tune),
                     onPressed: () => _showFilterSheet(context, loc),
                   ),
@@ -308,6 +339,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                           itemBuilder: (context, index) {
                             final tournament = paginatedTournaments[index];
                             return GestureDetector(
+                              key: index == 0 ? TutorialKeys.firstTournamentCard : null,
                               onTap: () => context.go('/tournaments/${tournament.id}'),
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
@@ -380,6 +412,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                   
                   if (canCreate) {
                      return FloatingActionButton.extended(
+                      key: TutorialKeys.createTournamentFab,
                       onPressed: () => context.go('/admin/create-tournament'),
                       icon: const Icon(Icons.add),
                       label: Text(isPremium ? loc.createTournament : '${loc.createTournament} ($count/$limit)'),

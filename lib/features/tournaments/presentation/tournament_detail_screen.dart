@@ -21,7 +21,12 @@ import 'package:tennis_tournament/features/locations/data/location_repository.da
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/core/sharing/sharing_service.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_rules_card.dart';
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/features/tutorial/domain/tutorial_keys.dart';
+import 'package:tennis_tournament/features/tutorial/presentation/tutorial_controller.dart';
+import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
+import 'package:tennis_tournament/features/tutorial/data/tutorial_steps_data.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -45,8 +50,12 @@ class TournamentDetailScreen extends ConsumerWidget {
         }
         return DefaultTabController(
           length: 3,
-          child: Scaffold(
-            body: NestedScrollView(
+          child: _AdminTutorialWrapper(
+            ref: ref,
+            tournament: tournament,
+            userAsync: userAsync,
+            child: Scaffold(
+              body: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverAppBar(
@@ -59,9 +68,9 @@ class TournamentDetailScreen extends ConsumerWidget {
                     title: Text(tournament.name),
                     bottom: TabBar(
                       tabs: [
-                        Tab(text: loc.info),
-                        Tab(text: loc.bracket),
-                        Tab(text: loc.calendar),
+                        Tab(key: TutorialKeys.infoTab, text: loc.info),
+                        Tab(key: TutorialKeys.bracketTab, text: loc.bracket),
+                        Tab(key: TutorialKeys.calendarTab, text: loc.calendar),
                       ],
                     ),
                     actions: [
@@ -74,6 +83,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                         },
                       ),
                       IconButton(
+                        key: TutorialKeys.shareButton,
                         icon: const Icon(Icons.share),
                         tooltip: loc.invitePlayers,
                         onPressed: () {
@@ -97,6 +107,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                             if (!isAdmin) return const SizedBox.shrink();
 
                             return PopupMenuButton<String>(
+                              key: TutorialKeys.adminSettingsButton,
                               icon: const Icon(Icons.settings),
                               tooltip: loc.tournamentOptions,
                               onSelected: (value) async {
@@ -307,6 +318,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                 ],
               ),
             ),
+          ),
           ),
         );
       },
@@ -865,6 +877,11 @@ class _InfoTab extends ConsumerWidget {
           ),
         ),
         
+        if (tournament.matchRules.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          MatchRulesCard(rules: tournament.matchRules),
+        ],
+
         const SizedBox(height: 24),
 
         // General Information Section
@@ -1679,5 +1696,60 @@ class _PartnerSelectionDialogState extends ConsumerState<_PartnerSelectionDialog
         ),
       ],
     );
+  }
+}
+
+class _AdminTutorialWrapper extends ConsumerStatefulWidget {
+  final Tournament tournament;
+  final AsyncValue<Player?> userAsync;
+  final WidgetRef ref;
+  final Widget child;
+
+  const _AdminTutorialWrapper({
+    required this.tournament,
+    required this.userAsync,
+    required this.ref,
+    required this.child,
+  });
+
+  @override
+  ConsumerState<_AdminTutorialWrapper> createState() => _AdminTutorialWrapperState();
+}
+
+class _AdminTutorialWrapperState extends ConsumerState<_AdminTutorialWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeStartAdminTutorial();
+    });
+  }
+
+  Future<void> _maybeStartAdminTutorial() async {
+    final user = widget.userAsync.asData?.value;
+    if (user == null) return;
+
+    final tournament = widget.tournament;
+    final isAdmin = tournament.ownerId == user.id ||
+        tournament.adminIds.contains(user.id);
+    if (!isAdmin) return;
+
+    final completed = await ref.read(tutorialRepositoryProvider).isAdminTutorialCompleted();
+    if (completed) return;
+
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+
+    final loc = AppLocalizations.of(context)!;
+    ref.read(tutorialControllerProvider).startAdminTutorial(
+      context: context,
+      steps: getAdminTutorialSteps(loc),
+      source: 'auto',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }

@@ -676,7 +676,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              initialValue: _pendingStatus,
+              value: _pendingStatus,
               decoration: InputDecoration(labelText: loc.status),
               items: ['Preparing', 'Scheduled', 'Confirmed', 'Live', 'Completed', 'Cancelled']
                   .map((s) => DropdownMenuItem(value: s, child: Text(_getLocalizedStatus(s, loc))))
@@ -685,7 +685,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              initialValue: _pendingWinner,
+              value: _pendingWinner,
               decoration: InputDecoration(labelText: loc.winner),
               items: [
                 match.player1Name,

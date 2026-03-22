@@ -135,7 +135,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveProfile => 'Save Profile';
 
   @override
-  String get bracket => 'Bracket';
+  String get bracket => 'Progress';
+
+  @override
+  String get playoff => 'Playoff';
 
   @override
   String get calendar => 'Calendar';
@@ -1403,4 +1406,314 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateAndTime => 'Date & Time';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialDone => 'Done';
+
+  @override
+  String get tutorialWelcomeTitle => 'Welcome to Entre Sets';
+
+  @override
+  String get tutorialWelcomeSubtitle =>
+      'Organize and join tennis tournaments with ease.';
+
+  @override
+  String get tutorialFindTournamentsTitle => 'Find Tournaments';
+
+  @override
+  String get tutorialFindTournamentsSubtitle =>
+      'Browse, filter, and register for tournaments near you.';
+
+  @override
+  String get tutorialTrackMatchesTitle => 'Track Your Matches';
+
+  @override
+  String get tutorialTrackMatchesSubtitle =>
+      'Get your schedule, confirm attendance, and follow results live.';
+
+  @override
+  String get tutorialReadyTitle => 'Ready to Play?';
+
+  @override
+  String get tutorialStartTour => 'Start Tour';
+
+  @override
+  String get tutorialSkipLetMeIn => 'Skip, let me in';
+
+  @override
+  String get tutorialReplayTitle => 'Replay Tutorial';
+
+  @override
+  String get tutorialReplayPlayer => 'Player Tour';
+
+  @override
+  String get tutorialReplayWelcome => 'Welcome';
+
+  @override
+  String get tutorialTournamentsTabTitle => 'Tournaments';
+
+  @override
+  String get tutorialTournamentsTabBody =>
+      'Your home base. Browse all available tournaments, filter by status, and find your next match.';
+
+  @override
+  String get tutorialScheduleTabTitle => 'Schedule';
+
+  @override
+  String get tutorialScheduleTabBody =>
+      'Your personal match calendar. See upcoming matches you\'re in or following, organized by date.';
+
+  @override
+  String get tutorialProfileTabTitle => 'Profile';
+
+  @override
+  String get tutorialProfileTabBody =>
+      'Manage your profile, set your playing level, check your stats, and adjust preferences.';
+
+  @override
+  String get tutorialSearchTitle => 'Search';
+
+  @override
+  String get tutorialSearchBody =>
+      'Search tournaments by name to quickly find what you\'re looking for.';
+
+  @override
+  String get tutorialFilterTitle => 'Filters';
+
+  @override
+  String get tutorialFilterBody =>
+      'Narrow results by status: your tournaments, participating, singles, doubles, or open registration.';
+
+  @override
+  String get tutorialTournamentCardTitle => 'Tournament Card';
+
+  @override
+  String get tutorialTournamentCardBody =>
+      'Each card shows name, cover image, status, player count, and dates. Tap to see full details.';
+
+  @override
+  String get tutorialCreateTournamentTitle => 'Create Tournament';
+
+  @override
+  String get tutorialCreateTournamentBody =>
+      'Tap here to create and organize your own tournament.';
+
+  @override
+  String get tutorialInfoTabTitle => 'Info';
+
+  @override
+  String get tutorialInfoTabBody =>
+      'Tournament description, format, categories, location, and participants list.';
+
+  @override
+  String get tutorialBracketTabTitle => 'Bracket';
+
+  @override
+  String get tutorialBracketTabBody =>
+      'Once generated, view the full match bracket here. Tap any match for details.';
+
+  @override
+  String get tutorialCalendarTabTitle => 'Calendar';
+
+  @override
+  String get tutorialCalendarTabBody =>
+      'See all scheduled matches on a calendar. Dates with matches are marked.';
+
+  @override
+  String get tutorialShareTitle => 'Share';
+
+  @override
+  String get tutorialShareBody =>
+      'Share a link so players can find and register. Opens directly in the app if installed.';
+
+  @override
+  String get tutorialAdminSettingsTitle => 'Admin Settings';
+
+  @override
+  String get tutorialAdminSettingsBody =>
+      'Manage your tournament: edit info, participants, categories, schedule, brackets, and co-admins.';
+
+  @override
+  String get matchRules => 'Match Rules';
+
+  @override
+  String get matchRulesPreset => 'Preset';
+
+  @override
+  String get presetQuickMatch => 'Quick Match';
+
+  @override
+  String get presetStandardAmateur => 'Standard Amateur';
+
+  @override
+  String get presetFullMatch => 'Full Match';
+
+  @override
+  String get presetCustom => 'Custom';
+
+  @override
+  String get scoringFormat => 'Scoring';
+
+  @override
+  String get setsToWin => 'Sets to win';
+
+  @override
+  String get gamesPerSet => 'Games per set';
+
+  @override
+  String get advantage => 'Advantage (deuce)';
+
+  @override
+  String get tiebreakAtSetEnd => 'Tiebreak at set end';
+
+  @override
+  String get tiebreakPoints => 'Tiebreak points';
+
+  @override
+  String get finalSetMatchTiebreak => 'Final set is match tiebreak';
+
+  @override
+  String get matchTiebreakPoints => 'Match tiebreak points';
+
+  @override
+  String get timeRules => 'Time';
+
+  @override
+  String get matchDurationLimit => 'Duration limit';
+
+  @override
+  String matchDurationMinutesValue(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get noLimit => 'No limit';
+
+  @override
+  String get warmupTime => 'Warm-up';
+
+  @override
+  String get restBetweenSets => 'Rest between sets';
+
+  @override
+  String get changeoverTime => 'Changeover';
+
+  @override
+  String changeoverSecondsValue(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String get courtAndConduct => 'Court & Conduct';
+
+  @override
+  String get selfRefereeing => 'Self-refereeing';
+
+  @override
+  String get letServeReplayed => 'Let serve replayed';
+
+  @override
+  String get codeOfConduct => 'Code of conduct';
+
+  @override
+  String get conductEnforce => 'Enforce';
+
+  @override
+  String get conductRelaxed => 'Relaxed';
+
+  @override
+  String get ballType => 'Ball type';
+
+  @override
+  String get walkoverAndNoShow => 'Walkover & No-Show';
+
+  @override
+  String get confirmationDeadline => 'Confirmation deadline';
+
+  @override
+  String confirmationHoursBefore(int hours) {
+    return '${hours}h before';
+  }
+
+  @override
+  String get noShowGracePeriod => 'No-show grace period';
+
+  @override
+  String get noShowResult => 'No-show result';
+
+  @override
+  String get noShowWalkover => 'Walkover (W.O.)';
+
+  @override
+  String get noShowReschedule => 'Reschedule';
+
+  @override
+  String rulesScoringSummary(int sets, int games) {
+    return '$sets sets to $games games';
+  }
+
+  @override
+  String get rulesNoAdvantage => 'No advantage';
+
+  @override
+  String get rulesAdvantage => 'Advantage';
+
+  @override
+  String rulesTiebreakTo(int points) {
+    return 'Tiebreak to $points';
+  }
+
+  @override
+  String rulesFinalSetTiebreak(int points) {
+    return 'Final set: Match tiebreak to $points';
+  }
+
+  @override
+  String rulesMatchLimit(int minutes) {
+    return '$minutes min limit';
+  }
+
+  @override
+  String rulesWarmup(int minutes) {
+    return '$minutes min warm-up';
+  }
+
+  @override
+  String rulesRestBetweenSets(int minutes) {
+    return '$minutes min rest between sets';
+  }
+
+  @override
+  String rulesConfirmBefore(int hours) {
+    return 'Confirm ${hours}h before';
+  }
+
+  @override
+  String rulesGracePeriod(int minutes) {
+    return '$minutes min grace';
+  }
+
+  @override
+  String get rulesWalkoverOnNoShow => 'Walkover on no-show';
+
+  @override
+  String get rulesRescheduleOnNoShow => 'Reschedule on no-show';
+
+  @override
+  String get rulesSelfRefereeing => 'Self-refereeing';
+
+  @override
+  String get rulesLetReplayed => 'Let replayed';
+
+  @override
+  String get on => 'On';
+
+  @override
+  String get off => 'Off';
 }

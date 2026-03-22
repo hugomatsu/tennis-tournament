@@ -37,6 +37,7 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const {},
+  matchRules: json['matchRules'] as Map<String, dynamic>? ?? const {},
 );
 
 Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
@@ -61,6 +62,7 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'pointsPerWin': instance.pointsPerWin,
       'advanceCount': instance.advanceCount,
       'defaultWeekdayTimes': instance.defaultWeekdayTimes,
+      'matchRules': instance.matchRules,
     };
 
 _DailySchedule _$DailyScheduleFromJson(Map<String, dynamic> json) =>

@@ -88,8 +88,8 @@ class BracketView extends ConsumerWidget {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// For Open Tennis mode: shows group standings, and once playoff matches exist,
-/// shows the bracket graph below (or instead of) the group standings.
+/// For Open Tennis mode: shows Groups and Playoff as sub-tabs.
+/// Groups tab is always visible. Playoff tab appears once playoff matches exist.
 class _OpenTennisTabContent extends ConsumerWidget {
   final Tournament tournament;
   final String categoryId;
@@ -101,6 +101,7 @@ class _OpenTennisTabContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final matchesAsync = ref.watch(bracketMatchesProvider(tournament.id));
 
     return matchesAsync.when(
@@ -108,21 +109,44 @@ class _OpenTennisTabContent extends ConsumerWidget {
         final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
         final hasPlayoffMatches = categoryMatches.any((m) => !m.round.startsWith('Group'));
 
-        if (hasPlayoffMatches) {
-          // Show bracket graph for playoff matches
-          return _SingleBracketView(
-            tournamentId: tournament.id,
-            tournamentName: tournament.name,
-            categoryId: categoryId,
-            playoffOnly: true,
-          );
-        }
+        final tabCount = hasPlayoffMatches ? 2 : 1;
 
-        // No playoff yet, show group standings
-        return GroupStandingsView(
-          tournamentId: tournament.id,
-          categoryId: categoryId,
-          tournament: tournament,
+        return DefaultTabController(
+          length: tabCount,
+          child: Column(
+            children: [
+              Container(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: TabBar(
+                  isScrollable: false,
+                  tabs: [
+                    Tab(text: loc.groups),
+                    if (hasPlayoffMatches)
+                      Tab(text: loc.playoff),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    GroupStandingsView(
+                      tournamentId: tournament.id,
+                      categoryId: categoryId,
+                      tournament: tournament,
+                    ),
+                    if (hasPlayoffMatches)
+                      _SingleBracketView(
+                        tournamentId: tournament.id,
+                        tournamentName: tournament.name,
+                        categoryId: categoryId,
+                        playoffOnly: true,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),

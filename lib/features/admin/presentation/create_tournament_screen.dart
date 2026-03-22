@@ -11,6 +11,8 @@ import 'package:tennis_tournament/features/tournaments/presentation/tournaments_
 import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/features/tournaments/domain/match_rule_presets.dart';
+import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_rules_editor.dart';
 
 class CreateTournamentScreen extends ConsumerStatefulWidget {
   const CreateTournamentScreen({super.key});
@@ -35,6 +37,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   int _advanceCount = 1;
   bool _isLoading = false;
   final Map<int, ({TimeOfDay start, TimeOfDay end})> _weekdayTimes = {};
+  Map<String, dynamic> _matchRules = {...kDefaultMatchRules};
 
   @override
   void dispose() {
@@ -302,6 +305,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         groupCount: _maxPlayersPerGroup, // stores maxPlayersPerGroup
         pointsPerWin: _pointsPerWin,
         advanceCount: _advanceCount,
+        matchRules: _matchRules,
         defaultWeekdayTimes: _weekdayTimes.map(
           (key, range) {
             String fmt(TimeOfDay t) =>
@@ -453,7 +457,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 title: l10n.tournamentMode,
                 children: [
                   DropdownButtonFormField<String>(
-                    initialValue: _tournamentType,
+                    value: _tournamentType,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.sports_tennis),
@@ -542,7 +546,19 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 ],
               ),
 
-              // ── Section 4: Presentation ────────────────────────────────
+              // ── Section 4: Match Rules ─────────────────────────────────
+              _SectionCard(
+                icon: Icons.rule,
+                title: l10n.matchRules,
+                children: [
+                  MatchRulesEditor(
+                    initialRules: _matchRules,
+                    onChanged: (rules) => _matchRules = rules,
+                  ),
+                ],
+              ),
+
+              // ── Section 5: Presentation ────────────────────────────────
               _SectionCard(
                 icon: Icons.image_outlined,
                 title: l10n.description,

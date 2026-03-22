@@ -28,6 +28,7 @@ abstract class Tournament with _$Tournament {
     @Default(3) int pointsPerWin, // Points awarded for each win
     @Default(1) int advanceCount, // How many players from each group advance to playoff
     @Default({}) Map<String, String> defaultWeekdayTimes, // e.g. {"1":"18:00","3":"18:00"}
+    @Default({}) Map<String, dynamic> matchRules, // structured match rules
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>

@@ -436,15 +436,27 @@ class _GroupCard extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Text('${standing.wins}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
-                          Text('${standing.losses}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
-                          Text('${standing.matchesPlayed}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
-                          Text(
-                            '${standing.points}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: isWinner ? Colors.amber.shade800 : null,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Text('${standing.wins}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Text('${standing.losses}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Text('${standing.matchesPlayed}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Text(
+                              '${standing.points}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isWinner ? Colors.amber.shade800 : null,
+                              ),
                             ),
                           ),
                         ],

@@ -4,6 +4,7 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/notifications/application/notification_providers.dart';
+import 'package:tennis_tournament/features/tutorial/domain/tutorial_keys.dart';
 
 class ScaffoldWithNavBar extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -77,16 +78,19 @@ class ScaffoldWithNavBar extends ConsumerWidget {
         selectedIndex: navigationShell.currentIndex,
         destinations: [
           NavigationDestination(
+            key: TutorialKeys.tournamentsTab,
             icon: const Icon(Icons.emoji_events_outlined),
             selectedIcon: const Icon(Icons.emoji_events),
             label: loc.tournaments,
           ),
           NavigationDestination(
+            key: TutorialKeys.scheduleTab,
             icon: const Icon(Icons.calendar_month_outlined),
             selectedIcon: const Icon(Icons.calendar_month),
             label: loc.schedule,
           ),
-          NavigationDestination( // Profile Tab
+          NavigationDestination(
+            key: TutorialKeys.profileTab,
             icon: Consumer(
               builder: (context, ref, _) {
                 final userAsync = ref.watch(currentUserProvider);

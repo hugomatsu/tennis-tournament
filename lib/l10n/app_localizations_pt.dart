@@ -135,7 +135,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveProfile => 'Salvar Perfil';
 
   @override
-  String get bracket => 'Chave';
+  String get bracket => 'Progresso';
+
+  @override
+  String get playoff => 'Playoff';
 
   @override
   String get calendar => 'Calendário';
@@ -1409,4 +1412,314 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get dateAndTime => 'Data e Hora';
+
+  @override
+  String get tutorialSkip => 'Pular';
+
+  @override
+  String get tutorialNext => 'Proximo';
+
+  @override
+  String get tutorialDone => 'Concluir';
+
+  @override
+  String get tutorialWelcomeTitle => 'Bem-vindo ao Entre Sets';
+
+  @override
+  String get tutorialWelcomeSubtitle =>
+      'Organize e participe de torneios de tenis com facilidade.';
+
+  @override
+  String get tutorialFindTournamentsTitle => 'Encontre Torneios';
+
+  @override
+  String get tutorialFindTournamentsSubtitle =>
+      'Navegue, filtre e inscreva-se em torneios perto de voce.';
+
+  @override
+  String get tutorialTrackMatchesTitle => 'Acompanhe seus Jogos';
+
+  @override
+  String get tutorialTrackMatchesSubtitle =>
+      'Veja sua agenda, confirme presenca e acompanhe resultados ao vivo.';
+
+  @override
+  String get tutorialReadyTitle => 'Pronto para Jogar?';
+
+  @override
+  String get tutorialStartTour => 'Iniciar Tour';
+
+  @override
+  String get tutorialSkipLetMeIn => 'Pular, quero entrar';
+
+  @override
+  String get tutorialReplayTitle => 'Repetir Tutorial';
+
+  @override
+  String get tutorialReplayPlayer => 'Tour do Jogador';
+
+  @override
+  String get tutorialReplayWelcome => 'Boas-vindas';
+
+  @override
+  String get tutorialTournamentsTabTitle => 'Torneios';
+
+  @override
+  String get tutorialTournamentsTabBody =>
+      'Sua base. Navegue por todos os torneios disponiveis, filtre por status e encontre sua proxima partida.';
+
+  @override
+  String get tutorialScheduleTabTitle => 'Agenda';
+
+  @override
+  String get tutorialScheduleTabBody =>
+      'Seu calendario pessoal de jogos. Veja as proximas partidas que voce participa ou segue.';
+
+  @override
+  String get tutorialProfileTabTitle => 'Perfil';
+
+  @override
+  String get tutorialProfileTabBody =>
+      'Gerencie seu perfil, defina seu nivel, veja estatisticas e ajuste preferencias.';
+
+  @override
+  String get tutorialSearchTitle => 'Busca';
+
+  @override
+  String get tutorialSearchBody =>
+      'Busque torneios por nome para encontrar rapidamente o que procura.';
+
+  @override
+  String get tutorialFilterTitle => 'Filtros';
+
+  @override
+  String get tutorialFilterBody =>
+      'Filtre por: seus torneios, participando, simples, duplas ou inscricoes abertas.';
+
+  @override
+  String get tutorialTournamentCardTitle => 'Card do Torneio';
+
+  @override
+  String get tutorialTournamentCardBody =>
+      'Cada card mostra nome, imagem, status, numero de jogadores e datas. Toque para ver detalhes.';
+
+  @override
+  String get tutorialCreateTournamentTitle => 'Criar Torneio';
+
+  @override
+  String get tutorialCreateTournamentBody =>
+      'Toque aqui para criar e organizar seu proprio torneio.';
+
+  @override
+  String get tutorialInfoTabTitle => 'Info';
+
+  @override
+  String get tutorialInfoTabBody =>
+      'Descricao do torneio, formato, categorias, local e lista de participantes.';
+
+  @override
+  String get tutorialBracketTabTitle => 'Chave';
+
+  @override
+  String get tutorialBracketTabBody =>
+      'Apos gerada, veja a chave completa de jogos aqui. Toque em qualquer jogo para detalhes.';
+
+  @override
+  String get tutorialCalendarTabTitle => 'Calendario';
+
+  @override
+  String get tutorialCalendarTabBody =>
+      'Veja todos os jogos agendados no calendario. Datas com jogos sao marcadas.';
+
+  @override
+  String get tutorialShareTitle => 'Compartilhar';
+
+  @override
+  String get tutorialShareBody =>
+      'Compartilhe um link para jogadores encontrarem e se inscreverem. Abre direto no app se instalado.';
+
+  @override
+  String get tutorialAdminSettingsTitle => 'Config. do Admin';
+
+  @override
+  String get tutorialAdminSettingsBody =>
+      'Gerencie seu torneio: edite info, participantes, categorias, agenda, chaves e co-admins.';
+
+  @override
+  String get matchRules => 'Regras da Partida';
+
+  @override
+  String get matchRulesPreset => 'Preset';
+
+  @override
+  String get presetQuickMatch => 'Rápido';
+
+  @override
+  String get presetStandardAmateur => 'Padrão Amador';
+
+  @override
+  String get presetFullMatch => 'Completo';
+
+  @override
+  String get presetCustom => 'Personalizado';
+
+  @override
+  String get scoringFormat => 'Pontuação';
+
+  @override
+  String get setsToWin => 'Sets para vencer';
+
+  @override
+  String get gamesPerSet => 'Games por set';
+
+  @override
+  String get advantage => 'Vantagem (deuce)';
+
+  @override
+  String get tiebreakAtSetEnd => 'Tiebreak no final do set';
+
+  @override
+  String get tiebreakPoints => 'Pontos do tiebreak';
+
+  @override
+  String get finalSetMatchTiebreak => 'Set final é match tiebreak';
+
+  @override
+  String get matchTiebreakPoints => 'Pontos do match tiebreak';
+
+  @override
+  String get timeRules => 'Tempo';
+
+  @override
+  String get matchDurationLimit => 'Limite de duração';
+
+  @override
+  String matchDurationMinutesValue(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get noLimit => 'Sem limite';
+
+  @override
+  String get warmupTime => 'Aquecimento';
+
+  @override
+  String get restBetweenSets => 'Descanso entre sets';
+
+  @override
+  String get changeoverTime => 'Troca de lado';
+
+  @override
+  String changeoverSecondsValue(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String get courtAndConduct => 'Quadra e Conduta';
+
+  @override
+  String get selfRefereeing => 'Auto-arbitragem';
+
+  @override
+  String get letServeReplayed => 'Let é repetido';
+
+  @override
+  String get codeOfConduct => 'Código de conduta';
+
+  @override
+  String get conductEnforce => 'Rígido';
+
+  @override
+  String get conductRelaxed => 'Flexível';
+
+  @override
+  String get ballType => 'Tipo de bola';
+
+  @override
+  String get walkoverAndNoShow => 'W.O. e Ausência';
+
+  @override
+  String get confirmationDeadline => 'Prazo de confirmação';
+
+  @override
+  String confirmationHoursBefore(int hours) {
+    return '${hours}h antes';
+  }
+
+  @override
+  String get noShowGracePeriod => 'Tolerância de ausência';
+
+  @override
+  String get noShowResult => 'Resultado por ausência';
+
+  @override
+  String get noShowWalkover => 'W.O.';
+
+  @override
+  String get noShowReschedule => 'Reagendar';
+
+  @override
+  String rulesScoringSummary(int sets, int games) {
+    return '$sets sets de $games games';
+  }
+
+  @override
+  String get rulesNoAdvantage => 'Sem vantagem';
+
+  @override
+  String get rulesAdvantage => 'Com vantagem';
+
+  @override
+  String rulesTiebreakTo(int points) {
+    return 'Tiebreak até $points';
+  }
+
+  @override
+  String rulesFinalSetTiebreak(int points) {
+    return 'Set final: Match tiebreak até $points';
+  }
+
+  @override
+  String rulesMatchLimit(int minutes) {
+    return '$minutes min limite';
+  }
+
+  @override
+  String rulesWarmup(int minutes) {
+    return '$minutes min aquecimento';
+  }
+
+  @override
+  String rulesRestBetweenSets(int minutes) {
+    return '$minutes min descanso entre sets';
+  }
+
+  @override
+  String rulesConfirmBefore(int hours) {
+    return 'Confirmar ${hours}h antes';
+  }
+
+  @override
+  String rulesGracePeriod(int minutes) {
+    return '$minutes min tolerância';
+  }
+
+  @override
+  String get rulesWalkoverOnNoShow => 'W.O. por ausência';
+
+  @override
+  String get rulesRescheduleOnNoShow => 'Reagendar por ausência';
+
+  @override
+  String get rulesSelfRefereeing => 'Auto-arbitragem';
+
+  @override
+  String get rulesLetReplayed => 'Let repetido';
+
+  @override
+  String get on => 'Sim';
+
+  @override
+  String get off => 'Não';
 }
