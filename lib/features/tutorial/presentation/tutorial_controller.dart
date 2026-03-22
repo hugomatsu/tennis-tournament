@@ -5,6 +5,7 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:tennis_tournament/features/tutorial/domain/tutorial_step.dart';
 import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
 import 'package:tennis_tournament/features/tutorial/data/tutorial_analytics.dart';
+import 'package:tennis_tournament/l10n/app_localizations.dart';
 
 final tutorialControllerProvider = Provider<TutorialController>((ref) {
   return TutorialController(
@@ -292,6 +293,7 @@ class _TutorialTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final isLast = stepIndex == totalSteps - 1;
 
     return Container(
@@ -345,7 +347,7 @@ class _TutorialTooltip extends StatelessWidget {
               TextButton(
                 onPressed: onSkip,
                 child: Text(
-                  'Skip',
+                  loc.tutorialSkip,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
@@ -353,7 +355,7 @@ class _TutorialTooltip extends StatelessWidget {
               ),
               FilledButton(
                 onPressed: onNext,
-                child: Text(isLast ? 'Done' : 'Next'),
+                child: Text(isLast ? loc.tutorialDone : loc.tutorialNext),
               ),
             ],
           ),

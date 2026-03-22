@@ -28,6 +28,7 @@ abstract class TennisMatch with _$TennisMatch {
     String? opponentName, // Deprecated, kept for backward compatibility if needed, or remove
     String? score,
     String? winner,
+    @Default('normal') String resultType, // 'normal' or 'walkover'
     String? nextMatchId, // ID of the match where the winner goes
     @Default(0) int matchIndex, // For sorting in bracket
     @Default(0) int player1Cheers,

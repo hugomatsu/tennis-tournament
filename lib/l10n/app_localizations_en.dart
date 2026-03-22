@@ -1716,4 +1716,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get off => 'Off';
+
+  @override
+  String get scoringMode => 'Scoring Mode';
+
+  @override
+  String get flatScoring => 'Flat Scoring';
+
+  @override
+  String get flatScoringDesc => 'Fixed points per win (e.g., 3 pts)';
+
+  @override
+  String get variableScoring => 'Variable Scoring';
+
+  @override
+  String get variableScoringDesc =>
+      'Points vary by set result (2×0, 2×1, W.O.)';
+
+  @override
+  String get matchFormatLabel => 'Match Format';
+
+  @override
+  String get roundRobinFormat => 'Round-Robin';
+
+  @override
+  String get roundRobinFormatDesc =>
+      'Each player plays all others in same group';
+
+  @override
+  String get crossGroupFormat => 'Cross-Group';
+
+  @override
+  String get crossGroupFormatDesc => 'Players face opponents from other groups';
+
+  @override
+  String get crossGroupMatches => 'Cross-Group Matches';
+
+  @override
+  String get matchesPerPlayer => 'Cross-group matches per player';
+
+  @override
+  String get matchesPerPlayerHint =>
+      'Extra matches against opponents from other groups (on top of round-robin within own group)';
+
+  @override
+  String get pointsWin2_0Label => 'Win 2×0';
+
+  @override
+  String get pointsWin2_1Label => 'Win 2×1';
+
+  @override
+  String get pointsWinWOLabel => 'Win W.O.';
+
+  @override
+  String get pointsLoss1_2Label => 'Loss 1×2';
+
+  @override
+  String get pointsLoss0_2Label => 'Loss 0×2';
+
+  @override
+  String get pointsLossWOLabel => 'Loss W.O.';
+
+  @override
+  String get pointsAbbrev => 'pts';
+
+  @override
+  String get markAsWalkover => 'Mark as W.O.';
+
+  @override
+  String variableScoringTable(int p1, int p2, int p3, int p4) {
+    return 'W 2×0: $p1 · W 2×1: $p2 · W W.O.: $p3 · L 1×2: $p4';
+  }
+
+  @override
+  String categoryPresetMasculino(int n) {
+    return 'Men\'s $n';
+  }
+
+  @override
+  String categoryPresetFeminino(int n) {
+    return 'Women\'s $n';
+  }
+
+  @override
+  String categoryPresetMista(int n) {
+    return 'Mixed $n';
+  }
+
+  @override
+  String get categoryPresetCustom => 'Custom';
+
+  @override
+  String get addCategoriesQuick => 'Add Categories';
+
+  @override
+  String get categoryPresetHint => 'Select categories to add in bulk';
+
+  @override
+  String get masculine => 'Men\'s';
+
+  @override
+  String get feminine => 'Women\'s';
+
+  @override
+  String get mixed => 'Mixed';
+
+  @override
+  String get custom => 'Custom';
+
+  @override
+  String get simulateAndDebug => 'Simulate & Debug';
+
+  @override
+  String get simulateCrossGroup => 'Simulate Cross-Group';
+
+  @override
+  String get addBotsAndGenerate => 'Add bots and generate matches';
+
+  @override
+  String get botCount => 'Number of bots';
+
+  @override
+  String get simulationStarted => 'Simulation started!';
+
+  @override
+  String simulationComplete(int count) {
+    return 'Simulation complete! $count matches created.';
+  }
+
+  @override
+  String simulationError(String error) {
+    return 'Simulation error: $error';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get deleteBracketBody =>
+      'This will delete all matches. Cannot be undone.';
+
+  @override
+  String get deleteTournamentConfirm =>
+      'This will delete everything. Cannot be undone.';
 }

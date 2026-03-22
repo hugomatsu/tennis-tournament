@@ -34,7 +34,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   String _tournamentType = 'mataMata';
   int _maxPlayersPerGroup = 4;
   int _pointsPerWin = 3;
-  int _advanceCount = 1;
+  int _advanceCount = 2;
   bool _isLoading = false;
   final Map<int, ({TimeOfDay start, TimeOfDay end})> _weekdayTimes = {};
   Map<String, dynamic> _matchRules = {...kDefaultMatchRules};
@@ -542,6 +542,70 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       keyboardType: TextInputType.number,
                       onChanged: (v) => _advanceCount = int.tryParse(v) ?? 1,
                     ),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    // Scoring Mode
+                    DropdownButtonFormField<String>(
+                      value: _matchRules['scoringMode'] as String? ?? 'flat',
+                      decoration: InputDecoration(
+                        labelText: l10n.scoringMode,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.scoreboard),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'flat', child: Text(l10n.flatScoring)),
+                        DropdownMenuItem(value: 'variable', child: Text(l10n.variableScoring)),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _matchRules['scoringMode'] = value ?? 'flat';
+                      }),
+                    ),
+                    if (_matchRules['scoringMode'] == 'variable') ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _PointsChip(label: l10n.pointsWin2_0Label, ruleKey: 'pointsWin2_0', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWin2_0'] = v)),
+                          _PointsChip(label: l10n.pointsWin2_1Label, ruleKey: 'pointsWin2_1', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWin2_1'] = v)),
+                          _PointsChip(label: l10n.pointsWinWOLabel, ruleKey: 'pointsWinWO', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWinWO'] = v)),
+                          _PointsChip(label: l10n.pointsLoss1_2Label, ruleKey: 'pointsLoss1_2', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLoss1_2'] = v)),
+                          _PointsChip(label: l10n.pointsLoss0_2Label, ruleKey: 'pointsLoss0_2', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLoss0_2'] = v)),
+                          _PointsChip(label: l10n.pointsLossWOLabel, ruleKey: 'pointsLossWO', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLossWO'] = v)),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    // Match Format
+                    DropdownButtonFormField<String>(
+                      value: _matchRules['matchFormat'] as String? ?? 'roundRobin',
+                      decoration: InputDecoration(
+                        labelText: l10n.matchFormatLabel,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.swap_horiz),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'roundRobin', child: Text(l10n.roundRobinFormat)),
+                        DropdownMenuItem(value: 'crossGroup', child: Text(l10n.crossGroupFormat)),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _matchRules['matchFormat'] = value ?? 'roundRobin';
+                      }),
+                    ),
+                    if (_matchRules['matchFormat'] == 'crossGroup') ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        initialValue: (_matchRules['matchesPerPlayer'] ?? 5).toString(),
+                        decoration: InputDecoration(
+                          labelText: l10n.matchesPerPlayer,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.repeat),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) => _matchRules['matchesPerPlayer'] = int.tryParse(v) ?? 5,
+                      ),
+                    ],
                   ],
                 ],
               ),
@@ -698,6 +762,53 @@ class _SectionCard extends StatelessWidget {
           ...children,
         ],
       ),
+    );
+  }
+}
+
+class _PointsChip extends StatelessWidget {
+  final String label;
+  final String ruleKey;
+  final Map<String, dynamic> rules;
+  final ValueChanged<int> onChanged;
+
+  const _PointsChip({
+    required this.label,
+    required this.ruleKey,
+    required this.rules,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final value = (rules[ruleKey] as int?) ?? 0;
+    return InputChip(
+      label: Text('$label: $value'),
+      labelStyle: theme.textTheme.bodySmall,
+      onPressed: () async {
+        final ctrl = TextEditingController(text: value.toString());
+        final result = await showDialog<int>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(label),
+            content: TextField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(AppLocalizations.of(ctx)!.cancel)),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, int.tryParse(ctrl.text) ?? 0),
+                child: Text(AppLocalizations.of(ctx)!.submit),
+              ),
+            ],
+          ),
+        );
+        if (result != null) onChanged(result);
+      },
     );
   }
 }

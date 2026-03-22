@@ -36,7 +36,10 @@ class OpenTennisService implements SchedulingService {
     List<Participant> participants, {
     bool shuffle = true,
   }) async {
-    // For Open Tennis mode, this generates group stage matches
+    final matchFormat = tournament.matchRules['matchFormat'] as String? ?? 'roundRobin';
+    if (matchFormat == 'crossGroup') {
+      return generateCrossGroupMatches(tournament, category, participants, shuffle: shuffle);
+    }
     return generateGroupMatches(tournament, category, participants, shuffle: shuffle);
   }
 
@@ -155,6 +158,162 @@ class OpenTennisService implements SchedulingService {
           matches.add(match);
         }
       }
+    }
+
+    return matches;
+  }
+
+  /// Generate cross-group matches: round-robin within each group PLUS
+  /// extra matches per player against opponents from OTHER groups.
+  /// Points from all matches count toward the player's own group standings.
+  Future<List<TennisMatch>> generateCrossGroupMatches(
+    Tournament tournament,
+    TournamentCategory category,
+    List<Participant> participants, {
+    bool shuffle = true,
+  }) async {
+    if (participants.length < 2) return [];
+
+    int numberOfCourts = 1;
+    if (tournament.locationId != null) {
+      try {
+        final loc = await _ref.read(locationRepositoryProvider).getLocation(tournament.locationId!);
+        if (loc != null) numberOfCourts = loc.numberOfCourts;
+      } catch (_) {}
+    }
+
+    List<TennisMatch> existingMatches = [];
+    try {
+      existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
+      existingMatches = existingMatches.where((m) => m.categoryId != category.id).toList();
+    } catch (_) {}
+
+    final players = List<Participant>.from(participants);
+    if (shuffle) players.shuffle();
+
+    // Build groups (reuse same distribution logic)
+    int maxPerGroup = tournament.groupCount;
+    if (maxPerGroup <= 1) maxPerGroup = 4;
+    int groupCount = (players.length / maxPerGroup).ceil();
+    groupCount = groupCount.clamp(1, players.length);
+    final baseSize = players.length ~/ groupCount;
+    final extras = players.length % groupCount;
+
+    final groups = <String, List<Participant>>{};
+    int playerIdx = 0;
+    for (int g = 0; g < groupCount; g++) {
+      final groupId = String.fromCharCode('A'.codeUnitAt(0) + g);
+      final size = baseSize + (g < extras ? 1 : 0);
+      groups[groupId] = players.sublist(playerIdx, playerIdx + size);
+      playerIdx += size;
+    }
+
+    // Create standings
+    await _createGroupStandings(tournament, category, groups);
+
+    // Build player-to-group map
+    final playerGroup = <String, String>{};
+    for (final entry in groups.entries) {
+      for (final p in entry.value) {
+        playerGroup[p.id] = entry.key;
+      }
+    }
+
+    final matchDuration = category.matchDurationMinutes;
+    DateTime startDate = DateTime.now().add(const Duration(days: 1));
+    startDate = DateTime(startDate.year, startDate.month, startDate.day, 9, 0);
+
+    final allMatchPairs = <(Participant, Participant, String)>[];
+
+    // ── Step 1: Round-robin within each group ──
+    for (final entry in groups.entries) {
+      final groupId = entry.key;
+      final groupPlayers = entry.value;
+      for (int i = 0; i < groupPlayers.length; i++) {
+        for (int j = i + 1; j < groupPlayers.length; j++) {
+          allMatchPairs.add((groupPlayers[i], groupPlayers[j], 'Group $groupId'));
+        }
+      }
+    }
+
+    // ── Step 2: Extra cross-group matches ──
+    final extraMatchesPerPlayer = tournament.matchRules['matchesPerPlayer'] as int? ?? 1;
+    final crossMatchCount = <String, int>{};
+    for (final p in players) {
+      crossMatchCount[p.id] = 0;
+    }
+
+    final scheduledPairs = <String>{};
+    // Mark intra-group pairs as already scheduled
+    for (final (p1, p2, _) in allMatchPairs) {
+      scheduledPairs.add('${p1.id}_${p2.id}');
+    }
+
+    final shuffledPlayers = List<Participant>.from(players)..shuffle();
+    for (final p1 in shuffledPlayers) {
+      if (crossMatchCount[p1.id]! >= extraMatchesPerPlayer) continue;
+      final p1Group = playerGroup[p1.id]!;
+
+      final candidates = players
+          .where((p2) =>
+              playerGroup[p2.id] != p1Group &&
+              crossMatchCount[p2.id]! < extraMatchesPerPlayer &&
+              !scheduledPairs.contains('${p1.id}_${p2.id}') &&
+              !scheduledPairs.contains('${p2.id}_${p1.id}'))
+          .toList()
+        ..shuffle();
+
+      for (final p2 in candidates) {
+        if (crossMatchCount[p1.id]! >= extraMatchesPerPlayer) break;
+
+        scheduledPairs.add('${p1.id}_${p2.id}');
+        crossMatchCount[p1.id] = crossMatchCount[p1.id]! + 1;
+        crossMatchCount[p2.id] = crossMatchCount[p2.id]! + 1;
+        final p2Group = playerGroup[p2.id]!;
+        allMatchPairs.add((p1, p2, 'Cross $p1Group-$p2Group'));
+      }
+    }
+
+    // ── Step 3: Generate time slots and create match objects ──
+    List<_MatchSlot> slots = _generateFallbackSlots(startDate, numberOfCourts, matchDuration, allMatchPairs.length + 50, existingMatches);
+    int slotIndex = 0;
+
+    final matches = <TennisMatch>[];
+    for (final (p1, p2, p1Group) in allMatchPairs) {
+      DateTime matchTime;
+      String courtName;
+      if (slotIndex < slots.length) {
+        matchTime = slots[slotIndex].time;
+        courtName = slots[slotIndex].court;
+        slotIndex++;
+      } else {
+        matchTime = startDate.add(Duration(minutes: matchDuration * slotIndex));
+        courtName = 'Court 1';
+        slotIndex++;
+      }
+
+      matches.add(TennisMatch(
+        id: _uuid.v4(),
+        tournamentId: tournament.id,
+        categoryId: category.id,
+        tournamentName: tournament.name,
+        player1Id: p1.id,
+        player1Name: p1.name,
+        player1UserIds: p1.userIds,
+        player1AvatarUrls: p1.avatarUrls,
+        player2Id: p2.id,
+        player2Name: p2.name,
+        player2UserIds: p2.userIds,
+        player2AvatarUrls: p2.avatarUrls,
+        opponentName: p2.name,
+        time: matchTime,
+        court: courtName,
+        round: p1Group,
+        status: 'Preparing',
+        matchIndex: matches.length,
+        durationMinutes: matchDuration,
+        locationId: tournament.locationId,
+      ));
     }
 
     return matches;
@@ -279,7 +438,7 @@ class OpenTennisService implements SchedulingService {
   ) async {
     final matches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournamentId);
     final groupMatches = matches.where((m) =>
-        m.categoryId == categoryId && m.round.startsWith('Group'));
+        m.categoryId == categoryId && (m.round.startsWith('Group') || m.round.startsWith('Cross')));
 
     return groupMatches.isNotEmpty &&
         groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
@@ -295,7 +454,11 @@ class OpenTennisService implements SchedulingService {
     
     // Get top players from each group based on advanceCount
     final advanceCount = tournament.advanceCount.clamp(1, 99);
+    final scoringMode = tournament.matchRules['scoringMode'] as String? ?? 'flat';
+    final sameGroupPlayoff = scoringMode == 'variable' && advanceCount == 2;
+
     final qualifiedPlayers = <Participant>[];
+    // For same-group playoff, collect pairs per group: [1stA, 2ndA, 1stB, 2ndB, ...]
     for (final group in standings.entries) {
       final topN = group.value.take(advanceCount);
       for (final player in topN) {
@@ -312,6 +475,34 @@ class OpenTennisService implements SchedulingService {
     }
 
     if (qualifiedPlayers.length < 2) return [];
+
+    // For same-group playoff: players are already ordered [1stA, 2ndA, 1stB, 2ndB, ...]
+    // so the default i/i+1 pairing naturally pairs within the same group.
+    // For cross-group (flat scoring), reorder so 1st seeds face 2nd seeds from other groups.
+    if (!sameGroupPlayoff && advanceCount == 2 && qualifiedPlayers.length >= 4) {
+      // Reorder: [1stA, 2ndB, 1stB, 2ndA, ...] for cross-group seeding
+      final reordered = <Participant>[];
+      final firsts = <Participant>[];
+      final seconds = <Participant>[];
+      for (int i = 0; i < qualifiedPlayers.length; i++) {
+        if (i % 2 == 0) {
+          firsts.add(qualifiedPlayers[i]);
+        } else {
+          seconds.add(qualifiedPlayers[i]);
+        }
+      }
+      for (int i = 0; i < firsts.length; i++) {
+        reordered.add(firsts[i]);
+        // Pair with 2nd from the opposite end
+        final j = (seconds.length - 1) - i;
+        if (j >= 0 && j < seconds.length) {
+          reordered.add(seconds[j]);
+        }
+      }
+      qualifiedPlayers
+        ..clear()
+        ..addAll(reordered);
+    }
 
     // Use SingleEliminationService for playoff
     // Import and delegate to SingleEliminationService

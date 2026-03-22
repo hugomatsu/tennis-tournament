@@ -82,7 +82,7 @@ class MockMatchRepository implements MatchRepository {
   }
 
   @override
-  Future<void> updateMatchScore(String matchId, String score, String winnerName) async {
+  Future<void> updateMatchScore(String matchId, String score, String winnerName, {String resultType = 'normal'}) async {
     await Future.delayed(const Duration(milliseconds: 500));
   }
 

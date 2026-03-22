@@ -396,9 +396,83 @@ class SimulationService {
       });
   }
 
+  /// Add bot players to an existing tournament category and generate matches.
+  /// Does NOT generate playoff brackets — only group + cross-group matches.
+  Future<int> seedBotsAndGenerateMatches({
+    required Tournament tournament,
+    required String categoryId,
+    required int botCount,
+  }) async {
+    final tournamentRepo = _ref.read(tournamentRepositoryProvider);
+    final matchRepo = _ref.read(matchRepositoryProvider);
+    final schedulingService = _ref.read(schedulingServiceForTournamentProvider('openTennis'));
+
+    // Get existing participants for this category
+    final existingParticipants = await tournamentRepo.getParticipants(tournament.id);
+    final categoryParticipants = existingParticipants
+        .where((p) => p.categoryId == categoryId)
+        .toList();
+
+    // Get category details
+    final categories = await tournamentRepo.getCategories(tournament.id);
+    final category = categories.firstWhere((c) => c.id == categoryId);
+
+    // Create bot players
+    final newParticipants = <Participant>[];
+    final startIndex = categoryParticipants.length + 1;
+
+    for (int i = 0; i < botCount; i++) {
+      final playerId = const Uuid().v4();
+      final playerName = 'Bot ${String.fromCharCode(65 + (startIndex + i - 1) % 26)}${((startIndex + i - 1) ~/ 26) + 1}';
+
+      await _createMockUser(playerId, playerName);
+
+      final participant = Participant(
+        id: const Uuid().v4(),
+        userIds: [playerId],
+        name: playerName,
+        categoryId: categoryId,
+        avatarUrls: ['https://i.pravatar.cc/150?u=$playerId'],
+        status: 'approved',
+        joinedAt: DateTime.now(),
+      );
+
+      await tournamentRepo.addParticipant(tournament.id, participant);
+      newParticipants.add(participant);
+    }
+
+    // Delete existing matches for this category (regenerate all)
+    await matchRepo.deleteMatchesForTournament(tournament.id);
+
+    // Delete existing standings
+    final standingsSnap = await _firestore
+        .collection('tournaments')
+        .doc(tournament.id)
+        .collection('standings')
+        .where('categoryId', isEqualTo: categoryId)
+        .get();
+    for (final doc in standingsSnap.docs) {
+      await doc.reference.delete();
+    }
+
+    // Generate matches with all participants (existing + new bots)
+    final allParticipants = [...categoryParticipants, ...newParticipants];
+    final matches = await schedulingService.generateBracket(
+      tournament,
+      category,
+      allParticipants,
+    );
+
+    final matchesWithCategory = matches
+        .map((m) => m.copyWith(categoryId: categoryId))
+        .toList();
+
+    await matchRepo.createMatches(matchesWithCategory);
+
+    return matchesWithCategory.length;
+  }
+
   Future<void> clearAllSimulations() async {
     // Dangerous! Only for dev.
-    // Delete all tournaments with "Simulation" in description or specific ID pattern?
-    // For now, let's just leave this empty or implement simple cleanup if needed.
   }
 }

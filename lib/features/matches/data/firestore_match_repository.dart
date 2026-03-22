@@ -288,7 +288,7 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   @override
-  Future<void> updateMatchScore(String matchId, String score, String winnerName) async {
+  Future<void> updateMatchScore(String matchId, String score, String winnerName, {String resultType = 'normal'}) async {
     String? tournamentId;
     try {
       await _firestore.runTransaction((transaction) async {
@@ -325,6 +325,7 @@ class FirestoreMatchRepository implements MatchRepository {
           'score': score,
           'winner': winnerName,
           'status': 'Completed',
+          'resultType': resultType,
         });
 
         if (nextMatchSnapshot != null && nextMatchSnapshot.exists && nextMatchRef != null) {
@@ -383,7 +384,7 @@ class FirestoreMatchRepository implements MatchRepository {
         final matchData = matchDoc.data();
         if (matchData != null) {
           final round = matchData['round'] as String? ?? '';
-          if (round.startsWith('Group')) {
+          if (round.startsWith('Group') || round.startsWith('Cross')) {
             await _updateGroupStandings(
               tournamentId!,
               matchData['categoryId'] as String? ?? '',
@@ -392,6 +393,8 @@ class FirestoreMatchRepository implements MatchRepository {
               matchData['player2Id'] as String? ?? '',
               matchData['player2Name'] as String? ?? '',
               winnerName,
+              score: matchData['score'] as String? ?? '',
+              resultType: matchData['resultType'] as String? ?? 'normal',
             );
           }
           
@@ -412,8 +415,10 @@ class FirestoreMatchRepository implements MatchRepository {
     String player1Name,
     String player2Id,
     String player2Name,
-    String winnerName,
-  ) async {
+    String winnerName, {
+    String score = '',
+    String resultType = 'normal',
+  }) async {
     final standingsRef = _firestore
         .collection('tournaments')
         .doc(tournamentId)
@@ -423,9 +428,37 @@ class FirestoreMatchRepository implements MatchRepository {
     final winnerId = winnerName == player1Name ? player1Id : player2Id;
     final loserId = winnerName == player1Name ? player2Id : player1Id;
 
-    // Get tournament to get pointsPerWin
+    // Get tournament to check scoring mode
     final tournamentDoc = await _firestore.collection('tournaments').doc(tournamentId).get();
-    final pointsPerWin = tournamentDoc.data()?['pointsPerWin'] as int? ?? 3;
+    final tournamentData = tournamentDoc.data() ?? {};
+    final matchRules = tournamentData['matchRules'] as Map<String, dynamic>? ?? {};
+    final scoringMode = matchRules['scoringMode'] as String? ?? 'flat';
+    final pointsPerWin = tournamentData['pointsPerWin'] as int? ?? 3;
+
+    int winnerPoints;
+    int loserPoints;
+
+    if (scoringMode == 'variable') {
+      if (resultType == 'walkover') {
+        winnerPoints = (matchRules['pointsWinWO'] as int?) ?? 2;
+        loserPoints = (matchRules['pointsLossWO'] as int?) ?? 0;
+      } else {
+        // Count sets from score string (e.g. "6-4, 7-5" = 2 sets, "6-4, 4-6, 10-7" = 3 sets)
+        final sets = score.split(',').where((s) => s.trim().isNotEmpty).length;
+        if (sets <= 2) {
+          // 2-0 result
+          winnerPoints = (matchRules['pointsWin2_0'] as int?) ?? 4;
+          loserPoints = (matchRules['pointsLoss0_2'] as int?) ?? 0;
+        } else {
+          // 2-1 result
+          winnerPoints = (matchRules['pointsWin2_1'] as int?) ?? 3;
+          loserPoints = (matchRules['pointsLoss1_2'] as int?) ?? 1;
+        }
+      }
+    } else {
+      winnerPoints = pointsPerWin;
+      loserPoints = 0;
+    }
 
     // Update winner standing
     final winnerQuery = await standingsRef
@@ -438,7 +471,7 @@ class FirestoreMatchRepository implements MatchRepository {
       await winnerQuery.docs.first.reference.update({
         'matchesPlayed': FieldValue.increment(1),
         'wins': FieldValue.increment(1),
-        'points': FieldValue.increment(pointsPerWin),
+        'points': FieldValue.increment(winnerPoints),
       });
     }
 
@@ -450,10 +483,14 @@ class FirestoreMatchRepository implements MatchRepository {
         .get();
 
     if (loserQuery.docs.isNotEmpty) {
-      await loserQuery.docs.first.reference.update({
+      final loserUpdate = <String, dynamic>{
         'matchesPlayed': FieldValue.increment(1),
         'losses': FieldValue.increment(1),
-      });
+      };
+      if (loserPoints > 0) {
+        loserUpdate['points'] = FieldValue.increment(loserPoints);
+      }
+      await loserQuery.docs.first.reference.update(loserUpdate);
     }
   }
 

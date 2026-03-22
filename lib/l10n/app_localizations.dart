@@ -3253,6 +3253,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off'**
   String get off;
+
+  /// No description provided for @scoringMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring Mode'**
+  String get scoringMode;
+
+  /// No description provided for @flatScoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat Scoring'**
+  String get flatScoring;
+
+  /// No description provided for @flatScoringDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed points per win (e.g., 3 pts)'**
+  String get flatScoringDesc;
+
+  /// No description provided for @variableScoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable Scoring'**
+  String get variableScoring;
+
+  /// No description provided for @variableScoringDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Points vary by set result (2×0, 2×1, W.O.)'**
+  String get variableScoringDesc;
+
+  /// No description provided for @matchFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Format'**
+  String get matchFormatLabel;
+
+  /// No description provided for @roundRobinFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Round-Robin'**
+  String get roundRobinFormat;
+
+  /// No description provided for @roundRobinFormatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Each player plays all others in same group'**
+  String get roundRobinFormatDesc;
+
+  /// No description provided for @crossGroupFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-Group'**
+  String get crossGroupFormat;
+
+  /// No description provided for @crossGroupFormatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Players face opponents from other groups'**
+  String get crossGroupFormatDesc;
+
+  /// No description provided for @crossGroupMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-Group Matches'**
+  String get crossGroupMatches;
+
+  /// No description provided for @matchesPerPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-group matches per player'**
+  String get matchesPerPlayer;
+
+  /// No description provided for @matchesPerPlayerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra matches against opponents from other groups (on top of round-robin within own group)'**
+  String get matchesPerPlayerHint;
+
+  /// No description provided for @pointsWin2_0Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Win 2×0'**
+  String get pointsWin2_0Label;
+
+  /// No description provided for @pointsWin2_1Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Win 2×1'**
+  String get pointsWin2_1Label;
+
+  /// No description provided for @pointsWinWOLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Win W.O.'**
+  String get pointsWinWOLabel;
+
+  /// No description provided for @pointsLoss1_2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss 1×2'**
+  String get pointsLoss1_2Label;
+
+  /// No description provided for @pointsLoss0_2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss 0×2'**
+  String get pointsLoss0_2Label;
+
+  /// No description provided for @pointsLossWOLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss W.O.'**
+  String get pointsLossWOLabel;
+
+  /// No description provided for @pointsAbbrev.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get pointsAbbrev;
+
+  /// No description provided for @markAsWalkover.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as W.O.'**
+  String get markAsWalkover;
+
+  /// No description provided for @variableScoringTable.
+  ///
+  /// In en, this message translates to:
+  /// **'W 2×0: {p1} · W 2×1: {p2} · W W.O.: {p3} · L 1×2: {p4}'**
+  String variableScoringTable(int p1, int p2, int p3, int p4);
+
+  /// No description provided for @categoryPresetMasculino.
+  ///
+  /// In en, this message translates to:
+  /// **'Men\'s {n}'**
+  String categoryPresetMasculino(int n);
+
+  /// No description provided for @categoryPresetFeminino.
+  ///
+  /// In en, this message translates to:
+  /// **'Women\'s {n}'**
+  String categoryPresetFeminino(int n);
+
+  /// No description provided for @categoryPresetMista.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed {n}'**
+  String categoryPresetMista(int n);
+
+  /// No description provided for @categoryPresetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get categoryPresetCustom;
+
+  /// No description provided for @addCategoriesQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Categories'**
+  String get addCategoriesQuick;
+
+  /// No description provided for @categoryPresetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select categories to add in bulk'**
+  String get categoryPresetHint;
+
+  /// No description provided for @masculine.
+  ///
+  /// In en, this message translates to:
+  /// **'Men\'s'**
+  String get masculine;
+
+  /// No description provided for @feminine.
+  ///
+  /// In en, this message translates to:
+  /// **'Women\'s'**
+  String get feminine;
+
+  /// No description provided for @mixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get mixed;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @simulateAndDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate & Debug'**
+  String get simulateAndDebug;
+
+  /// No description provided for @simulateCrossGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate Cross-Group'**
+  String get simulateCrossGroup;
+
+  /// No description provided for @addBotsAndGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add bots and generate matches'**
+  String get addBotsAndGenerate;
+
+  /// No description provided for @botCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of bots'**
+  String get botCount;
+
+  /// No description provided for @simulationStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation started!'**
+  String get simulationStarted;
+
+  /// No description provided for @simulationComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation complete! {count} matches created.'**
+  String simulationComplete(int count);
+
+  /// No description provided for @simulationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation error: {error}'**
+  String simulationError(String error);
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
+
+  /// No description provided for @deleteBracketBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all matches. Cannot be undone.'**
+  String get deleteBracketBody;
+
+  /// No description provided for @deleteTournamentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete everything. Cannot be undone.'**
+  String get deleteTournamentConfirm;
 }
 
 class _AppLocalizationsDelegate

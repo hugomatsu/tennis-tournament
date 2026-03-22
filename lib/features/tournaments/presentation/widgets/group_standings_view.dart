@@ -96,10 +96,21 @@ class GroupStandingsView extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                loc.pointsPerWinLabel(tournament.pointsPerWin),
-                style: const TextStyle(fontSize: 14),
-              ),
+              if ((tournament.matchRules['scoringMode'] as String? ?? 'flat') == 'variable')
+                Text(
+                  loc.variableScoringTable(
+                    (tournament.matchRules['pointsWin2_0'] as int?) ?? 4,
+                    (tournament.matchRules['pointsWin2_1'] as int?) ?? 3,
+                    (tournament.matchRules['pointsWinWO'] as int?) ?? 2,
+                    (tournament.matchRules['pointsLoss1_2'] as int?) ?? 1,
+                  ),
+                  style: const TextStyle(fontSize: 13),
+                )
+              else
+                Text(
+                  loc.pointsPerWinLabel(tournament.pointsPerWin),
+                  style: const TextStyle(fontSize: 14),
+                ),
             ],
           ),
         ),
@@ -110,8 +121,8 @@ class GroupStandingsView extends ConsumerWidget {
           builder: (context, matchSnapshot) {
             final allMatches = matchSnapshot.data ?? [];
             final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
-            final groupMatches = categoryMatches.where((m) => m.round.startsWith('Group')).toList();
-            final playoffMatches = categoryMatches.where((m) => !m.round.startsWith('Group')).toList();
+            final groupMatches = categoryMatches.where((m) => m.round.startsWith('Group') || m.round.startsWith('Cross')).toList();
+            final playoffMatches = categoryMatches.where((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross')).toList();
             
             final allGroupMatchesCompleted = groupMatches.isNotEmpty &&
                 groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
@@ -178,20 +189,38 @@ class GroupStandingsView extends ConsumerWidget {
                       .where((m) => m.categoryId == categoryId)
                       .toList();
 
+                  // Collect cross-group matches separately
+                  final crossMatches = categoryMatches
+                      .where((m) => m.round.startsWith('Cross'))
+                      .toList();
+                  final hasCrossMatches = crossMatches.isNotEmpty;
+                  final totalItems = groupedStandings.length + (hasCrossMatches ? 1 : 0);
+
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: groupedStandings.length,
+                    itemCount: totalItems,
                     itemBuilder: (context, index) {
+                      // Last item is the Cross Group card (if cross matches exist)
+                      if (hasCrossMatches && index == totalItems - 1) {
+                        final allCrossComplete = crossMatches.every(
+                            (m) => m.status == 'Completed' || m.status == 'Finished');
+                        return _CrossGroupCard(
+                          matches: crossMatches,
+                          tournament: tournament,
+                          allMatchesCompleted: allCrossComplete,
+                        );
+                      }
+
                       final groupId = groupedStandings.keys.elementAt(index);
                       final standings = groupedStandings[groupId]!;
+                      // Only intra-group matches for each group card
                       final groupMatches = categoryMatches
                           .where((m) => m.round == 'Group $groupId')
                           .toList();
 
-                      // Calculate if all matches completed for this group
                       final allGroupMatchesComplete = groupMatches.isNotEmpty &&
                           groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
-                      
+
                       return _GroupCard(
                         groupId: groupId,
                         standings: standings,
@@ -481,7 +510,7 @@ class _GroupCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  ...matches.map((match) => _MatchTile(match: match)),
+                  ...matches.map((match) => _MatchTile(match: match, groupId: groupId)),
                 ],
               ),
             ),
@@ -683,10 +712,79 @@ class _GroupCard extends StatelessWidget {
   }
 }
 
-class _MatchTile extends StatelessWidget {
-  final TennisMatch match;
+class _CrossGroupCard extends StatelessWidget {
+  final List<TennisMatch> matches;
+  final Tournament tournament;
+  final bool allMatchesCompleted;
 
-  const _MatchTile({required this.match});
+  const _CrossGroupCard({
+    required this.matches,
+    required this.tournament,
+    required this.allMatchesCompleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple.withOpacity(0.15),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.swap_horiz, color: Colors.deepPurple.shade700, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  loc.crossGroupMatches,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.deepPurple.shade700,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${matches.length} ${loc.matches.toLowerCase()}',
+                  style: TextStyle(fontSize: 12, color: Colors.deepPurple.shade400),
+                ),
+              ],
+            ),
+          ),
+          // Matches
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: matches.map((match) {
+                // Extract group letters from round 'Cross A-B'
+                final roundLabel = match.round.replaceFirst('Cross ', '');
+                return _CrossMatchTile(match: match, roundLabel: roundLabel);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CrossMatchTile extends StatelessWidget {
+  final TennisMatch match;
+  final String roundLabel;
+
+  const _CrossMatchTile({required this.match, required this.roundLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -694,23 +792,170 @@ class _MatchTile extends StatelessWidget {
     final hasWinner = match.winner != null && match.winner!.isNotEmpty;
     final isP1Winner = match.winner == match.player1Name;
     final isP2Winner = match.winner == match.player2Name;
-    
-    // Get avatar URLs
     final p1Avatar = match.player1AvatarUrls.isNotEmpty ? match.player1AvatarUrls.first : null;
     final p2Avatar = match.player2AvatarUrls.isNotEmpty ? match.player2AvatarUrls.first : null;
-    
+
     return InkWell(
       onTap: () => context.push('/matches/${match.id}'),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: hasWinner 
-              ? Colors.amber.withOpacity(0.05) 
-              : Colors.transparent,
+          color: hasWinner ? Colors.amber.withOpacity(0.05) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.withOpacity(0.15)),
+        ),
+        child: Row(
+          children: [
+            // Round badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                roundLabel,
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.deepPurple.shade600),
+              ),
+            ),
+            // Player 1
+            Expanded(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: isP1Winner ? Colors.amber.shade100 : Colors.grey.shade200,
+                    backgroundImage: p1Avatar != null ? NetworkImage(p1Avatar) : null,
+                    child: p1Avatar == null
+                        ? Text(
+                            match.player1Name.isNotEmpty ? match.player1Name[0].toUpperCase() : '?',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isP1Winner ? Colors.amber.shade800 : Colors.grey.shade600),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 6),
+                  if (isP1Winner)
+                    Icon(Icons.emoji_events, size: 14, color: Colors.amber.shade600),
+                  Expanded(
+                    child: Text(
+                      match.player1Name,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: isP1Winner ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 13,
+                        color: isP1Winner ? Colors.amber.shade800 : null,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Score/Status
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: isCompleted ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                isCompleted ? (match.score ?? 'W') : match.status,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isCompleted ? Colors.green.shade700 : Colors.orange.shade700,
+                ),
+              ),
+            ),
+            // Player 2
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Text(
+                      match.player2Name ?? 'TBD',
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: isP2Winner ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 13,
+                        color: isP2Winner ? Colors.amber.shade800 : null,
+                      ),
+                    ),
+                  ),
+                  if (isP2Winner)
+                    Icon(Icons.emoji_events, size: 14, color: Colors.amber.shade600),
+                  const SizedBox(width: 6),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: isP2Winner ? Colors.amber.shade100 : Colors.grey.shade200,
+                    backgroundImage: p2Avatar != null ? NetworkImage(p2Avatar) : null,
+                    child: p2Avatar == null
+                        ? Text(
+                            (match.player2Name ?? '?').isNotEmpty ? (match.player2Name ?? '?')[0].toUpperCase() : '?',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isP2Winner ? Colors.amber.shade800 : Colors.grey.shade600),
+                          )
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MatchTile extends StatelessWidget {
+  final TennisMatch match;
+  final String groupId;
+
+  const _MatchTile({required this.match, required this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+    final hasWinner = match.winner != null && match.winner!.isNotEmpty;
+    final isP1Winner = match.winner == match.player1Name;
+    final isP2Winner = match.winner == match.player2Name;
+    final isCrossMatch = match.round.startsWith('Cross');
+
+    // For cross matches like 'Cross A-B', determine which player is the outsider
+    // by checking which group letter doesn't match this groupId.
+    bool isP1Outsider = false;
+    bool isP2Outsider = false;
+    if (isCrossMatch) {
+      final parts = match.round.replaceFirst('Cross ', '').split('-');
+      if (parts.length == 2) {
+        isP1Outsider = parts[0] != groupId;
+        isP2Outsider = parts[1] != groupId;
+      }
+    }
+
+    // Get avatar URLs
+    final p1Avatar = match.player1AvatarUrls.isNotEmpty ? match.player1AvatarUrls.first : null;
+    final p2Avatar = match.player2AvatarUrls.isNotEmpty ? match.player2AvatarUrls.first : null;
+
+    return InkWell(
+      onTap: () => context.push('/matches/${match.id}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        margin: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          color: isCrossMatch
+              ? Colors.deepPurple.withOpacity(0.06)
+              : hasWinner
+                  ? Colors.amber.withOpacity(0.05)
+                  : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Colors.grey.withOpacity(0.15),
+            color: isCrossMatch
+                ? Colors.deepPurple.withOpacity(0.25)
+                : Colors.grey.withOpacity(0.15),
           ),
         ),
         child: Row(
@@ -745,6 +990,11 @@ class _MatchTile extends StatelessWidget {
                     Icon(Icons.emoji_events, size: 14, color: Colors.amber.shade600),
                     const SizedBox(width: 4),
                   ],
+                  // Outsider icon
+                  if (isP1Outsider) ...[
+                    Icon(Icons.swap_horiz, size: 14, color: Colors.deepPurple.shade400),
+                    const SizedBox(width: 2),
+                  ],
                   // Name
                   Expanded(
                     child: Text(
@@ -753,7 +1003,11 @@ class _MatchTile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: isP1Winner ? FontWeight.bold : FontWeight.normal,
                         fontSize: 13,
-                        color: isP1Winner ? Colors.amber.shade800 : null,
+                        color: isP1Outsider
+                            ? Colors.deepPurple
+                            : isP1Winner
+                                ? Colors.amber.shade800
+                                : null,
                       ),
                     ),
                   ),
@@ -793,10 +1047,19 @@ class _MatchTile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: isP2Winner ? FontWeight.bold : FontWeight.normal,
                         fontSize: 13,
-                        color: isP2Winner ? Colors.amber.shade800 : null,
+                        color: isP2Outsider
+                            ? Colors.deepPurple
+                            : isP2Winner
+                                ? Colors.amber.shade800
+                                : null,
                       ),
                     ),
                   ),
+                  // Outsider icon
+                  if (isP2Outsider) ...[
+                    const SizedBox(width: 2),
+                    Icon(Icons.swap_horiz, size: 14, color: Colors.deepPurple.shade400),
+                  ],
                   // Winner trophy
                   if (isP2Winner) ...[
                     const SizedBox(width: 4),

@@ -25,7 +25,7 @@ abstract class MatchRepository {
   Stream<List<TennisMatch>> watchUpcomingMatches(List<String> followedMatchIds);
   Future<void> createMatches(List<TennisMatch> matches);
   Future<void> updateMatch(TennisMatch match);
-  Future<void> updateMatchScore(String matchId, String score, String winnerName);
+  Future<void> updateMatchScore(String matchId, String score, String winnerName, {String resultType = 'normal'});
   Future<void> cheerForMatch(String matchId, String playerId);
   Future<void> confirmMatch(String matchId, String playerId);
   Future<void> deleteMatchesForTournament(String tournamentId);

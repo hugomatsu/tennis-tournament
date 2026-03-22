@@ -1722,4 +1722,151 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get off => 'Não';
+
+  @override
+  String get scoringMode => 'Modo de Pontuação';
+
+  @override
+  String get flatScoring => 'Pontuação Fixa';
+
+  @override
+  String get flatScoringDesc => 'Pontos fixos por vitória (ex: 3 pts)';
+
+  @override
+  String get variableScoring => 'Pontuação Variável';
+
+  @override
+  String get variableScoringDesc =>
+      'Pontos variam pelo placar de sets (2×0, 2×1, W.O.)';
+
+  @override
+  String get matchFormatLabel => 'Formato de Jogos';
+
+  @override
+  String get roundRobinFormat => 'Todos contra todos';
+
+  @override
+  String get roundRobinFormatDesc =>
+      'Cada jogador enfrenta todos do mesmo grupo';
+
+  @override
+  String get crossGroupFormat => 'Jogos cruzados';
+
+  @override
+  String get crossGroupFormatDesc =>
+      'Jogadores enfrentam adversários de outros grupos';
+
+  @override
+  String get crossGroupMatches => 'Jogos Cruzados';
+
+  @override
+  String get matchesPerPlayer => 'Jogos cruzados por atleta';
+
+  @override
+  String get matchesPerPlayerHint =>
+      'Jogos extras contra adversários de outros grupos (além do round-robin do próprio grupo)';
+
+  @override
+  String get pointsWin2_0Label => 'Vitória 2×0';
+
+  @override
+  String get pointsWin2_1Label => 'Vitória 2×1';
+
+  @override
+  String get pointsWinWOLabel => 'Vitória W.O.';
+
+  @override
+  String get pointsLoss1_2Label => 'Derrota 1×2';
+
+  @override
+  String get pointsLoss0_2Label => 'Derrota 0×2';
+
+  @override
+  String get pointsLossWOLabel => 'Derrota W.O.';
+
+  @override
+  String get pointsAbbrev => 'pts';
+
+  @override
+  String get markAsWalkover => 'Marcar como W.O.';
+
+  @override
+  String variableScoringTable(int p1, int p2, int p3, int p4) {
+    return 'V 2×0: $p1 · V 2×1: $p2 · V W.O.: $p3 · D 1×2: $p4';
+  }
+
+  @override
+  String categoryPresetMasculino(int n) {
+    return 'Masculino $n';
+  }
+
+  @override
+  String categoryPresetFeminino(int n) {
+    return 'Feminino $n';
+  }
+
+  @override
+  String categoryPresetMista(int n) {
+    return 'Mista $n';
+  }
+
+  @override
+  String get categoryPresetCustom => 'Personalizada';
+
+  @override
+  String get addCategoriesQuick => 'Adicionar Categorias';
+
+  @override
+  String get categoryPresetHint =>
+      'Selecione as categorias para adicionar de uma vez';
+
+  @override
+  String get masculine => 'Masculino';
+
+  @override
+  String get feminine => 'Feminino';
+
+  @override
+  String get mixed => 'Mista';
+
+  @override
+  String get custom => 'Personalizada';
+
+  @override
+  String get simulateAndDebug => 'Simular e Depurar';
+
+  @override
+  String get simulateCrossGroup => 'Simular Cross-Group';
+
+  @override
+  String get addBotsAndGenerate => 'Adicionar bots e gerar partidas';
+
+  @override
+  String get botCount => 'Quantidade de bots';
+
+  @override
+  String get simulationStarted => 'Simulação iniciada!';
+
+  @override
+  String simulationComplete(int count) {
+    return 'Simulação concluída! $count partidas criadas.';
+  }
+
+  @override
+  String simulationError(String error) {
+    return 'Erro na simulação: $error';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count selecionadas';
+  }
+
+  @override
+  String get deleteBracketBody =>
+      'Isso excluirá todos os jogos. Não pode ser desfeito.';
+
+  @override
+  String get deleteTournamentConfirm =>
+      'Isso excluirá tudo. Não pode ser desfeito.';
 }

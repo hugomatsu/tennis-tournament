@@ -27,6 +27,7 @@ import 'package:tennis_tournament/features/tutorial/domain/tutorial_keys.dart';
 import 'package:tennis_tournament/features/tutorial/presentation/tutorial_controller.dart';
 import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
 import 'package:tennis_tournament/features/tutorial/data/tutorial_steps_data.dart';
+import 'package:tennis_tournament/features/debug/application/simulation_service.dart';
 
 final tournamentDetailProvider = FutureProvider.family<Tournament?, String>((ref, id) {
   return ref.watch(tournamentRepositoryProvider).getTournament(id);
@@ -143,10 +144,10 @@ class TournamentDetailScreen extends ConsumerWidget {
                                       final method = await showDialog<String>(
                                         context: context,
                                         builder: (context) => SimpleDialog(
-                                          title: const Text('Generation Method'),
+                                          title: Text(loc.generationMethod),
                                           children: [
-                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'automatic'), child: const ListTile(leading: Icon(Icons.auto_fix_high), title: Text('Automatic'))),
-                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'manual'), child: const ListTile(leading: Icon(Icons.drag_handle), title: Text('Manual'))),
+                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'automatic'), child: ListTile(leading: const Icon(Icons.auto_fix_high), title: Text(loc.automatic))),
+                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'manual'), child: ListTile(leading: const Icon(Icons.drag_handle), title: Text(loc.manual))),
                                           ],
                                         ),
                                       );
@@ -206,11 +207,11 @@ class TournamentDetailScreen extends ConsumerWidget {
                                      final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text('Delete Bracket?'),
-                                        content: const Text('This will delete all matches. Cannot be undone.'),
+                                        title: Text(loc.deleteBracketTitle),
+                                        content: Text(loc.deleteBracketBody),
                                         actions: [
                                           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.cancel)),
-                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: Text(loc.delete)),
                                         ],
                                       ),
                                     );
@@ -223,15 +224,18 @@ class TournamentDetailScreen extends ConsumerWidget {
                                       }
                                     }
                                     break;
+                                  case 'simulate':
+                                    _showSimulateDialog(context, ref, tournament);
+                                    break;
                                   case 'delete_tournament':
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text('Delete Tournament?'),
-                                        content: const Text('This will delete everything. Cannot be undone.'),
+                                        title: Text(loc.deleteTournamentTitle),
+                                        content: Text(loc.deleteTournamentConfirm),
                                         actions: [
                                           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(loc.cancel)),
-                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                          FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(context, true), child: Text(loc.delete)),
                                         ],
                                       ),
                                     );
@@ -256,6 +260,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                 PopupMenuItem<String>(value: 'generate_bracket', child: ListTile(leading: const Icon(Icons.shuffle), title: Text(loc.generateBracket))),
                                 if (isOwner) ...[
                                   const PopupMenuDivider(),
+                                  PopupMenuItem<String>(value: 'simulate', child: ListTile(leading: const Icon(Icons.bug_report, color: Colors.orange), title: Text(loc.simulateAndDebug, style: const TextStyle(color: Colors.orange)))),
                                   PopupMenuItem<String>(value: 'delete_bracket', child: ListTile(leading: const Icon(Icons.delete_sweep, color: Colors.red), title: Text(loc.clearBracket, style: const TextStyle(color: Colors.red)))),
                                   PopupMenuItem<String>(value: 'delete_tournament', child: ListTile(leading: const Icon(Icons.delete, color: Colors.red), title: Text(loc.deleteTournamentTitle, style: const TextStyle(color: Colors.red)))),
                                 ]
@@ -324,6 +329,77 @@ class TournamentDetailScreen extends ConsumerWidget {
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, stack) => Scaffold(body: Center(child: Text(loc.errorOccurred(err.toString())))),
+    );
+  }
+
+  void _showSimulateDialog(BuildContext context, WidgetRef ref, Tournament tournament) {
+    final loc = AppLocalizations.of(context)!;
+    final botCountCtrl = TextEditingController(text: '12');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(loc.simulateCrossGroup),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(loc.addBotsAndGenerate, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 16),
+              TextField(
+                controller: botCountCtrl,
+                decoration: InputDecoration(
+                  labelText: loc.botCount,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.smart_toy),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(loc.cancel),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.play_arrow),
+              label: Text(loc.simulateAndDebug),
+              onPressed: () async {
+                Navigator.pop(context);
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                final botCount = int.tryParse(botCountCtrl.text) ?? 12;
+
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(content: Text(loc.simulationStarted)),
+                );
+
+                try {
+                  // Get first category
+                  final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournament.id);
+                  if (categories.isEmpty) return;
+
+                  final matchCount = await ref.read(simulationServiceProvider).seedBotsAndGenerateMatches(
+                    tournament: tournament,
+                    categoryId: categories.first.id,
+                    botCount: botCount,
+                  );
+
+                  scaffoldMessenger.hideCurrentSnackBar();
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text(loc.simulationComplete(matchCount))),
+                  );
+                } catch (e) {
+                  scaffoldMessenger.hideCurrentSnackBar();
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text(loc.simulationError(e.toString()))),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -474,7 +550,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
     final categoriesAsync = ref.watch(tournamentCategoriesProvider(widget.tournamentId));
 
     return AlertDialog(
-      title: const Text('Manage Categories'),
+      title: Text(AppLocalizations.of(context)!.manageCategories),
       content: SizedBox(
         width: double.maxFinite,
         child: categoriesAsync.when(
@@ -513,49 +589,116 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
   }
 
   void _showAddCategoryDialog() {
-    final nameController = TextEditingController();
-    final descController = TextEditingController();
-    final durationController = TextEditingController(text: '90');
-    String type = 'singles';
+    final loc = AppLocalizations.of(context)!;
+
+    // Build preset list: Masculino 1-6, Feminino 1-6, Mista 1-6
+    final presets = <({String name, String type})>[];
+    for (int i = 1; i <= 6; i++) {
+      presets.add((name: loc.categoryPresetMasculino(i), type: 'singles'));
+    }
+    for (int i = 1; i <= 6; i++) {
+      presets.add((name: loc.categoryPresetFeminino(i), type: 'singles'));
+    }
+    for (int i = 1; i <= 6; i++) {
+      presets.add((name: loc.categoryPresetMista(i), type: 'doubles'));
+    }
+
+    final selected = <int>{};
+    bool showCustom = false;
+    final customNameCtrl = TextEditingController();
+    String customType = 'singles';
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          final loc = AppLocalizations.of(context)!;
+        builder: (context, setDialogState) {
           return AlertDialog(
-            title: Text(loc.addCategory),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: loc.categoryNameHint),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: descController,
-                    decoration: InputDecoration(labelText: loc.description),
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: type,
-                    decoration: InputDecoration(labelText: loc.typeLabel),
-                    items: [
-                      DropdownMenuItem(value: 'singles', child: Text(loc.singles)),
-                      DropdownMenuItem(value: 'doubles', child: Text(loc.doubles)),
+            title: Text(loc.addCategoriesQuick),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(loc.categoryPresetHint, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 12),
+                    // Masculino section
+                    Text(loc.masculine, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: List.generate(6, (i) => FilterChip(
+                        label: Text(presets[i].name, style: const TextStyle(fontSize: 12)),
+                        selected: selected.contains(i),
+                        onSelected: (val) => setDialogState(() {
+                          val ? selected.add(i) : selected.remove(i);
+                        }),
+                      )),
+                    ),
+                    const SizedBox(height: 12),
+                    // Feminino section
+                    Text(loc.feminine, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: List.generate(6, (i) {
+                        final idx = i + 6;
+                        return FilterChip(
+                          label: Text(presets[idx].name, style: const TextStyle(fontSize: 12)),
+                          selected: selected.contains(idx),
+                          onSelected: (val) => setDialogState(() {
+                            val ? selected.add(idx) : selected.remove(idx);
+                          }),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 12),
+                    // Mista section
+                    Text(loc.mixed, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: List.generate(6, (i) {
+                        final idx = i + 12;
+                        return FilterChip(
+                          label: Text(presets[idx].name, style: const TextStyle(fontSize: 12)),
+                          selected: selected.contains(idx),
+                          onSelected: (val) => setDialogState(() {
+                            val ? selected.add(idx) : selected.remove(idx);
+                          }),
+                        );
+                      }),
+                    ),
+                    const Divider(height: 24),
+                    // Custom toggle
+                    SwitchListTile(
+                      title: Text(loc.custom, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      contentPadding: EdgeInsets.zero,
+                      value: showCustom,
+                      onChanged: (val) => setDialogState(() => showCustom = val),
+                    ),
+                    if (showCustom) ...[
+                      TextField(
+                        controller: customNameCtrl,
+                        decoration: InputDecoration(labelText: loc.categoryNameHint),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: customType,
+                        decoration: InputDecoration(labelText: loc.typeLabel),
+                        items: [
+                          DropdownMenuItem(value: 'singles', child: Text(loc.singles)),
+                          DropdownMenuItem(value: 'doubles', child: Text(loc.doubles)),
+                        ],
+                        onChanged: (val) => setDialogState(() => customType = val!),
+                      ),
                     ],
-                    onChanged: (val) => setState(() => type = val!),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: durationController,
-                    decoration: InputDecoration(labelText: loc.matchDurationMinutes),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             actions: [
@@ -564,22 +707,35 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                 child: Text(loc.cancel),
               ),
               FilledButton(
-                onPressed: () async {
-                  if (nameController.text.isEmpty) return;
-                  final duration = int.tryParse(durationController.text) ?? 90;
-                  final category = TournamentCategory(
-                    id: const Uuid().v4(),
-                    tournamentId: widget.tournamentId,
-                    name: nameController.text,
-                    type: type,
-                    description: descController.text,
-                    matchDurationMinutes: duration,
-                  );
-                  await ref.read(tournamentRepositoryProvider).addCategory(category);
-                  ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: Text(loc.add),
+                onPressed: (selected.isEmpty && (!showCustom || customNameCtrl.text.isEmpty))
+                    ? null
+                    : () async {
+                        Navigator.pop(context);
+                        final repo = ref.read(tournamentRepositoryProvider);
+                        // Add preset categories
+                        for (final idx in selected.toList()..sort()) {
+                          final preset = presets[idx];
+                          await repo.addCategory(TournamentCategory(
+                            id: const Uuid().v4(),
+                            tournamentId: widget.tournamentId,
+                            name: preset.name,
+                            type: preset.type,
+                          ));
+                        }
+                        // Add custom category if specified
+                        if (showCustom && customNameCtrl.text.isNotEmpty) {
+                          await repo.addCategory(TournamentCategory(
+                            id: const Uuid().v4(),
+                            tournamentId: widget.tournamentId,
+                            name: customNameCtrl.text,
+                            type: customType,
+                          ));
+                        }
+                        ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
+                      },
+                child: Text(selected.isEmpty && !showCustom
+                    ? loc.add
+                    : '${loc.add} (${selected.length + (showCustom && customNameCtrl.text.isNotEmpty ? 1 : 0)})'),
               ),
             ],
           );
@@ -877,10 +1033,8 @@ class _InfoTab extends ConsumerWidget {
           ),
         ),
         
-        if (tournament.matchRules.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          MatchRulesCard(rules: tournament.matchRules),
-        ],
+        const SizedBox(height: 16),
+        MatchRulesCard(rules: tournament.matchRules),
 
         const SizedBox(height: 24),
 

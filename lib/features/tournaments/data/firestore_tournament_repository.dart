@@ -40,6 +40,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
           tournamentType: data['tournamentType'] as String? ?? 'mataMata',
           groupCount: data['groupCount'] as int? ?? 0,
           pointsPerWin: data['pointsPerWin'] as int? ?? 3,
+          advanceCount: data['advanceCount'] as int? ?? 1,
+          defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
+          matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
         );
       }).toList();
     } catch (e) {
@@ -74,6 +77,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
         tournamentType: data['tournamentType'] as String? ?? 'mataMata',
         groupCount: data['groupCount'] as int? ?? 0,
         pointsPerWin: data['pointsPerWin'] as int? ?? 3,
+        advanceCount: data['advanceCount'] as int? ?? 1,
+        defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
+        matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
       );
     } catch (e) {
       return null;
@@ -100,6 +106,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'tournamentType': tournament.tournamentType,
       'groupCount': tournament.groupCount,
       'pointsPerWin': tournament.pointsPerWin,
+      'advanceCount': tournament.advanceCount,
+      'defaultWeekdayTimes': tournament.defaultWeekdayTimes,
+      'matchRules': tournament.matchRules,
     });
   }
 
@@ -119,6 +128,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'tournamentType': tournament.tournamentType,
       'groupCount': tournament.groupCount,
       'pointsPerWin': tournament.pointsPerWin,
+      'advanceCount': tournament.advanceCount,
+      'defaultWeekdayTimes': tournament.defaultWeekdayTimes,
+      'matchRules': tournament.matchRules,
     });
   }
 
@@ -176,6 +188,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
           tournamentType: data['tournamentType'] as String? ?? 'mataMata',
           groupCount: data['groupCount'] as int? ?? 0,
           pointsPerWin: data['pointsPerWin'] as int? ?? 3,
+          advanceCount: data['advanceCount'] as int? ?? 1,
+          defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
+          matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
         );
       }).toList();
     } catch (e) {
@@ -245,6 +260,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
         tournamentType: data['tournamentType'] as String? ?? 'mataMata',
         groupCount: data['groupCount'] as int? ?? 0,
         pointsPerWin: data['pointsPerWin'] as int? ?? 3,
+        advanceCount: data['advanceCount'] as int? ?? 1,
+        defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
+        matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
       );
     }).toList();
   }

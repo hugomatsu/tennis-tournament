@@ -475,6 +475,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     final loc = AppLocalizations.of(context)!;
     final scoreCtrl = TextEditingController(text: match.score ?? '');
     String? selectedWinner = match.winner;
+    bool isWalkover = match.resultType == 'walkover';
 
     await showDialog<void>(
       context: context,
@@ -484,8 +485,23 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SwitchListTile(
+                title: Text(loc.markAsWalkover),
+                value: isWalkover,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (val) => setDialogState(() {
+                  isWalkover = val;
+                  if (val) {
+                    scoreCtrl.text = 'W.O.';
+                  } else {
+                    scoreCtrl.text = '';
+                  }
+                }),
+              ),
+              const SizedBox(height: 8),
               TextField(
                 controller: scoreCtrl,
+                enabled: !isWalkover,
                 decoration: InputDecoration(
                   labelText: loc.score,
                   hintText: '6-4, 7-5',
@@ -520,6 +536,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                         match.id,
                         scoreCtrl.text,
                         selectedWinner!,
+                        resultType: isWalkover ? 'walkover' : 'normal',
                       );
                       ref.read(analyticsServiceProvider).logSubmitMatchScore(
                         matchId: match.id,

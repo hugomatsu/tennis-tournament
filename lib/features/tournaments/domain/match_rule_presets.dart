@@ -17,6 +17,16 @@ const Map<String, dynamic> kDefaultMatchRules = {
   'confirmationDeadlineHours': 2,
   'noShowGraceMinutes': 15,
   'noShowResult': 'walkover',
+  // Variable scoring & cross-group config
+  'scoringMode': 'flat', // 'flat' (legacy) or 'variable'
+  'matchFormat': 'roundRobin', // 'roundRobin' (legacy) or 'crossGroup'
+  'matchesPerPlayer': 5, // only used when crossGroup
+  'pointsWin2_0': 4,
+  'pointsWin2_1': 3,
+  'pointsWinWO': 2,
+  'pointsLoss1_2': 1,
+  'pointsLoss0_2': 0,
+  'pointsLossWO': 0,
 };
 
 const Map<String, dynamic> kQuickMatchPreset = {

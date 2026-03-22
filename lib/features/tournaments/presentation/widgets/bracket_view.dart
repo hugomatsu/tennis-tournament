@@ -107,7 +107,7 @@ class _OpenTennisTabContent extends ConsumerWidget {
     return matchesAsync.when(
       data: (allMatches) {
         final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
-        final hasPlayoffMatches = categoryMatches.any((m) => !m.round.startsWith('Group'));
+        final hasPlayoffMatches = categoryMatches.any((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross'));
 
         final tabCount = hasPlayoffMatches ? 2 : 1;
 
@@ -274,7 +274,7 @@ class _SingleBracketViewState extends ConsumerState<_SingleBracketView> {
         // and remap "Playoff R1", "Playoff R2" rounds to numeric "1", "2"
         if (widget.playoffOnly) {
           matches = matches
-              .where((m) => !m.round.startsWith('Group'))
+              .where((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross'))
               .map((m) {
                 final numericRound = m.round.replaceFirst('Playoff R', '');
                 return m.copyWith(round: numericRound);
