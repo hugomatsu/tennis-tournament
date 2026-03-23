@@ -1417,7 +1417,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tutorialSkip => 'Pular';
 
   @override
-  String get tutorialNext => 'Proximo';
+  String get tutorialNext => 'Próximo';
 
   @override
   String get tutorialDone => 'Concluir';
@@ -1427,21 +1427,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tutorialWelcomeSubtitle =>
-      'Organize e participe de torneios de tenis com facilidade.';
+      'Organize e participe de torneios de tênis com facilidade.';
 
   @override
   String get tutorialFindTournamentsTitle => 'Encontre Torneios';
 
   @override
   String get tutorialFindTournamentsSubtitle =>
-      'Navegue, filtre e inscreva-se em torneios perto de voce.';
+      'Navegue, filtre e inscreva-se em torneios perto de você.';
 
   @override
   String get tutorialTrackMatchesTitle => 'Acompanhe seus Jogos';
 
   @override
   String get tutorialTrackMatchesSubtitle =>
-      'Veja sua agenda, confirme presenca e acompanhe resultados ao vivo.';
+      'Veja sua agenda, confirme presença e acompanhe resultados ao vivo.';
 
   @override
   String get tutorialReadyTitle => 'Pronto para Jogar?';
@@ -1466,21 +1466,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tutorialTournamentsTabBody =>
-      'Sua base. Navegue por todos os torneios disponiveis, filtre por status e encontre sua proxima partida.';
+      'Sua base. Navegue por todos os torneios disponíveis, filtre por status e encontre sua próxima partida.';
 
   @override
   String get tutorialScheduleTabTitle => 'Agenda';
 
   @override
   String get tutorialScheduleTabBody =>
-      'Seu calendario pessoal de jogos. Veja as proximas partidas que voce participa ou segue.';
+      'Seu calendário pessoal de jogos. Veja as próximas partidas que você participa ou segue.';
 
   @override
   String get tutorialProfileTabTitle => 'Perfil';
 
   @override
   String get tutorialProfileTabBody =>
-      'Gerencie seu perfil, defina seu nivel, veja estatisticas e ajuste preferencias.';
+      'Gerencie seu perfil, defina seu nível, veja estatísticas e ajuste preferências.';
 
   @override
   String get tutorialSearchTitle => 'Busca';
@@ -1494,42 +1494,42 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tutorialFilterBody =>
-      'Filtre por: seus torneios, participando, simples, duplas ou inscricoes abertas.';
+      'Filtre por: seus torneios, participando, simples, duplas ou inscrições abertas.';
 
   @override
   String get tutorialTournamentCardTitle => 'Card do Torneio';
 
   @override
   String get tutorialTournamentCardBody =>
-      'Cada card mostra nome, imagem, status, numero de jogadores e datas. Toque para ver detalhes.';
+      'Cada card mostra nome, imagem, status, número de jogadores e datas. Toque para ver detalhes.';
 
   @override
   String get tutorialCreateTournamentTitle => 'Criar Torneio';
 
   @override
   String get tutorialCreateTournamentBody =>
-      'Toque aqui para criar e organizar seu proprio torneio.';
+      'Toque aqui para criar e organizar seu próprio torneio.';
 
   @override
   String get tutorialInfoTabTitle => 'Info';
 
   @override
   String get tutorialInfoTabBody =>
-      'Descricao do torneio, formato, categorias, local e lista de participantes.';
+      'Descrição do torneio, formato, categorias, local e lista de participantes.';
 
   @override
   String get tutorialBracketTabTitle => 'Chave';
 
   @override
   String get tutorialBracketTabBody =>
-      'Apos gerada, veja a chave completa de jogos aqui. Toque em qualquer jogo para detalhes.';
+      'Após gerada, veja a chave completa de jogos aqui. Toque em qualquer jogo para detalhes.';
 
   @override
-  String get tutorialCalendarTabTitle => 'Calendario';
+  String get tutorialCalendarTabTitle => 'Calendário';
 
   @override
   String get tutorialCalendarTabBody =>
-      'Veja todos os jogos agendados no calendario. Datas com jogos sao marcadas.';
+      'Veja todos os jogos agendados no calendário. Datas com jogos são marcadas.';
 
   @override
   String get tutorialShareTitle => 'Compartilhar';

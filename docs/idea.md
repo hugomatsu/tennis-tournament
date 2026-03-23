@@ -18,6 +18,7 @@ Scheduling tennis matches for a local tournament is difficult due to:
 ## User Stories
 
 ### Player
+- **Interactive Tutorial**: Get guided walkthroughs of the app features for seamless onboarding.
 - **View Tournaments**: See scheduled, running, and past tournaments to stay informed.
 - **My Schedule**: View specific match days and times to plan ahead.
 - **Brackets**: View the tournament bracket to see current standing and potential opponents.
@@ -30,7 +31,9 @@ Scheduling tennis matches for a local tournament is difficult due to:
 - **Profile**: Manage personal profile including Name, Preferred Category, Experience ("Playing since"), Bio, Title, Birth Date, and Preferred Partner.
 
 ### Admin
+- **Interactive Tutorial**: Step-by-step guidance on how to manage and run a tournament efficiently.
 - **Tournament Creation**: Create tournaments with specific rules, entry timelines, start times, and pricing.
+- **Custom Rules Builder**: Define match formats, scoring rules (sets, tiebreaks, advantage), time limits, and walkover conditions through an intuitive builder.
 - **Player Control**: Accept or deny player registrations; manually add players (including those without accounts).
 - **Platform Access**: Manage via Web or Mobile.
 - **Slot Management**: Define available time slots for the upcoming week/weekend.
@@ -51,9 +54,9 @@ Scheduling tennis matches for a local tournament is difficult due to:
 - **Output**: Proposed Schedule.
 
 ### 2. Tournament Management
-- Categories (e.g., Men's A, Women's B, Mixed Doubles).
-- Rule engine (Default vs Custom rules).
-- Bracket generation.
+- **Categories**: Standard brackets (e.g., Men's A, Women's B, Mixed Doubles) and **Open Tennis Mode** (Group Stage / Round Robin followed by playoffs).
+- **Rule Engine**: Customizable Rules Builder for scoring (e.g., 2 sets to 6, match tiebreak), time limits, and refereeing options.
+- **Bracket Generation**: Automatic or manual seed reordering, and group generation for Open Tennis mode.
 
 ### 3. User Management
 - **Player Profiles**:

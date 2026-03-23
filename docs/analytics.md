@@ -47,6 +47,12 @@ We track standard and custom events to understand how users interact with the ap
 - `generate_bracket`: Triggered when an admin generates the match schedule bracket for a tournament.
     - **Params**: `generation_method` (String: manual, automatic)
 
+### Tutorial & Onboarding
+- `tutorial_welcome_started`, `tutorial_welcome_completed`, `tutorial_welcome_skipped`: Tracks user interactions with the welcome screens.
+- `tutorial_started`, `tutorial_completed`, `tutorial_skipped`: Tracks the coach-mark tutorial progression (player/admin tracks).
+- `tutorial_step_viewed`, `tutorial_step_interaction`: Tracks specific steps seen and interacted with.
+- `tutorial_error`: Tracks any rendering or navigation errors during the tutorial overlay.
+
 ### Monetization & Profile
 - `view_premium_offer`: Triggered when a user accesses the Premium Subscription page.
 - `purchase_premium`: Triggered when a user subscribes to the premium plan (simulated).

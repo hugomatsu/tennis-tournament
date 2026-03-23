@@ -11,8 +11,9 @@
 - **State Management**: `flutter_riverpod` & `riverpod_annotation`.
 - **Data Class Generation**: `freezed` & `json_serializable`.
 - **Environment config**: `flutter_dotenv`.
-- **Utilities**: `intl` (Dates), `uuid`.
+- **Utilities**: `intl` (Dates/Localization), `flutter_localizations`, `uuid`.
 - **Media**: `image_picker` (Gallery/Camera access), `url_launcher` (Maps/Links).
+- **Monitoring & Analytics**: `firebase_crashlytics`, `firebase_analytics`.
 
 **Rationale**:
 - **Cross-Platform**: "Write once, run everywhere" capability perfectly matches the "Mobile First, but also Web" requirement.
@@ -29,6 +30,7 @@
 - **Cloud Functions**: Serverless backend logic for complex operations (Scheduling Algorithm, Notifications).
 - **Storage**: Store user profile pictures and tournament assets.
 - **Hosting**: Host the Web version of the app.
+- **Crashlytics & Analytics**: Monitor app stability, track errors, and analyze user behavior.
 
 **Rationale**:
 - **Ease of Management**: Fully managed serverless infrastructure.
