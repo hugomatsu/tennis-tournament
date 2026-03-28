@@ -1877,13 +1877,13 @@ abstract class AppLocalizations {
   /// No description provided for @openTennisGroups.
   ///
   /// In en, this message translates to:
-  /// **'Open Tennis (Groups)'**
+  /// **'Group + Mata-Mata'**
   String get openTennisGroups;
 
   /// No description provided for @openTennisMode.
   ///
   /// In en, this message translates to:
-  /// **'Open Tennis Mode'**
+  /// **'Group + Mata-Mata Mode'**
   String get openTennisMode;
 
   /// No description provided for @goToHome.
@@ -2573,7 +2573,7 @@ abstract class AppLocalizations {
   /// No description provided for @openTennisCreated.
   ///
   /// In en, this message translates to:
-  /// **'Open Tennis \"{name}\" created successfully!'**
+  /// **'Group + Mata-Mata \"{name}\" created successfully!'**
   String openTennisCreated(Object name);
 
   /// No description provided for @simSmallTitle.

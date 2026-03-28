@@ -580,10 +580,10 @@ class _GroupCard extends StatelessWidget {
                     TableRow(
                       children: [
                         Text(loc.player, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.winsShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.lossesShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.playedShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(loc.pointsShort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.winsShort, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.lossesShort, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.playedShort, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(loc.pointsShort, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                     ...standings.asMap().entries.map((entry) {
@@ -616,52 +616,52 @@ class _GroupCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Row(
                               children: [
-                                // Rank badge or trophy for winner
-                                if (isWinner)
-                                  Container(
-                                    width: 24,
-                                    height: 24,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [Colors.amber.shade400, Colors.orange.shade600],
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.emoji_events, size: 14, color: Colors.white),
-                                  )
-                                else
-                                  Container(
-                                    width: 24,
-                                    height: 24,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: isAdvancing
-                                          ? Colors.green.withOpacity(0.35)
-                                          : rank == 1
-                                              ? Colors.amber.withOpacity(0.3)
-                                              : Colors.grey.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      '$rank',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                // Rank badge (always shows number)
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: isWinner
+                                        ? Colors.amber.withValues(alpha: 0.5)
+                                        : isAdvancing
+                                            ? Colors.green.withOpacity(0.35)
+                                            : rank == 1
+                                                ? Colors.amber.withOpacity(0.3)
+                                                : Colors.grey.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '$rank',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: isWinner ? Colors.amber.shade900 : null,
                                     ),
                                   ),
+                                ),
                                 const SizedBox(width: 8),
-                                // Player avatar
-                                CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: Colors.grey.shade300,
-                                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                                  child: avatarUrl == null
-                                      ? Text(
-                                          standing.participantName.isNotEmpty
-                                              ? standing.participantName[0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                // Player avatar with golden border for winner
+                                Container(
+                                  decoration: isWinner
+                                      ? BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.amber.shade400, width: 2),
                                         )
                                       : null,
+                                  child: CircleAvatar(
+                                    radius: 14,
+                                    backgroundColor: Colors.grey.shade300,
+                                    backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                                    child: avatarUrl == null
+                                        ? Text(
+                                            standing.participantName.isNotEmpty
+                                                ? standing.participantName[0].toUpperCase()
+                                                : '?',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                          )
+                                        : null,
+                                  ),
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -704,20 +704,21 @@ class _GroupCard extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Text('${standing.wins}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                            child: Text('${standing.wins}', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Text('${standing.losses}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                            child: Text('${standing.losses}', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Text('${standing.matchesPlayed}', style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
+                            child: Text('${standing.matchesPlayed}', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: isWinner ? FontWeight.bold : FontWeight.normal)),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Text(
                               '${standing.points}',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -1130,10 +1131,9 @@ class _DeciderMatchesCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              children: matches.asMap().entries.map((e) {
-                final groupId = e.value.round.replaceFirst('Decider ', '');
-                return _CrossMatchTile(match: e.value, roundLabel: groupId, matchNumber: e.key + 1);
-              }).toList(),
+              children: matches.asMap().entries.map((e) =>
+                _CrossMatchTile(match: e.value, roundLabel: '', matchNumber: e.key + 1),
+              ).toList(),
             ),
           ),
         ],
@@ -1198,20 +1198,26 @@ class _CrossMatchTile extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: isP1Winner ? Colors.amber.shade100 : Colors.grey.shade200,
-                    backgroundImage: p1Avatar != null ? NetworkImage(p1Avatar) : null,
-                    child: p1Avatar == null
-                        ? Text(
-                            match.player1Name.isNotEmpty ? match.player1Name[0].toUpperCase() : '?',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isP1Winner ? Colors.amber.shade800 : Colors.grey.shade600),
+                  Container(
+                    decoration: isP1Winner
+                        ? BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.amber.shade400, width: 2),
                           )
                         : null,
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: p1Avatar != null ? NetworkImage(p1Avatar) : null,
+                      child: p1Avatar == null
+                          ? Text(
+                              match.player1Name.isNotEmpty ? match.player1Name[0].toUpperCase() : '?',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                            )
+                          : null,
+                    ),
                   ),
                   const SizedBox(width: 6),
-                  if (isP1Winner)
-                    Icon(Icons.emoji_events, size: 14, color: Colors.amber.shade600),
                   Expanded(
                     child: Text(
                       match.player1Name,
@@ -1228,20 +1234,35 @@ class _CrossMatchTile extends StatelessWidget {
             ),
             // Score/Status
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: isCompleted ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                color: isCompleted
+                    ? Colors.green.withValues(alpha: 0.15)
+                    : Colors.orange.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(
-                isCompleted ? (match.score ?? 'W') : match.status,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isCompleted ? Colors.green.shade700 : Colors.orange.shade700,
-                ),
-              ),
+              child: isCompleted
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: (match.score ?? 'W').split(', ').map((set) => Text(
+                        set,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green.shade700,
+                          height: 1.3,
+                        ),
+                      )).toList(),
+                    )
+                  : Text(
+                      match.status,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
             ),
             // Player 2
             Expanded(
@@ -1260,19 +1281,25 @@ class _CrossMatchTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (isP2Winner)
-                    Icon(Icons.emoji_events, size: 14, color: Colors.amber.shade600),
                   const SizedBox(width: 6),
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: isP2Winner ? Colors.amber.shade100 : Colors.grey.shade200,
-                    backgroundImage: p2Avatar != null ? NetworkImage(p2Avatar) : null,
-                    child: p2Avatar == null
-                        ? Text(
-                            (match.player2Name ?? '?').isNotEmpty ? (match.player2Name ?? '?')[0].toUpperCase() : '?',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isP2Winner ? Colors.amber.shade800 : Colors.grey.shade600),
+                  Container(
+                    decoration: isP2Winner
+                        ? BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.amber.shade400, width: 2),
                           )
                         : null,
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: p2Avatar != null ? NetworkImage(p2Avatar) : null,
+                      child: p2Avatar == null
+                          ? Text(
+                              (match.player2Name ?? '?').isNotEmpty ? (match.player2Name ?? '?')[0].toUpperCase() : '?',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                            )
+                          : null,
+                    ),
                   ),
                 ],
               ),

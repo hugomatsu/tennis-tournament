@@ -1,4 +1,4 @@
-# Open Tennis (Round-Robin Groups + Playoff)
+# Grupos e Mata-Mata (Round-Robin Groups + Playoff)
 
 **`tournamentType: 'openTennis'`**
 

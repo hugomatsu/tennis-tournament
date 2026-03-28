@@ -940,10 +940,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get mataMataElimination => 'Mata-Mata (Eliminatória)';
 
   @override
-  String get openTennisGroups => 'Open Tennis (Grupos)';
+  String get openTennisGroups => 'Grupos e Mata-Mata';
 
   @override
-  String get openTennisMode => 'Modo Open Tennis';
+  String get openTennisMode => 'Modo Grupos e Mata-Mata';
 
   @override
   String get goToHome => 'Ir para Início';
@@ -1341,7 +1341,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String openTennisCreated(Object name) {
-    return 'Open Tennis \"$name\" criado com sucesso!';
+    return 'Grupos e Mata-Mata \"$name\" criado com sucesso!';
   }
 
   @override

@@ -676,6 +676,40 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       keyboardType: TextInputType.number,
                       onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
                     ),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    // Scoring Mode
+                    DropdownButtonFormField<String>(
+                      value: _matchRules['scoringMode'] as String? ?? 'flat',
+                      decoration: InputDecoration(
+                        labelText: l10n.scoringMode,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.scoreboard),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'flat', child: Text(l10n.flatScoring)),
+                        DropdownMenuItem(value: 'variable', child: Text(l10n.variableScoring)),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _matchRules['scoringMode'] = value ?? 'flat';
+                      }),
+                    ),
+                    if (_matchRules['scoringMode'] == 'variable') ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _PointsChip(label: l10n.pointsWin2_0Label, ruleKey: 'pointsWin2_0', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWin2_0'] = v)),
+                          _PointsChip(label: l10n.pointsWin2_1Label, ruleKey: 'pointsWin2_1', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWin2_1'] = v)),
+                          _PointsChip(label: l10n.pointsWinWOLabel, ruleKey: 'pointsWinWO', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsWinWO'] = v)),
+                          _PointsChip(label: l10n.pointsLoss1_2Label, ruleKey: 'pointsLoss1_2', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLoss1_2'] = v)),
+                          _PointsChip(label: l10n.pointsLoss0_2Label, ruleKey: 'pointsLoss0_2', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLoss0_2'] = v)),
+                          _PointsChip(label: l10n.pointsLossWOLabel, ruleKey: 'pointsLossWO', rules: _matchRules, onChanged: (v) => setState(() => _matchRules['pointsLossWO'] = v)),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       value: _matchRules['opponentSelection'] as String? ?? 'random',
