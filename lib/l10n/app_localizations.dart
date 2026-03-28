@@ -3871,6 +3871,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match — {name}'**
   String matchWonBy(String name);
+
+  /// No description provided for @scoreCounterHowItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get scoreCounterHowItWorks;
+
+  /// No description provided for @scoreCounterFeatureTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a player\'s panel to score a point'**
+  String get scoreCounterFeatureTap;
+
+  /// No description provided for @scoreCounterFeatureLongPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press to edit names or reset the match'**
+  String get scoreCounterFeatureLongPress;
+
+  /// No description provided for @scoreCounterFeatureToolbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the top bar to undo, swap sides, and view the score log'**
+  String get scoreCounterFeatureToolbar;
+
+  /// No description provided for @scoreCounterFeatureFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen mode — great for tablets or TV display'**
+  String get scoreCounterFeatureFullscreen;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @or.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get or;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @signInWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple'**
+  String get signInWithApple;
+
+  /// No description provided for @guestBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re browsing as a Guest'**
+  String get guestBannerTitle;
+
+  /// No description provided for @guestBannerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account to save your progress and join tournaments.'**
+  String get guestBannerDesc;
+
+  /// No description provided for @linkAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Account'**
+  String get linkAccount;
+
+  /// No description provided for @linkWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link with Google'**
+  String get linkWithGoogle;
+
+  /// No description provided for @linkWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Link with Apple'**
+  String get linkWithApple;
 }
 
 class _AppLocalizationsDelegate

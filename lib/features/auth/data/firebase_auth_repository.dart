@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:tennis_tournament/features/auth/data/auth_repository.dart';
 import 'package:tennis_tournament/features/auth/domain/auth_user.dart';
 
@@ -42,6 +45,95 @@ class FirebaseAuthRepository implements AuthRepository {
     await _firebaseAuth.signOut();
   }
 
+  @override
+  Future<void> signInAnonymously() async {
+    await _firebaseAuth.signInAnonymously();
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      await _firebaseAuth.signInWithPopup(provider);
+    } else {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await _firebaseAuth.signInWithCredential(credential);
+    }
+  }
+
+  @override
+  Future<void> signInWithApple() async {
+    if (kIsWeb) {
+      final provider = OAuthProvider('apple.com')
+        ..addScope('email')
+        ..addScope('name');
+      await _firebaseAuth.signInWithPopup(provider);
+    } else {
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+      await _firebaseAuth.signInWithCredential(oauthCredential);
+    }
+  }
+
+  @override
+  Future<void> linkWithGoogle() async {
+    final currentFirebaseUser = _firebaseAuth.currentUser;
+    if (currentFirebaseUser == null) return;
+
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      await currentFirebaseUser.linkWithPopup(provider);
+    } else {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await currentFirebaseUser.linkWithCredential(credential);
+    }
+  }
+
+  @override
+  Future<void> linkWithApple() async {
+    final currentFirebaseUser = _firebaseAuth.currentUser;
+    if (currentFirebaseUser == null) return;
+
+    if (kIsWeb) {
+      final provider = OAuthProvider('apple.com')
+        ..addScope('email')
+        ..addScope('name');
+      await currentFirebaseUser.linkWithPopup(provider);
+    } else {
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+      await currentFirebaseUser.linkWithCredential(oauthCredential);
+    }
+  }
+
   AuthUser? _mapFirebaseUser(User? user) {
     if (user == null) return null;
     return AuthUser(
@@ -49,6 +141,7 @@ class FirebaseAuthRepository implements AuthRepository {
       email: user.email ?? '',
       displayName: user.displayName,
       photoUrl: user.photoURL,
+      isAnonymous: user.isAnonymous,
     );
   }
 }

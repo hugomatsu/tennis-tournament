@@ -675,5 +675,19 @@
   "setWonBy": "Set — {name}",
   "@setWonBy": { "placeholders": { "name": { "type": "String" } } },
   "matchWonBy": "Partida — {name}",
-  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } }
+  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "scoreCounterHowItWorks": "Como usar",
+  "scoreCounterFeatureTap": "Toque no painel do jogador para marcar um ponto",
+  "scoreCounterFeatureLongPress": "Pressione e segure para editar nomes ou reiniciar",
+  "scoreCounterFeatureToolbar": "Use a barra superior para desfazer, trocar lados e ver histórico",
+  "scoreCounterFeatureFullscreen": "Tela cheia ideal para exibir em tablets ou TV",
+  "continueAsGuest": "Continuar como Visitante",
+  "or": "ou",
+  "signInWithGoogle": "Entrar com Google",
+  "signInWithApple": "Entrar com Apple",
+  "guestBannerTitle": "Você está como Visitante",
+  "guestBannerDesc": "Crie uma conta para salvar seu progresso e participar de torneios.",
+  "linkAccount": "Vincular Conta",
+  "linkWithGoogle": "Vincular com Google",
+  "linkWithApple": "Vincular com Apple"
 }

@@ -2082,4 +2082,51 @@ class AppLocalizationsPt extends AppLocalizations {
   String matchWonBy(String name) {
     return 'Partida — $name';
   }
+
+  @override
+  String get scoreCounterHowItWorks => 'Como usar';
+
+  @override
+  String get scoreCounterFeatureTap =>
+      'Toque no painel do jogador para marcar um ponto';
+
+  @override
+  String get scoreCounterFeatureLongPress =>
+      'Pressione e segure para editar nomes ou reiniciar';
+
+  @override
+  String get scoreCounterFeatureToolbar =>
+      'Use a barra superior para desfazer, trocar lados e ver histórico';
+
+  @override
+  String get scoreCounterFeatureFullscreen =>
+      'Tela cheia ideal para exibir em tablets ou TV';
+
+  @override
+  String get continueAsGuest => 'Continuar como Visitante';
+
+  @override
+  String get or => 'ou';
+
+  @override
+  String get signInWithGoogle => 'Entrar com Google';
+
+  @override
+  String get signInWithApple => 'Entrar com Apple';
+
+  @override
+  String get guestBannerTitle => 'Você está como Visitante';
+
+  @override
+  String get guestBannerDesc =>
+      'Crie uma conta para salvar seu progresso e participar de torneios.';
+
+  @override
+  String get linkAccount => 'Vincular Conta';
+
+  @override
+  String get linkWithGoogle => 'Vincular com Google';
+
+  @override
+  String get linkWithApple => 'Vincular com Apple';
 }

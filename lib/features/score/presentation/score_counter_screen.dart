@@ -630,6 +630,63 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
+              // ── App icon + title ─────────────────────────────────────────
+              Icon(
+                Icons.sports_tennis,
+                size: 48,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                loc.score,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 20),
+              // ── How it works card ────────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          loc.scoreCounterHowItWorks,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _HintRow(icon: Icons.touch_app_outlined, text: loc.scoreCounterFeatureTap),
+                    const SizedBox(height: 6),
+                    _HintRow(icon: Icons.pan_tool_outlined, text: loc.scoreCounterFeatureLongPress),
+                    const SizedBox(height: 6),
+                    _HintRow(icon: Icons.more_horiz, text: loc.scoreCounterFeatureToolbar),
+                    const SizedBox(height: 6),
+                    _HintRow(icon: Icons.fullscreen, text: loc.scoreCounterFeatureFullscreen),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
               TextField(
                 controller: _ctrlA,
                 textCapitalization: TextCapitalization.words,
@@ -1000,6 +1057,30 @@ class _LogPointRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HintRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _HintRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 15, color: Colors.grey.shade500),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 }

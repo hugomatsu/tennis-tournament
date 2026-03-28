@@ -9,5 +9,6 @@ abstract class AuthUser with _$AuthUser {
     required String email,
     String? displayName,
     String? photoUrl,
+    @Default(false) bool isAnonymous,
   }) = _AuthUser;
 }

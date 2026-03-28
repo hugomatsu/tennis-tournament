@@ -694,5 +694,19 @@
   "setWonBy": "Set — {name}",
   "@setWonBy": { "placeholders": { "name": { "type": "String" } } },
   "matchWonBy": "Match — {name}",
-  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } }
+  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "scoreCounterHowItWorks": "How to use",
+  "scoreCounterFeatureTap": "Tap a player's panel to score a point",
+  "scoreCounterFeatureLongPress": "Long-press to edit names or reset the match",
+  "scoreCounterFeatureToolbar": "Use the top bar to undo, swap sides, and view the score log",
+  "scoreCounterFeatureFullscreen": "Fullscreen mode — great for tablets or TV display",
+  "continueAsGuest": "Continue as Guest",
+  "or": "or",
+  "signInWithGoogle": "Sign in with Google",
+  "signInWithApple": "Sign in with Apple",
+  "guestBannerTitle": "You're browsing as a Guest",
+  "guestBannerDesc": "Create an account to save your progress and join tournaments.",
+  "linkAccount": "Link Account",
+  "linkWithGoogle": "Link with Google",
+  "linkWithApple": "Link with Apple"
 }

@@ -2074,4 +2074,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String matchWonBy(String name) {
     return 'Match — $name';
   }
+
+  @override
+  String get scoreCounterHowItWorks => 'How to use';
+
+  @override
+  String get scoreCounterFeatureTap => 'Tap a player\'s panel to score a point';
+
+  @override
+  String get scoreCounterFeatureLongPress =>
+      'Long-press to edit names or reset the match';
+
+  @override
+  String get scoreCounterFeatureToolbar =>
+      'Use the top bar to undo, swap sides, and view the score log';
+
+  @override
+  String get scoreCounterFeatureFullscreen =>
+      'Fullscreen mode — great for tablets or TV display';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get signInWithApple => 'Sign in with Apple';
+
+  @override
+  String get guestBannerTitle => 'You\'re browsing as a Guest';
+
+  @override
+  String get guestBannerDesc =>
+      'Create an account to save your progress and join tournaments.';
+
+  @override
+  String get linkAccount => 'Link Account';
+
+  @override
+  String get linkWithGoogle => 'Link with Google';
+
+  @override
+  String get linkWithApple => 'Link with Apple';
 }

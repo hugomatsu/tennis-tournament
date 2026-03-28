@@ -30,7 +30,57 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text.trim(),
           );
       ref.read(analyticsServiceProvider).logLogin(method: 'email');
-      // Navigation is handled by the router redirect
+    } catch (e) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInAsGuest() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authRepositoryProvider).signInAnonymously();
+      ref.read(analyticsServiceProvider).logLogin(method: 'anonymous');
+    } catch (e) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authRepositoryProvider).signInWithGoogle();
+      ref.read(analyticsServiceProvider).logLogin(method: 'google');
+    } catch (e) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithApple() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authRepositoryProvider).signInWithApple();
+      ref.read(analyticsServiceProvider).logLogin(method: 'apple');
     } catch (e) {
       if (mounted) {
         final loc = AppLocalizations.of(context)!;
@@ -125,6 +175,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: () => context.go('/register'),
                   child: Text(loc.dontHaveAccount),
                 ),
+                const SizedBox(height: 8),
+                _OrDivider(label: loc.or),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                  icon: const _GoogleLogo(),
+                  label: Text(loc.signInWithGoogle),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _signInWithApple,
+                  icon: const Icon(Icons.apple, size: 20),
+                  label: Text(loc.signInWithApple),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: _isLoading ? null : _signInAsGuest,
+                  child: Text(
+                    loc.continueAsGuest,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ),
               ],
             ),
           ),
@@ -132,4 +204,75 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+}
+
+class _OrDivider extends StatelessWidget {
+  final String label;
+  const _OrDivider({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(label, style: const TextStyle(color: Colors.grey)),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  const _GoogleLogo();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _GoogleLogoPainter()),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width / 2;
+
+    // Simplified G icon using colored arcs
+    paint.color = Colors.grey.shade400;
+    canvas.drawCircle(Offset(cx, cy), r, paint);
+
+    paint.color = Colors.white;
+    canvas.drawCircle(Offset(cx, cy), r * 0.75, paint);
+
+    // G letter hint
+    paint.color = Colors.grey.shade700;
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: 'G',
+        style: TextStyle(
+          fontSize: size.width * 0.8,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade700,
+          height: 1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter.paint(
+      canvas,
+      Offset(cx - textPainter.width / 2, cy - textPainter.height / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

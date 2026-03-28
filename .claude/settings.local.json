@@ -6,7 +6,8 @@
       "Bash(grep -l \"FutureProvider\\\\|StreamProvider\\\\|StateNotifierProvider\" /Users/hugomatsumoto/Projects/HMLabs/TennisProjects/tennis-tournament/lib/features/*/application/*.dart)",
       "Bash(dart run:*)",
       "Bash(flutter pub:*)",
-      "Bash(grep -E \"\\\\.dart$\")"
+      "Bash(grep -E \"\\\\.dart$\")",
+      "Bash(firebase hosting:channel:delete live --force)"
     ]
   }
 }

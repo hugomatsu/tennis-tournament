@@ -18,7 +18,14 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final authUserAsync = ref.watch(authStateChangesProvider);
     final loc = AppLocalizations.of(context)!;
+
+    final isAnonymous = authUserAsync.when(
+      data: (u) => u?.isAnonymous ?? false,
+      error: (_, __) => false,
+      loading: () => false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -35,20 +42,8 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: userAsync.when(
         data: (user) {
-          if (user == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(loc.profileNotFound),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () => context.push('/profile/edit'),
-                    child: Text(loc.createProfile),
-                  ),
-                ],
-              ),
-            );
+          if (user == null || isAnonymous) {
+            return _GuestUpgradeScreen(isAnonymous: isAnonymous);
           }
           return SingleChildScrollView(
             child: Column(
@@ -592,6 +587,98 @@ class _StatItem extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
+    );
+  }
+}
+
+class _GuestUpgradeScreen extends ConsumerStatefulWidget {
+  final bool isAnonymous;
+  const _GuestUpgradeScreen({required this.isAnonymous});
+
+  @override
+  ConsumerState<_GuestUpgradeScreen> createState() => _GuestUpgradeScreenState();
+}
+
+class _GuestUpgradeScreenState extends ConsumerState<_GuestUpgradeScreen> {
+  bool _isLoading = false;
+
+  Future<void> _linkWith(Future<void> Function() action) async {
+    setState(() => _isLoading = true);
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final repo = ref.read(authRepositoryProvider);
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person_outline, size: 72, color: Colors.grey.shade400),
+            const SizedBox(height: 24),
+            Text(
+              loc.guestBannerTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              loc.guestBannerDesc,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _isLoading
+                    ? null
+                    : () => _linkWith(
+                          widget.isAnonymous
+                              ? repo.linkWithGoogle
+                              : repo.signInWithGoogle,
+                        ),
+                icon: const Icon(Icons.g_mobiledata, size: 22),
+                label: Text(widget.isAnonymous ? loc.linkWithGoogle : loc.signInWithGoogle),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _isLoading
+                    ? null
+                    : () => _linkWith(
+                          widget.isAnonymous
+                              ? repo.linkWithApple
+                              : repo.signInWithApple,
+                        ),
+                icon: const Icon(Icons.apple, size: 20),
+                label: Text(widget.isAnonymous ? loc.linkWithApple : loc.signInWithApple),
+              ),
+            ),
+            if (_isLoading) ...[
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

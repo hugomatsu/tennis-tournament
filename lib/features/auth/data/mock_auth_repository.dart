@@ -21,7 +21,20 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() async {
-    // No-op
-  }
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> signInAnonymously() async {}
+
+  @override
+  Future<void> signInWithGoogle() async {}
+
+  @override
+  Future<void> signInWithApple() async {}
+
+  @override
+  Future<void> linkWithGoogle() async {}
+
+  @override
+  Future<void> linkWithApple() async {}
 }

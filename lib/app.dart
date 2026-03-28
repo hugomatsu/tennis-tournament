@@ -303,6 +303,18 @@ class TennisApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return ColoredBox(
+          color: isDark ? const Color(0xFF0D0D0D) : const Color(0xFFD6D6D6),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: child!,
+            ),
+          ),
+        );
+      },
     );
   }
 }
