@@ -658,5 +658,22 @@
   "copyResult": "Copiar resultado",
   "resultCopied": "Resultado copiado!",
   "newMatch": "Nova partida",
-  "fullscreen": "Tela cheia"
+  "fullscreen": "Tela cheia",
+  "startMatch": "Começar Partida",
+  "playerLeftHint": "Nome (esquerda)",
+  "playerRightHint": "Nome (direita)",
+  "tapToStartHint": "Nomes são opcionais",
+  "swapSides": "Trocar Lados",
+  "scoreLog": "Histórico",
+  "noPointsYet": "Nenhum ponto registrado ainda",
+  "setLabel": "Set {n}",
+  "@setLabel": { "placeholders": { "n": { "type": "int" } } },
+  "gameLabel": "Game {n}",
+  "@gameLabel": { "placeholders": { "n": { "type": "int" } } },
+  "gameWonBy": "Game — {name}",
+  "@gameWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "setWonBy": "Set — {name}",
+  "@setWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "matchWonBy": "Partida — {name}",
+  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } }
 }

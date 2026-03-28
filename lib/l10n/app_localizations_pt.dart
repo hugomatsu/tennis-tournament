@@ -2036,4 +2036,50 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get fullscreen => 'Tela cheia';
+
+  @override
+  String get startMatch => 'Começar Partida';
+
+  @override
+  String get playerLeftHint => 'Nome (esquerda)';
+
+  @override
+  String get playerRightHint => 'Nome (direita)';
+
+  @override
+  String get tapToStartHint => 'Nomes são opcionais';
+
+  @override
+  String get swapSides => 'Trocar Lados';
+
+  @override
+  String get scoreLog => 'Histórico';
+
+  @override
+  String get noPointsYet => 'Nenhum ponto registrado ainda';
+
+  @override
+  String setLabel(int n) {
+    return 'Set $n';
+  }
+
+  @override
+  String gameLabel(int n) {
+    return 'Game $n';
+  }
+
+  @override
+  String gameWonBy(String name) {
+    return 'Game — $name';
+  }
+
+  @override
+  String setWonBy(String name) {
+    return 'Set — $name';
+  }
+
+  @override
+  String matchWonBy(String name) {
+    return 'Partida — $name';
+  }
 }

@@ -1,111 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entre Sets – Gerenciamento de Torneios de Tênis</title>
-  <style>
-    :root {
-      --primary: #1a73e8;
-      --bg: #f8f9fa;
-      --text: #202124;
-      --muted: #5f6368;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-      text-align: center;
-    }
-    .logo {
-      font-size: 3rem;
-      margin-bottom: 16px;
-    }
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 8px;
-    }
-    .tagline {
-      font-size: 1.1rem;
-      color: var(--muted);
-      margin-bottom: 40px;
-      max-width: 400px;
-    }
-    .badges {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 48px;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--primary);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
-    .badge:hover { opacity: 0.85; }
-    .badge.outline {
-      background: transparent;
-      color: var(--primary);
-      border: 2px solid var(--primary);
-    }
-    .links {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 8px;
-    }
-    .links a {
-      color: var(--muted);
-      font-size: 0.875rem;
-      text-decoration: none;
-    }
-    .links a:hover { color: var(--primary); text-decoration: underline; }
-    footer {
-      margin-top: 48px;
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-  </style>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Entre Sets — Onde o torneio também vira resenha.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Entre Sets">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Entre Sets</title>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div class="logo">🎾</div>
-  <h1>Entre Sets</h1>
-  <p class="tagline">Gerencie torneios de tênis, acompanhe partidas e fique por dentro de todos os resultados.</p>
-
-  <div class="badges">
-    <a class="badge" href="https://play.google.com/store" target="_blank">
-      ▶ Google Play
-    </a>
-    <a class="badge outline" href="https://apps.apple.com/" target="_blank">
-       App Store
-    </a>
-  </div>
-
-  <div class="links">
-    <a href="/privacy">Política de Privacidade</a>
-    <a href="/delete-account">Exclusão de Conta</a>
-    <a href="/terms">Termos de Uso</a>
-  </div>
-
-  <footer>&copy; 2026 HM Labs. Todos os direitos reservados.</footer>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

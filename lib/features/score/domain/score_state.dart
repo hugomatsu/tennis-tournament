@@ -1,3 +1,24 @@
+/// A single scored-point entry stored in the match log.
+class ScoreLogEntry {
+  final bool isPlayerA;       // true = left/A scored, false = right/B scored
+  final int elapsedSeconds;   // match clock at the moment of the point
+  final int setIndex;         // 0-based set number
+  final int gameInSet;        // total games completed in this set before this point
+  final String pointLabelA;   // point display label for A after this point
+  final String pointLabelB;   // point display label for B after this point
+  final String event;         // 'point' | 'game' | 'set' | 'match'
+
+  const ScoreLogEntry({
+    required this.isPlayerA,
+    required this.elapsedSeconds,
+    required this.setIndex,
+    required this.gameInSet,
+    required this.pointLabelA,
+    required this.pointLabelB,
+    required this.event,
+  });
+}
+
 /// Immutable snapshot of the match score at any point in time.
 /// One instance is pushed onto the history stack so undo is trivial.
 class ScoreState {
@@ -39,6 +60,9 @@ class ScoreState {
   // Completed set scores for the result string, e.g. ["6-3","4-6","10-8"]
   final List<String> completedSets;
 
+  // Full scoring log (used for score history and undo)
+  final List<ScoreLogEntry> log;
+
   const ScoreState({
     required this.playerAName,
     required this.playerBName,
@@ -59,6 +83,7 @@ class ScoreState {
     this.isMatchOver = false,
     this.matchWinner,
     required this.completedSets,
+    this.log = const [],
   });
 
   ScoreState copyWith({
@@ -81,6 +106,7 @@ class ScoreState {
     bool? isMatchOver,
     String? matchWinner,
     List<String>? completedSets,
+    List<ScoreLogEntry>? log,
   }) {
     return ScoreState(
       playerAName: playerAName ?? this.playerAName,
@@ -102,6 +128,7 @@ class ScoreState {
       isMatchOver: isMatchOver ?? this.isMatchOver,
       matchWinner: matchWinner ?? this.matchWinner,
       completedSets: completedSets ?? this.completedSets,
+      log: log ?? this.log,
     );
   }
 

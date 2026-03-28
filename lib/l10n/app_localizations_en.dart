@@ -2028,4 +2028,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fullscreen => 'Fullscreen';
+
+  @override
+  String get startMatch => 'Start Match';
+
+  @override
+  String get playerLeftHint => 'Name (left)';
+
+  @override
+  String get playerRightHint => 'Name (right)';
+
+  @override
+  String get tapToStartHint => 'Names are optional';
+
+  @override
+  String get swapSides => 'Swap Sides';
+
+  @override
+  String get scoreLog => 'Score Log';
+
+  @override
+  String get noPointsYet => 'No points scored yet';
+
+  @override
+  String setLabel(int n) {
+    return 'Set $n';
+  }
+
+  @override
+  String gameLabel(int n) {
+    return 'Game $n';
+  }
+
+  @override
+  String gameWonBy(String name) {
+    return 'Game — $name';
+  }
+
+  @override
+  String setWonBy(String name) {
+    return 'Set — $name';
+  }
+
+  @override
+  String matchWonBy(String name) {
+    return 'Match — $name';
+  }
 }

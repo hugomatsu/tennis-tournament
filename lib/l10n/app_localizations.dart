@@ -3799,6 +3799,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fullscreen'**
   String get fullscreen;
+
+  /// No description provided for @startMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Match'**
+  String get startMatch;
+
+  /// No description provided for @playerLeftHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (left)'**
+  String get playerLeftHint;
+
+  /// No description provided for @playerRightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (right)'**
+  String get playerRightHint;
+
+  /// No description provided for @tapToStartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names are optional'**
+  String get tapToStartHint;
+
+  /// No description provided for @swapSides.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap Sides'**
+  String get swapSides;
+
+  /// No description provided for @scoreLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Score Log'**
+  String get scoreLog;
+
+  /// No description provided for @noPointsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No points scored yet'**
+  String get noPointsYet;
+
+  /// No description provided for @setLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {n}'**
+  String setLabel(int n);
+
+  /// No description provided for @gameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game {n}'**
+  String gameLabel(int n);
+
+  /// No description provided for @gameWonBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Game — {name}'**
+  String gameWonBy(String name);
+
+  /// No description provided for @setWonBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Set — {name}'**
+  String setWonBy(String name);
+
+  /// No description provided for @matchWonBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Match — {name}'**
+  String matchWonBy(String name);
 }
 
 class _AppLocalizationsDelegate

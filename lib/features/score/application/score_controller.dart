@@ -61,7 +61,41 @@ class ScoreController extends Notifier<ScoreState> {
   void scorePoint(bool isA) {
     if (state.isMatchOver) return;
     _history.add(state);
-    state = _applyPoint(state, isA);
+
+    final prevSetIndex = state.currentSetIndex;
+    final prevGamesInSet = (state.gamesA.isNotEmpty && prevSetIndex < state.gamesA.length
+            ? state.gamesA[prevSetIndex]
+            : 0) +
+        (state.gamesB.isNotEmpty && prevSetIndex < state.gamesB.length
+            ? state.gamesB[prevSetIndex]
+            : 0);
+
+    final newState = _applyPoint(state, isA);
+
+    // Determine what kind of event this point triggered
+    String event = 'point';
+    if (newState.isMatchOver) {
+      event = 'match';
+    } else if (newState.setsA + newState.setsB > state.setsA + state.setsB) {
+      event = 'set';
+    } else if (!newState.isTiebreak &&
+        newState.pointsA == 0 &&
+        newState.pointsB == 0 &&
+        newState.currentSetIndex == prevSetIndex) {
+      event = 'game';
+    }
+
+    final entry = ScoreLogEntry(
+      isPlayerA: isA,
+      elapsedSeconds: state.elapsedSeconds,
+      setIndex: prevSetIndex,
+      gameInSet: prevGamesInSet,
+      pointLabelA: newState.pointLabelA,
+      pointLabelB: newState.pointLabelB,
+      event: event,
+    );
+
+    state = newState.copyWith(log: [...newState.log, entry]);
   }
 
   void undo() {
@@ -167,8 +201,6 @@ class ScoreController extends Notifier<ScoreState> {
 
     // Check for tiebreak condition
     if (ga == s.gamesPerSet && gb == s.gamesPerSet) {
-      // 6-6: enter tiebreak
-      // For final set with finalSetTiebreak=true, tiebreakPoints=10 (already set)
       return s.copyWith(
         pointsA: 0,
         pointsB: 0,
@@ -256,7 +288,6 @@ class ScoreController extends Notifier<ScoreState> {
     gamesA.add(0);
     gamesB.add(0);
 
-    // Check if entering final set tiebreak immediately (edge case: won't happen at set start)
     return s.copyWith(
       pointsA: 0, pointsB: 0,
       gamesA: gamesA, gamesB: gamesB,

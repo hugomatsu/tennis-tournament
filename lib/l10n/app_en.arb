@@ -677,5 +677,22 @@
   "copyResult": "Copy result",
   "resultCopied": "Result copied!",
   "newMatch": "New match",
-  "fullscreen": "Fullscreen"
+  "fullscreen": "Fullscreen",
+  "startMatch": "Start Match",
+  "playerLeftHint": "Name (left)",
+  "playerRightHint": "Name (right)",
+  "tapToStartHint": "Names are optional",
+  "swapSides": "Swap Sides",
+  "scoreLog": "Score Log",
+  "noPointsYet": "No points scored yet",
+  "setLabel": "Set {n}",
+  "@setLabel": { "placeholders": { "n": { "type": "int" } } },
+  "gameLabel": "Game {n}",
+  "@gameLabel": { "placeholders": { "n": { "type": "int" } } },
+  "gameWonBy": "Game — {name}",
+  "@gameWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "setWonBy": "Set — {name}",
+  "@setWonBy": { "placeholders": { "name": { "type": "String" } } },
+  "matchWonBy": "Match — {name}",
+  "@matchWonBy": { "placeholders": { "name": { "type": "String" } } }
 }
