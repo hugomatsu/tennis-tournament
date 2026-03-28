@@ -1989,4 +1989,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tournamentPublicDesc => 'Public tournament — visible to everyone';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get editPlayers => 'Edit players';
+
+  @override
+  String get resetMatch => 'Reset match';
+
+  @override
+  String get resetMatchConfirm => 'Are you sure? The score will be cleared.';
+
+  @override
+  String get matchSettings => 'Match settings';
+
+  @override
+  String get finalSetTiebreak => 'Final set tiebreak (to 10)';
+
+  @override
+  String get whoServes => 'Who serves first?';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get matchWinner => 'Match winner';
+
+  @override
+  String get copyResult => 'Copy result';
+
+  @override
+  String get resultCopied => 'Result copied!';
+
+  @override
+  String get newMatch => 'New match';
+
+  @override
+  String get fullscreen => 'Fullscreen';
 }

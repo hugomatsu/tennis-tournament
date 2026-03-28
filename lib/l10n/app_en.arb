@@ -663,5 +663,19 @@
   "tournamentPrivate": "Private",
   "tournamentPublic": "Public",
   "tournamentPrivateDesc": "Private tournament — not shown in the public list",
-  "tournamentPublicDesc": "Public tournament — visible to everyone"
+  "tournamentPublicDesc": "Public tournament — visible to everyone",
+  "undo": "Undo",
+  "editPlayers": "Edit players",
+  "resetMatch": "Reset match",
+  "resetMatchConfirm": "Are you sure? The score will be cleared.",
+  "matchSettings": "Match settings",
+  "finalSetTiebreak": "Final set tiebreak (to 10)",
+  "tiebreakPoints": "Tiebreak points",
+  "whoServes": "Who serves first?",
+  "apply": "Apply",
+  "matchWinner": "Match winner",
+  "copyResult": "Copy result",
+  "resultCopied": "Result copied!",
+  "newMatch": "New match",
+  "fullscreen": "Fullscreen"
 }

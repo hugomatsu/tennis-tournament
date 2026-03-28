@@ -108,9 +108,13 @@ class _OpenTennisTabContent extends ConsumerWidget {
       data: (allMatches) {
         final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
         final isAmericano = tournament.tournamentType == 'americano';
+
+        // For Americano: Bracket tab appears as soon as Deciders are generated,
+        // because Deciders ARE round 1 of the bracket tree.
+        // For Open Tennis: tab appears when Playoff R* matches exist.
         final hasPlayoffMatches = isAmericano
             ? categoryMatches.any((m) => m.round.startsWith('Decider') || m.round.startsWith('Playoff'))
-            : categoryMatches.any((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross'));
+            : categoryMatches.any((m) => m.round.startsWith('Playoff'));
 
         final tabCount = hasPlayoffMatches ? 2 : 1;
 
@@ -125,7 +129,7 @@ class _OpenTennisTabContent extends ConsumerWidget {
                   tabs: [
                     Tab(text: loc.groups),
                     if (hasPlayoffMatches)
-                      Tab(text: loc.playoff),
+                      Tab(text: loc.bracket),
                   ],
                 ),
               ),
@@ -279,22 +283,52 @@ class _SingleBracketViewState extends ConsumerState<_SingleBracketView> {
         // For playoff-only mode, filter to non-group matches and remap rounds to numeric
         if (widget.playoffOnly) {
           if (widget.isAmericano) {
-            // Americano: Decider* → round 1, Playoff R1 → round 2, Playoff R2 → round 3, etc.
-            matches = matches
-                .where((m) => m.round.startsWith('Decider') || m.round.startsWith('Playoff'))
-                .map((m) {
-                  if (m.round.startsWith('Decider')) return m.copyWith(round: '1');
-                  final n = int.tryParse(m.round.replaceFirst('Playoff R', '')) ?? 1;
-                  return m.copyWith(round: '${n + 1}');
-                })
+            // Americano bracket: Deciders ARE round 1, Playoff R1 → round 2, etc.
+            // Sort deciders by group name (A, B, C…) so their bracket positions are stable.
+            final deciderList = matches
+                .where((m) => m.round.startsWith('Decider'))
+                .toList()
+              ..sort((a, b) => a.round.compareTo(b.round));
+            final playoffList = matches
+                .where((m) => m.round.startsWith('Playoff'))
                 .toList();
+
+            final remapped = <TennisMatch>[];
+
+            // Place each decider in round 1 with sequential matchIndex
+            for (int i = 0; i < deciderList.length; i++) {
+              remapped.add(deciderList[i].copyWith(round: '1', matchIndex: i));
+            }
+
+            // Shift playoff rounds: Playoff R1 → '2', Playoff R2 → '3', etc.
+            for (final m in playoffList) {
+              final n = int.tryParse(m.round.replaceFirst('Playoff R', '')) ?? 1;
+              remapped.add(m.copyWith(round: '${n + 1}'));
+            }
+
+            // Connect each decider to the first playoff round via nextMatchId.
+            // Decider at index i feeds into playoff match at index i÷2.
+            final firstPlayoffRound = remapped
+                .where((m) => m.round == '2')
+                .toList()
+              ..sort((a, b) => a.matchIndex.compareTo(b.matchIndex));
+
+            matches = remapped.map((m) {
+              if (m.round == '1' && firstPlayoffRound.isNotEmpty) {
+                final nextIdx = m.matchIndex ~/ 2;
+                if (nextIdx < firstPlayoffRound.length) {
+                  return m.copyWith(nextMatchId: firstPlayoffRound[nextIdx].id);
+                }
+              }
+              return m;
+            }).toList();
           } else {
-            // Open Tennis: filter Group/Cross, remap "Playoff R1" → "1"
+            // Open Tennis: filter out Group/Cross rounds, remap Playoff R1 → 1, etc.
             matches = matches
-                .where((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross'))
+                .where((m) => m.round.startsWith('Playoff'))
                 .map((m) {
-                  final numericRound = m.round.replaceFirst('Playoff R', '');
-                  return m.copyWith(round: numericRound);
+                  final n = m.round.replaceFirst('Playoff R', '');
+                  return m.copyWith(round: n);
                 })
                 .toList();
           }

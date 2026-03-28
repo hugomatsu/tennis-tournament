@@ -1997,4 +1997,43 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tournamentPublicDesc => 'Torneio público — visível para todos';
+
+  @override
+  String get undo => 'Desfazer';
+
+  @override
+  String get editPlayers => 'Editar jogadores';
+
+  @override
+  String get resetMatch => 'Reiniciar partida';
+
+  @override
+  String get resetMatchConfirm => 'Tem certeza? O placar será zerado.';
+
+  @override
+  String get matchSettings => 'Configurações da partida';
+
+  @override
+  String get finalSetTiebreak => 'Tiebreak no set final (até 10)';
+
+  @override
+  String get whoServes => 'Quem saca primeiro?';
+
+  @override
+  String get apply => 'Aplicar';
+
+  @override
+  String get matchWinner => 'Vencedor da partida';
+
+  @override
+  String get copyResult => 'Copiar resultado';
+
+  @override
+  String get resultCopied => 'Resultado copiado!';
+
+  @override
+  String get newMatch => 'Nova partida';
+
+  @override
+  String get fullscreen => 'Tela cheia';
 }

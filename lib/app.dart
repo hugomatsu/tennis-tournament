@@ -28,6 +28,7 @@ import 'package:tennis_tournament/features/tournaments/presentation/manage_admin
 import 'package:tennis_tournament/features/monetization/presentation/subscription_screen.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/debug/presentation/simulation_screen.dart';
+import 'package:tennis_tournament/features/score/presentation/score_counter_screen.dart';
 
 import 'package:tennis_tournament/features/home/presentation/help_screen.dart';
 import 'package:tennis_tournament/features/splash/presentation/splash_screen.dart';
@@ -169,6 +170,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 name: 'ScheduleScreen',
                 path: '/schedule',
                 builder: (context, state) => const ScheduleScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                name: 'ScoreCounterScreen',
+                path: '/score',
+                builder: (context, state) => const ScoreCounterScreen(),
               ),
             ],
           ),

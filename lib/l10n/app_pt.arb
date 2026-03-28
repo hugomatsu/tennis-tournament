@@ -644,5 +644,19 @@
   "tournamentPrivate": "Privado",
   "tournamentPublic": "Público",
   "tournamentPrivateDesc": "Torneio privado — não aparece na lista pública",
-  "tournamentPublicDesc": "Torneio público — visível para todos"
+  "tournamentPublicDesc": "Torneio público — visível para todos",
+  "undo": "Desfazer",
+  "editPlayers": "Editar jogadores",
+  "resetMatch": "Reiniciar partida",
+  "resetMatchConfirm": "Tem certeza? O placar será zerado.",
+  "matchSettings": "Configurações da partida",
+  "finalSetTiebreak": "Tiebreak no set final (até 10)",
+  "tiebreakPoints": "Pontos do tiebreak",
+  "whoServes": "Quem saca primeiro?",
+  "apply": "Aplicar",
+  "matchWinner": "Vencedor da partida",
+  "copyResult": "Copiar resultado",
+  "resultCopied": "Resultado copiado!",
+  "newMatch": "Nova partida",
+  "fullscreen": "Tela cheia"
 }

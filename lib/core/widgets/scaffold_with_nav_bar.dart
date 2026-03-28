@@ -24,8 +24,8 @@ class ScaffoldWithNavBar extends ConsumerWidget {
       initialLocation: isSameTab,
     );
     
-    // For profile tab, also refresh user data when re-selecting
-    if (isSameTab && index == 2) {
+    // For profile tab (now index 3), also refresh user data when re-selecting
+    if (isSameTab && index == 3) {
       ref.invalidate(currentUserProvider);
     }
   }
@@ -41,7 +41,7 @@ class ScaffoldWithNavBar extends ConsumerWidget {
         children: [
           navigationShell,
           // Floating notification bell
-          if (navigationShell.currentIndex == 1)
+          if (navigationShell.currentIndex == 1) // schedule tab
             Positioned(
               top: MediaQuery.of(context).padding.top + 8,
               right: 12,
@@ -88,6 +88,11 @@ class ScaffoldWithNavBar extends ConsumerWidget {
             icon: const Icon(Icons.calendar_month_outlined),
             selectedIcon: const Icon(Icons.calendar_month),
             label: loc.schedule,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.sports_tennis_outlined),
+            selectedIcon: const Icon(Icons.sports_tennis),
+            label: loc.score,
           ),
           NavigationDestination(
             key: TutorialKeys.profileTab,

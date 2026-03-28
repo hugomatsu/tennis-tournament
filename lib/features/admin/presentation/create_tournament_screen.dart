@@ -787,7 +787,13 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: _isLoading ? null : () => context.pop(),
+                        onPressed: _isLoading ? null : () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/tournaments');
+                          }
+                        },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),

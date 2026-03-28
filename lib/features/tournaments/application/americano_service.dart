@@ -91,7 +91,9 @@ class AmericanoService implements SchedulingService {
 
     await _createGroupStandings(tournament, category, groups);
 
-    // Greedy cross-group pairing — guarantee N matches per player, no rematches, no intra-group
+    // Greedy cross-group pairing — guarantee N matches per player, no intra-group
+    // Pass 1: unique opponents only (no rematches)
+    // Pass 2: allow rematches if players still need matches
     final matchesRemaining = {for (final p in players) p.id: guaranteedMatches};
     final scheduledPairs = <String>{};
     final allPairs = <(Participant, Participant)>[];
@@ -118,6 +120,35 @@ class AmericanoService implements SchedulingService {
           final p2 = candidates.first;
           allPairs.add((p1, p2));
           scheduledPairs.add('${p1.id}_${p2.id}');
+          matchesRemaining[p1.id] = (matchesRemaining[p1.id] ?? 0) - 1;
+          matchesRemaining[p2.id] = (matchesRemaining[p2.id] ?? 0) - 1;
+          progress = true;
+          break;
+        }
+      }
+    }
+
+    // Pass 2: allow rematches when unique opponents are exhausted
+    progress = matchesRemaining.values.any((v) => v > 0);
+    while (progress) {
+      progress = false;
+      final sorted = List<Participant>.from(players)
+        ..sort((a, b) => (matchesRemaining[b.id] ?? 0).compareTo(matchesRemaining[a.id] ?? 0));
+
+      for (final p1 in sorted) {
+        if ((matchesRemaining[p1.id] ?? 0) <= 0) continue;
+        final p1Group = playerGroup[p1.id]!;
+
+        final candidates = List<Participant>.from(players
+            .where((p2) =>
+                p2.id != p1.id &&
+                playerGroup[p2.id] != p1Group &&
+                (matchesRemaining[p2.id] ?? 0) > 0))
+          ..shuffle();
+
+        if (candidates.isNotEmpty) {
+          final p2 = candidates.first;
+          allPairs.add((p1, p2));
           matchesRemaining[p1.id] = (matchesRemaining[p1.id] ?? 0) - 1;
           matchesRemaining[p2.id] = (matchesRemaining[p2.id] ?? 0) - 1;
           progress = true;
@@ -173,12 +204,16 @@ class AmericanoService implements SchedulingService {
     return matches;
   }
 
-  /// Phase 2: Generate one decider match per group (1st vs 2nd in standings).
+  /// Phase 2 + 3 combined: Generate decider matches (1st vs 2nd per group) AND
+  /// the full playoff skeleton (TBD rounds) in one shot.
+  /// Winners propagate automatically via nextMatchId when match results are saved.
   Future<List<TennisMatch>> generateGroupDeciders(
     Tournament tournament,
     TournamentCategory category,
   ) async {
     final standings = await getGroupStandings(tournament.id, category.id);
+    // Sort groups alphabetically so matchIndex order is stable (A=0, B=1, C=2, …)
+    final sortedGroupIds = standings.keys.toList()..sort();
 
     int numberOfCourts = 1;
     if (tournament.locationId != null) {
@@ -192,13 +227,15 @@ class AmericanoService implements SchedulingService {
     final matchDuration = category.matchDurationMinutes;
     DateTime startDate = DateTime.now().add(const Duration(days: 1));
     startDate = DateTime(startDate.year, startDate.month, startDate.day, 9, 0);
-    final slots = _generateSlots(startDate, numberOfCourts, matchDuration, standings.length + 10, existingMatches);
+    // Allocate enough slots for deciders + all playoff rounds
+    final slots = _generateSlots(startDate, numberOfCourts, matchDuration, sortedGroupIds.length * 4, existingMatches);
     int slotIndex = 0;
 
-    final matches = <TennisMatch>[];
-    for (final entry in standings.entries) {
-      final groupId = entry.key;
-      final sorted = entry.value;
+    // ── Phase 2: Decider matches (no nextMatchId yet — set below) ─────────────
+    final deciderMatches = <TennisMatch>[];
+    for (int i = 0; i < sortedGroupIds.length; i++) {
+      final groupId = sortedGroupIds[i];
+      final sorted = standings[groupId]!;
       if (sorted.length < 2) continue;
 
       final p1s = sorted[0]; // 1st place
@@ -216,7 +253,7 @@ class AmericanoService implements SchedulingService {
         slotIndex++;
       }
 
-      matches.add(TennisMatch(
+      deciderMatches.add(TennisMatch(
         id: _uuid.v4(),
         tournamentId: tournament.id,
         categoryId: category.id,
@@ -234,13 +271,85 @@ class AmericanoService implements SchedulingService {
         court: courtName,
         round: 'Decider $groupId',
         status: 'Preparing',
-        matchIndex: matches.length,
+        matchIndex: i, // alphabetical index so winner propagation slots are correct
         durationMinutes: matchDuration,
         locationId: tournament.locationId,
       ));
     }
 
-    return matches;
+    final n = deciderMatches.length;
+    if (n < 2) return deciderMatches;
+
+    // ── Phase 3 skeleton: build full playoff bracket with TBD players ─────────
+    int bracketSize = 1;
+    while (bracketSize < n) { bracketSize <<= 1; }
+
+    int totalRounds = 0;
+    int temp = bracketSize;
+    while (temp > 1) { temp >>= 1; totalRounds++; }
+
+    final playoffMatches = <TennisMatch>[];
+    final positionMap = <String, String>{}; // 'round_index' → matchId
+
+    int matchesInRound = bracketSize ~/ 2;
+    for (int r = 1; r <= totalRounds; r++) {
+      for (int i = 0; i < matchesInRound; i++) {
+        final matchId = _uuid.v4();
+
+        DateTime matchTime;
+        String courtName;
+        if (slotIndex < slots.length) {
+          matchTime = slots[slotIndex].time;
+          courtName = slots[slotIndex].court;
+          slotIndex++;
+        } else {
+          matchTime = startDate.add(Duration(minutes: matchDuration * slotIndex));
+          courtName = 'Court 1';
+          slotIndex++;
+        }
+
+        playoffMatches.add(TennisMatch(
+          id: matchId,
+          tournamentId: tournament.id,
+          categoryId: category.id,
+          tournamentName: tournament.name,
+          player1Id: '',
+          player1Name: 'TBD',
+          player2Name: 'TBD',
+          opponentName: 'TBD',
+          time: matchTime,
+          court: courtName,
+          round: 'Playoff R$r',
+          status: 'Preparing',
+          matchIndex: i,
+          durationMinutes: matchDuration,
+          locationId: tournament.locationId,
+        ));
+
+        positionMap['${r}_$i'] = matchId;
+      }
+      matchesInRound ~/= 2;
+    }
+
+    // Link playoff rounds to each other via nextMatchId
+    final playoffById = {for (final m in playoffMatches) m.id: m};
+    for (final match in playoffMatches) {
+      final r = int.parse(match.round.replaceFirst('Playoff R', ''));
+      if (r >= totalRounds) continue;
+      final nextId = positionMap['${r + 1}_${match.matchIndex ~/ 2}'];
+      if (nextId != null) {
+        playoffById[match.id] = match.copyWith(nextMatchId: nextId);
+      }
+    }
+
+    // Link each decider to the correct Playoff R1 match via nextMatchId
+    // Decider at index i → Playoff R1 match at index i÷2
+    final linkedDeciders = deciderMatches.map((d) {
+      final nextId = positionMap['1_${d.matchIndex ~/ 2}'];
+      return d.copyWith(nextMatchId: nextId);
+    }).toList();
+
+    return [...linkedDeciders, ...playoffById.values];
   }
 
   /// Phase 3: Generate single-elimination playoff from group decider winners.
@@ -286,14 +395,25 @@ class AmericanoService implements SchedulingService {
     final slots = _generateSlots(startDate, numberOfCourts, matchDuration, 50, allMatches);
     int slotIndex = 0;
 
-    final matches = <TennisMatch>[];
-    var currentPlayers = qualifiedPlayers;
-    int round = 1;
+    // Pad to next power of two for a clean bracket
+    final n = qualifiedPlayers.length;
+    int bracketSize = 1;
+    while (bracketSize < n) { bracketSize <<= 1; }
 
-    while (currentPlayers.length >= 2) {
-      for (int i = 0; i + 1 < currentPlayers.length; i += 2) {
-        final p1 = currentPlayers[i];
-        final p2 = currentPlayers[i + 1];
+    int totalRounds = 0;
+    int temp = bracketSize;
+    while (temp > 1) { temp >>= 1; totalRounds++; }
+
+    final matches = <TennisMatch>[];
+    final positionMap = <String, String>{}; // 'round_index' → matchId
+
+    int matchesInRound = bracketSize ~/ 2;
+    int playerIndex = 0;
+    final byesCount = bracketSize - n;
+
+    for (int r = 1; r <= totalRounds; r++) {
+      for (int i = 0; i < matchesInRound; i++) {
+        final matchId = _uuid.v4();
 
         DateTime matchTime;
         String courtName;
@@ -307,34 +427,106 @@ class AmericanoService implements SchedulingService {
           slotIndex++;
         }
 
+        String player1Id = '';
+        String player1Name = 'TBD';
+        List<String> p1UserIds = [];
+        List<String?> p1Avatars = [];
+        String? player2Id;
+        String? player2Name;
+        List<String> p2UserIds = [];
+        List<String?> p2Avatars = [];
+        String status = 'Preparing';
+        String? winner;
+        String? score;
+
+        if (r == 1) {
+          final isBye = i < byesCount;
+          final p1 = qualifiedPlayers[playerIndex++];
+          player1Id = p1.id;
+          player1Name = p1.name;
+          p1UserIds = p1.userIds;
+          p1Avatars = p1.avatarUrls;
+
+          if (isBye) {
+            status = 'Completed';
+            winner = p1.name;
+            score = 'Bye';
+            if (slotIndex > 0) slotIndex--; // byes don't consume a court slot
+          } else {
+            final p2 = qualifiedPlayers[playerIndex++];
+            player2Id = p2.id;
+            player2Name = p2.name;
+            p2UserIds = p2.userIds;
+            p2Avatars = p2.avatarUrls;
+          }
+        }
+
         matches.add(TennisMatch(
-          id: _uuid.v4(),
+          id: matchId,
           tournamentId: tournament.id,
           categoryId: category.id,
           tournamentName: tournament.name,
-          player1Id: p1.id,
-          player1Name: p1.name,
-          player1UserIds: p1.userIds,
-          player1AvatarUrls: p1.avatarUrls,
-          player2Id: p2.id,
-          player2Name: p2.name,
-          player2UserIds: p2.userIds,
-          player2AvatarUrls: p2.avatarUrls,
-          opponentName: p2.name,
+          player1Id: player1Id,
+          player1Name: player1Name,
+          player1UserIds: p1UserIds,
+          player1AvatarUrls: p1Avatars,
+          player2Id: player2Id,
+          player2Name: player2Name,
+          player2UserIds: p2UserIds,
+          player2AvatarUrls: p2Avatars,
+          opponentName: player2Name ?? 'TBD',
           time: matchTime,
           court: courtName,
-          round: 'Playoff R$round',
-          status: 'Preparing',
-          matchIndex: i ~/ 2,
+          round: 'Playoff R$r',
+          status: status,
+          score: score,
+          winner: winner,
+          matchIndex: i,
           durationMinutes: matchDuration,
           locationId: tournament.locationId,
         ));
+
+        positionMap['${r}_$i'] = matchId;
       }
-      // Winners are populated as matches complete; stop after first round generation
-      break;
+      matchesInRound ~/= 2;
     }
 
-    return matches;
+    // Link nextMatchId and propagate byes
+    final matchById = {for (final m in matches) m.id: m};
+
+    for (final match in matches) {
+      final r = int.parse(match.round.replaceFirst('Playoff R', ''));
+      if (r >= totalRounds) continue;
+
+      final nextRound = r + 1;
+      final nextIndex = match.matchIndex ~/ 2;
+      final nextId = positionMap['${nextRound}_$nextIndex'];
+      if (nextId == null) continue;
+
+      var updated = match.copyWith(nextMatchId: nextId);
+      matchById[match.id] = updated;
+
+      // Propagate bye winners into the next match
+      if (updated.status == 'Completed' && updated.winner != null) {
+        final nextMatch = matchById[nextId]!;
+        final isP1Slot = (match.matchIndex % 2) == 0;
+        matchById[nextId] = isP1Slot
+            ? nextMatch.copyWith(
+                player1Id: updated.player1Id,
+                player1Name: updated.player1Name,
+                player1UserIds: updated.player1UserIds,
+                player1AvatarUrls: updated.player1AvatarUrls,
+              )
+            : nextMatch.copyWith(
+                player2Id: updated.player2Id ?? updated.player1Id,
+                player2Name: updated.winner,
+                player2UserIds: updated.player1UserIds,
+                player2AvatarUrls: updated.player1AvatarUrls,
+              );
+      }
+    }
+
+    return matchById.values.toList();
   }
 
   Future<void> updateStandingsAfterMatch(

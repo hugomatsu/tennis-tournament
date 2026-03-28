@@ -3721,6 +3721,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Public tournament — visible to everyone'**
   String get tournamentPublicDesc;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @editPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit players'**
+  String get editPlayers;
+
+  /// No description provided for @resetMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset match'**
+  String get resetMatch;
+
+  /// No description provided for @resetMatchConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure? The score will be cleared.'**
+  String get resetMatchConfirm;
+
+  /// No description provided for @matchSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Match settings'**
+  String get matchSettings;
+
+  /// No description provided for @finalSetTiebreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Final set tiebreak (to 10)'**
+  String get finalSetTiebreak;
+
+  /// No description provided for @whoServes.
+  ///
+  /// In en, this message translates to:
+  /// **'Who serves first?'**
+  String get whoServes;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @matchWinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Match winner'**
+  String get matchWinner;
+
+  /// No description provided for @copyResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy result'**
+  String get copyResult;
+
+  /// No description provided for @resultCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Result copied!'**
+  String get resultCopied;
+
+  /// No description provided for @newMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New match'**
+  String get newMatch;
+
+  /// No description provided for @fullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get fullscreen;
 }
 
 class _AppLocalizationsDelegate
