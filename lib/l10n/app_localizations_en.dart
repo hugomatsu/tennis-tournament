@@ -1396,6 +1396,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get simOT8_4gDesc => '4 Groups, 3 points/win. 2 players per group.';
 
   @override
+  String americanoCreated(String name) {
+    return 'Americano \"$name\" created successfully!';
+  }
+
+  @override
+  String get americanoRoundRobinDesc =>
+      'Players play guaranteed cross-group rounds. Top 2 per group play a decider match.';
+
+  @override
+  String get simAm8Title => 'Americano - 8 Players';
+
+  @override
+  String get simAm8Desc =>
+      '2 groups of 4, 5 guaranteed matches. Deciders + final bracket.';
+
+  @override
+  String get simAm16Title => 'Americano - 16 Players';
+
+  @override
+  String get simAm16Desc =>
+      '4 groups of 4, 5 guaranteed matches. Deciders + final bracket.';
+
+  @override
+  String get simAm12Title => 'Americano - 12 Players';
+
+  @override
+  String get simAm12Desc =>
+      '3 groups of 4, 5 guaranteed matches. Deciders + final bracket.';
+
+  @override
   String get addResults => 'Add Results';
 
   @override
@@ -1861,4 +1891,102 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteTournamentConfirm =>
       'This will delete everything. Cannot be undone.';
+
+  @override
+  String get americanoMode => 'Americano';
+
+  @override
+  String get americanoGroups => 'Americano (Cross-Group)';
+
+  @override
+  String get americanoDescription =>
+      'Guaranteed cross-group rounds + group decider + bracket';
+
+  @override
+  String americanoExplanation(int matches) {
+    return 'Players are divided into groups and play $matches guaranteed matches against opponents from other groups. The top 2 from each group play a decider; the winner advances to the final bracket.';
+  }
+
+  @override
+  String get guaranteedMatches => 'Guaranteed Matches per Player';
+
+  @override
+  String get guaranteedMatchesHint =>
+      'Each player will play exactly this many matches in the group phase';
+
+  @override
+  String get opponentSelectionLabel => 'Opponent Selection';
+
+  @override
+  String get randomOpponents => 'Random';
+
+  @override
+  String get rankedOpponents => 'By Ranking (Mexicano)';
+
+  @override
+  String get generateGroupDeciders => 'Generate Group Deciders';
+
+  @override
+  String get generateAmericanoPlayoff => 'Generate Final Bracket';
+
+  @override
+  String get americanoMatchesPhase => 'Americano Phase';
+
+  @override
+  String get deciderPhase => 'Group Deciders';
+
+  @override
+  String deciderRound(String id) {
+    return 'Decider Group $id';
+  }
+
+  @override
+  String get playoffBracketGeneratedAmericano =>
+      'Final bracket generated! See the Bracket tab.';
+
+  @override
+  String groupDecidersGenerated(int count) {
+    return 'Group deciders generated! $count matches created.';
+  }
+
+  @override
+  String errorGeneratingDeciders(String error) {
+    return 'Error generating deciders: $error';
+  }
+
+  @override
+  String get guaranteedMatchesShort => 'guar. matches';
+
+  @override
+  String get ptsPerWinShort => 'pts/win';
+
+  @override
+  String get skipIntro => 'Skip';
+
+  @override
+  String get fillRandomResults => 'Random results';
+
+  @override
+  String randomResultsFilled(int count) {
+    return '$count matches filled with random results!';
+  }
+
+  @override
+  String get youSuffix2 => 'You';
+
+  @override
+  String get advancingPosition => 'Advancing';
+
+  @override
+  String get tournamentPrivate => 'Private';
+
+  @override
+  String get tournamentPublic => 'Public';
+
+  @override
+  String get tournamentPrivateDesc =>
+      'Private tournament — not shown in the public list';
+
+  @override
+  String get tournamentPublicDesc => 'Public tournament — visible to everyone';
 }

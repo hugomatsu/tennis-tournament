@@ -38,6 +38,7 @@ _Tournament _$TournamentFromJson(Map<String, dynamic> json) => _Tournament(
       ) ??
       const {},
   matchRules: json['matchRules'] as Map<String, dynamic>? ?? const {},
+  isPrivate: json['isPrivate'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
@@ -63,6 +64,7 @@ Map<String, dynamic> _$TournamentToJson(_Tournament instance) =>
       'advanceCount': instance.advanceCount,
       'defaultWeekdayTimes': instance.defaultWeekdayTimes,
       'matchRules': instance.matchRules,
+      'isPrivate': instance.isPrivate,
     };
 
 _DailySchedule _$DailyScheduleFromJson(Map<String, dynamic> json) =>

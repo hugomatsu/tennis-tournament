@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/players/domain/player.dart';
+import 'package:tennis_tournament/features/tournaments/application/americano_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/single_elimination_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/participant.dart';
@@ -470,6 +471,103 @@ class SimulationService {
     await matchRepo.createMatches(matchesWithCategory);
 
     return matchesWithCategory.length;
+  }
+
+  /// Seed an Americano mode tournament (cross-group rounds + group deciders + playoff)
+  Future<void> seedAmericanoTournament({
+    required String name,
+    required int playerCount,
+    int playersPerGroup = 4,
+    int guaranteedMatches = 5,
+    int pointsPerWin = 3,
+  }) async {
+    final tournamentRepo = _ref.read(tournamentRepositoryProvider);
+    final matchRepo = _ref.read(matchRepositoryProvider);
+    final americanoService = _ref.read(americanoServiceProvider);
+    final locationRepo = _ref.read(locationRepositoryProvider);
+
+    // Location
+    String locationId;
+    String locationName;
+    final existingLocations = await locationRepo.getLocations();
+    if (existingLocations.isNotEmpty) {
+      locationId = existingLocations.first.id;
+      locationName = existingLocations.first.name;
+    } else {
+      locationId = const Uuid().v4();
+      locationName = 'Simulation Court';
+      await locationRepo.addLocation(TournamentLocation(
+        id: locationId,
+        name: locationName,
+        googleMapsUrl: 'https://maps.google.com',
+        description: 'A default court for simulations',
+        numberOfCourts: 4,
+        imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80',
+      ));
+    }
+
+    final currentUser = await _ref.read(playerRepositoryProvider).getCurrentUser();
+    final ownerId = currentUser?.id ?? const Uuid().v4();
+    final tournamentId = const Uuid().v4();
+
+    final tournament = Tournament(
+      id: tournamentId,
+      name: name,
+      status: 'Registration Open',
+      playersCount: playerCount,
+      location: locationName,
+      locationId: locationId,
+      ownerId: ownerId,
+      adminIds: [ownerId],
+      imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80',
+      description: 'Americano simulation — cross-group rounds + deciders + bracket.',
+      dateRange: 'Jan 20 - Jan 25',
+      category: 'Americano',
+      tournamentType: 'americano',
+      groupCount: playersPerGroup,
+      pointsPerWin: pointsPerWin,
+      matchRules: {'guaranteedMatches': guaranteedMatches, 'opponentSelection': 'random'},
+    );
+
+    await tournamentRepo.createTournament(tournament);
+
+    final categoryId = const Uuid().v4();
+    await tournamentRepo.addCategory(TournamentCategory(
+      id: categoryId,
+      tournamentId: tournamentId,
+      name: 'Open',
+      type: 'singles',
+      matchDurationMinutes: 90,
+    ));
+
+    final participants = <Participant>[];
+    for (int i = 0; i < playerCount; i++) {
+      final playerId = const Uuid().v4();
+      final playerName = 'Player ${i + 1}';
+      await _createMockUser(playerId, playerName);
+      final participant = Participant(
+        id: const Uuid().v4(),
+        userIds: [playerId],
+        name: playerName,
+        categoryId: categoryId,
+        avatarUrls: ['https://i.pravatar.cc/150?u=$playerId'],
+        status: 'approved',
+        joinedAt: DateTime.now(),
+      );
+      await tournamentRepo.addParticipant(tournamentId, participant);
+      participants.add(participant);
+    }
+
+    final categoryObj = TournamentCategory(
+      id: categoryId,
+      tournamentId: tournamentId,
+      name: 'Open',
+      type: 'singles',
+      matchDurationMinutes: 90,
+    );
+
+    final matches = await americanoService.generateBracket(tournament, categoryObj, participants);
+    await matchRepo.createMatches(matches.map((m) => m.copyWith(categoryId: categoryId)).toList());
   }
 
   Future<void> clearAllSimulations() async {

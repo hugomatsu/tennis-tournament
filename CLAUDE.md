@@ -81,9 +81,10 @@ When implementing or modifying any feature that involves sharing (tournaments, b
 
 ## Tournament Modes
 
-The app supports two tournament modes via `tournament.tournamentType`:
+The app supports three tournament modes via `tournament.tournamentType`:
 
 - **`mataMata`** — Single elimination bracket. Lose once and you're out.
 - **`openTennis`** — Round-robin group stage + playoff bracket. Players play all others in their group, top players advance to a single-elimination playoff.
+- **`americano`** — Cross-group rounds + group decider + bracket. Players are divided into groups but only play opponents from other groups (guaranteed N matches each). Top 2 per group play a decider match; winners advance to a single-elimination playoff.
 
-When working on bracket/match features, always consider both modes.
+When working on bracket/match features, always consider all three modes.

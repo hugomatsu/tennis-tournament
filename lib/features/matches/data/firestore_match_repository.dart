@@ -384,7 +384,7 @@ class FirestoreMatchRepository implements MatchRepository {
         final matchData = matchDoc.data();
         if (matchData != null) {
           final round = matchData['round'] as String? ?? '';
-          if (round.startsWith('Group') || round.startsWith('Cross')) {
+          if (round.startsWith('Group') || round.startsWith('Cross') || round == 'Americano') {
             await _updateGroupStandings(
               tournamentId!,
               matchData['categoryId'] as String? ?? '',

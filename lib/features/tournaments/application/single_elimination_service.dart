@@ -8,6 +8,7 @@ import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament_category.dart';
 import 'package:tennis_tournament/features/locations/data/location_repository.dart';
 import 'package:tennis_tournament/features/locations/domain/location.dart';
+import 'package:tennis_tournament/features/tournaments/application/americano_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/open_tennis_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,6 +28,9 @@ final schedulingServiceProvider = Provider<SchedulingService>((ref) {
 final schedulingServiceForTournamentProvider = Provider.family<SchedulingService, String>((ref, tournamentType) {
   if (tournamentType == 'openTennis') {
     return OpenTennisService(ref);
+  }
+  if (tournamentType == 'americano') {
+    return AmericanoService(ref);
   }
   return SingleEliminationService(ref);
 });

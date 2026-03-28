@@ -45,6 +45,34 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
     }
   }
 
+  Future<void> _runAmericanoSimulation(String name, int players, int playersPerGroup, int guaranteedMatches) async {
+    setState(() => _isLoading = true);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(simulationServiceProvider).seedAmericanoTournament(
+            name: name,
+            playerCount: players,
+            playersPerGroup: playersPerGroup,
+            guaranteedMatches: guaranteedMatches,
+          );
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(loc.americanoCreated(name))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(loc.errorGeneric(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _runOpenTennisSimulation(String name, int players, int groups, int points) async {
     setState(() => _isLoading = true);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -170,6 +198,38 @@ class _SimulationScreenState extends ConsumerState<SimulationScreen> {
             icon: Icons.group,
             isLoading: _isLoading,
             onTap: () => _runOpenTennisSimulation('Sim: OpenTennis (8P 4G)', 8, 4, 3),
+          ),
+          const Divider(height: 32),
+          Text(
+            loc.americanoMode,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            loc.americanoRoundRobinDesc,
+            style: const TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          _SimulationCard(
+            title: loc.simAm8Title,
+            description: loc.simAm8Desc,
+            icon: Icons.swap_horiz,
+            isLoading: _isLoading,
+            onTap: () => _runAmericanoSimulation('Sim: Americano (8P)', 8, 4, 5),
+          ),
+          _SimulationCard(
+            title: loc.simAm12Title,
+            description: loc.simAm12Desc,
+            icon: Icons.swap_horiz,
+            isLoading: _isLoading,
+            onTap: () => _runAmericanoSimulation('Sim: Americano (12P)', 12, 4, 5),
+          ),
+          _SimulationCard(
+            title: loc.simAm16Title,
+            description: loc.simAm16Desc,
+            icon: Icons.swap_horiz,
+            isLoading: _isLoading,
+            onTap: () => _runAmericanoSimulation('Sim: Americano (16P)', 16, 4, 5),
           ),
           const Divider(height: 48),
           FilledButton.icon(

@@ -413,7 +413,7 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                   if (canCreate) {
                      return FloatingActionButton.extended(
                       key: TutorialKeys.createTournamentFab,
-                      onPressed: () => context.go('/admin/create-tournament'),
+                      onPressed: () => context.push('/admin/create-tournament'),
                       icon: const Icon(Icons.add),
                       label: Text(isPremium ? loc.createTournament : '${loc.createTournament} ($count/$limit)'),
                     );

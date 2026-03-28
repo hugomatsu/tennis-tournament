@@ -2684,6 +2684,54 @@ abstract class AppLocalizations {
   /// **'4 Groups, 3 points/win. 2 players per group.'**
   String get simOT8_4gDesc;
 
+  /// No description provided for @americanoCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano \"{name}\" created successfully!'**
+  String americanoCreated(String name);
+
+  /// No description provided for @americanoRoundRobinDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Players play guaranteed cross-group rounds. Top 2 per group play a decider match.'**
+  String get americanoRoundRobinDesc;
+
+  /// No description provided for @simAm8Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano - 8 Players'**
+  String get simAm8Title;
+
+  /// No description provided for @simAm8Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'2 groups of 4, 5 guaranteed matches. Deciders + final bracket.'**
+  String get simAm8Desc;
+
+  /// No description provided for @simAm16Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano - 16 Players'**
+  String get simAm16Title;
+
+  /// No description provided for @simAm16Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'4 groups of 4, 5 guaranteed matches. Deciders + final bracket.'**
+  String get simAm16Desc;
+
+  /// No description provided for @simAm12Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano - 12 Players'**
+  String get simAm12Title;
+
+  /// No description provided for @simAm12Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'3 groups of 4, 5 guaranteed matches. Deciders + final bracket.'**
+  String get simAm12Desc;
+
   /// No description provided for @addResults.
   ///
   /// In en, this message translates to:
@@ -3505,6 +3553,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will delete everything. Cannot be undone.'**
   String get deleteTournamentConfirm;
+
+  /// No description provided for @americanoMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano'**
+  String get americanoMode;
+
+  /// No description provided for @americanoGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano (Cross-Group)'**
+  String get americanoGroups;
+
+  /// No description provided for @americanoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Guaranteed cross-group rounds + group decider + bracket'**
+  String get americanoDescription;
+
+  /// No description provided for @americanoExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Players are divided into groups and play {matches} guaranteed matches against opponents from other groups. The top 2 from each group play a decider; the winner advances to the final bracket.'**
+  String americanoExplanation(int matches);
+
+  /// No description provided for @guaranteedMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Guaranteed Matches per Player'**
+  String get guaranteedMatches;
+
+  /// No description provided for @guaranteedMatchesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each player will play exactly this many matches in the group phase'**
+  String get guaranteedMatchesHint;
+
+  /// No description provided for @opponentSelectionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent Selection'**
+  String get opponentSelectionLabel;
+
+  /// No description provided for @randomOpponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Random'**
+  String get randomOpponents;
+
+  /// No description provided for @rankedOpponents.
+  ///
+  /// In en, this message translates to:
+  /// **'By Ranking (Mexicano)'**
+  String get rankedOpponents;
+
+  /// No description provided for @generateGroupDeciders.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Group Deciders'**
+  String get generateGroupDeciders;
+
+  /// No description provided for @generateAmericanoPlayoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Final Bracket'**
+  String get generateAmericanoPlayoff;
+
+  /// No description provided for @americanoMatchesPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano Phase'**
+  String get americanoMatchesPhase;
+
+  /// No description provided for @deciderPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Deciders'**
+  String get deciderPhase;
+
+  /// No description provided for @deciderRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Decider Group {id}'**
+  String deciderRound(String id);
+
+  /// No description provided for @playoffBracketGeneratedAmericano.
+  ///
+  /// In en, this message translates to:
+  /// **'Final bracket generated! See the Bracket tab.'**
+  String get playoffBracketGeneratedAmericano;
+
+  /// No description provided for @groupDecidersGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Group deciders generated! {count} matches created.'**
+  String groupDecidersGenerated(int count);
+
+  /// No description provided for @errorGeneratingDeciders.
+  ///
+  /// In en, this message translates to:
+  /// **'Error generating deciders: {error}'**
+  String errorGeneratingDeciders(String error);
+
+  /// No description provided for @guaranteedMatchesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'guar. matches'**
+  String get guaranteedMatchesShort;
+
+  /// No description provided for @ptsPerWinShort.
+  ///
+  /// In en, this message translates to:
+  /// **'pts/win'**
+  String get ptsPerWinShort;
+
+  /// No description provided for @skipIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skipIntro;
+
+  /// No description provided for @fillRandomResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Random results'**
+  String get fillRandomResults;
+
+  /// No description provided for @randomResultsFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matches filled with random results!'**
+  String randomResultsFilled(int count);
+
+  /// No description provided for @youSuffix2.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get youSuffix2;
+
+  /// No description provided for @advancingPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Advancing'**
+  String get advancingPosition;
+
+  /// No description provided for @tournamentPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get tournamentPrivate;
+
+  /// No description provided for @tournamentPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get tournamentPublic;
+
+  /// No description provided for @tournamentPrivateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Private tournament — not shown in the public list'**
+  String get tournamentPrivateDesc;
+
+  /// No description provided for @tournamentPublicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Public tournament — visible to everyone'**
+  String get tournamentPublicDesc;
 }
 
 class _AppLocalizationsDelegate

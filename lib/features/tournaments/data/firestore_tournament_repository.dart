@@ -10,8 +10,9 @@ class FirestoreTournamentRepository implements TournamentRepository {
   @override
   Future<List<Tournament>> getLiveTournaments({String? category}) async {
     try {
-      Query query = _firestore.collection('tournaments');
-      
+      Query query = _firestore.collection('tournaments')
+          .where('isPrivate', isNotEqualTo: true);
+
       if (category != null && category != 'All') {
         query = query.where('category', isEqualTo: category);
       }
@@ -43,6 +44,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
           advanceCount: data['advanceCount'] as int? ?? 1,
           defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
           matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
+          isPrivate: data['isPrivate'] as bool? ?? false,
         );
       }).toList();
     } catch (e) {
@@ -80,6 +82,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         advanceCount: data['advanceCount'] as int? ?? 1,
         defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
         matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
+        isPrivate: data['isPrivate'] as bool? ?? false,
       );
     } catch (e) {
       return null;
@@ -109,6 +112,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'advanceCount': tournament.advanceCount,
       'defaultWeekdayTimes': tournament.defaultWeekdayTimes,
       'matchRules': tournament.matchRules,
+      'isPrivate': tournament.isPrivate,
     });
   }
 
@@ -131,6 +135,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
       'advanceCount': tournament.advanceCount,
       'defaultWeekdayTimes': tournament.defaultWeekdayTimes,
       'matchRules': tournament.matchRules,
+      'isPrivate': tournament.isPrivate,
     });
   }
 
@@ -191,6 +196,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
           advanceCount: data['advanceCount'] as int? ?? 1,
           defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
           matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
+          isPrivate: data['isPrivate'] as bool? ?? false,
         );
       }).toList();
     } catch (e) {
@@ -263,6 +269,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
         advanceCount: data['advanceCount'] as int? ?? 1,
         defaultWeekdayTimes: Map<String, String>.from(data['defaultWeekdayTimes'] ?? {}),
         matchRules: Map<String, dynamic>.from(data['matchRules'] ?? {}),
+        isPrivate: data['isPrivate'] as bool? ?? false,
       );
     }).toList();
   }

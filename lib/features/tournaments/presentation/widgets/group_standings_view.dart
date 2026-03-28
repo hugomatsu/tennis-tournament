@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
+import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/features/tournaments/application/americano_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/open_tennis_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/group_standing.dart';
@@ -11,6 +15,16 @@ import 'package:tennis_tournament/core/sharing/widgets/share_preview_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:tennis_tournament/l10n/app_localizations.dart';
+
+String _randomScore() {
+  const scores = [
+    '6-2, 6-1', '6-3, 6-2', '6-4, 6-3', '6-4, 7-5', '7-5, 6-3',
+    '6-3, 6-4', '7-6, 6-4', '6-1, 6-3', '6-2, 7-5', '6-4, 6-2',
+    '6-4, 4-6, 10-7', '7-5, 5-7, 10-8', '6-3, 3-6, 10-6',
+    '6-2, 4-6, 10-5', '7-6, 6-7, 10-8',
+  ];
+  return scores[Random().nextInt(scores.length)];
+}
 
 /// Stream provider for real-time group standings updates
 final groupStandingsStreamProvider = StreamProvider.family<Map<String, List<GroupStanding>>, (String, String)>((ref, params) {
@@ -65,6 +79,12 @@ class GroupStandingsView extends ConsumerWidget {
     final loc = AppLocalizations.of(context)!;
     final standingsAsync = ref.watch(groupStandingsStreamProvider((tournamentId, categoryId)));
     final matchesStream = ref.watch(matchRepositoryProvider).watchMatchesForTournament(tournamentId);
+    final currentUser = ref.watch(currentUserProvider).value;
+    final currentUserId = currentUser?.id;
+    final isAdmin = currentUser != null &&
+        (tournament.ownerId == currentUser.id || tournament.adminIds.contains(currentUser.id));
+    final isAmericano = tournament.tournamentType == 'americano';
+    final advancePositions = isAmericano ? 2 : tournament.advanceCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,25 +94,57 @@ class GroupStandingsView extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: isAmericano
+                ? Colors.purple.withOpacity(0.1)
+                : Colors.blue.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.withOpacity(0.3)),
+            border: Border.all(
+              color: isAmericano
+                  ? Colors.purple.withOpacity(0.3)
+                  : Colors.blue.withOpacity(0.3),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.group, color: Colors.blue),
+                  Icon(
+                    isAmericano ? Icons.swap_horiz : Icons.group,
+                    color: isAmericano ? Colors.purple : Colors.blue,
+                  ),
                   const SizedBox(width: 8),
-                  Text(
-                    loc.openTennisMode,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.blue,
+                  Expanded(
+                    child: Text(
+                      isAmericano ? loc.americanoMode : loc.openTennisMode,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: isAmericano ? Colors.purple : Colors.blue,
+                      ),
                     ),
                   ),
+                  if (isAdmin)
+                    StreamBuilder<List<TennisMatch>>(
+                      stream: matchesStream,
+                      builder: (context, snap) {
+                        final pending = (snap.data ?? [])
+                            .where((m) =>
+                                m.categoryId == categoryId &&
+                                m.status != 'Completed' &&
+                                m.status != 'Finished' &&
+                                m.player1Name.isNotEmpty &&
+                                (m.player2Name?.isNotEmpty ?? false))
+                            .toList();
+                        if (pending.isEmpty) return const SizedBox.shrink();
+                        return IconButton(
+                          icon: const Icon(Icons.casino_outlined),
+                          tooltip: loc.fillRandomResults,
+                          color: isAmericano ? Colors.purple : Colors.blue,
+                          onPressed: () => _fillRandomResults(context, ref, pending, loc),
+                        );
+                      },
+                    ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -121,13 +173,77 @@ class GroupStandingsView extends ConsumerWidget {
           builder: (context, matchSnapshot) {
             final allMatches = matchSnapshot.data ?? [];
             final categoryMatches = allMatches.where((m) => m.categoryId == categoryId).toList();
+
+            if (tournament.tournamentType == 'americano') {
+              final americanoMatches = categoryMatches.where((m) => m.round == 'Americano').toList();
+              final deciderMatches = categoryMatches.where((m) => m.round.startsWith('Decider')).toList();
+              final playoffMatches = categoryMatches.where((m) => m.round.startsWith('Playoff')).toList();
+
+              final allAmericanoComplete = americanoMatches.isNotEmpty &&
+                  americanoMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
+              final allDecidersComplete = deciderMatches.isNotEmpty &&
+                  deciderMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
+
+              if (allAmericanoComplete && deciderMatches.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: FilledButton.icon(
+                    onPressed: () => _generateGroupDeciders(context, ref),
+                    icon: const Icon(Icons.sports_tennis),
+                    label: Text(loc.generateGroupDeciders),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                );
+              }
+
+              if (allDecidersComplete && playoffMatches.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: FilledButton.icon(
+                    onPressed: () => _generateAmericanoPlayoff(context, ref),
+                    icon: const Icon(Icons.emoji_events),
+                    label: Text(loc.generateAmericanoPlayoff),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
+                );
+              }
+
+              if (playoffMatches.isNotEmpty) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.green),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(loc.playoffBracketGenerated, style: const TextStyle(color: Colors.green))),
+                    ],
+                  ),
+                );
+              }
+
+              return const SizedBox.shrink();
+            }
+
+            // openTennis logic
             final groupMatches = categoryMatches.where((m) => m.round.startsWith('Group') || m.round.startsWith('Cross')).toList();
             final playoffMatches = categoryMatches.where((m) => !m.round.startsWith('Group') && !m.round.startsWith('Cross')).toList();
-            
+
             final allGroupMatchesCompleted = groupMatches.isNotEmpty &&
                 groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
             final hasPlayoffBracket = playoffMatches.isNotEmpty;
-            
+
             if (allGroupMatchesCompleted && !hasPlayoffBracket) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -142,7 +258,7 @@ class GroupStandingsView extends ConsumerWidget {
                 ),
               );
             }
-            
+
             if (hasPlayoffBracket) {
               return Container(
                 padding: const EdgeInsets.all(16),
@@ -166,7 +282,7 @@ class GroupStandingsView extends ConsumerWidget {
                 ),
               );
             }
-            
+
             return const SizedBox.shrink();
           },
         ),
@@ -194,14 +310,29 @@ class GroupStandingsView extends ConsumerWidget {
                       .where((m) => m.round.startsWith('Cross'))
                       .toList();
                   final hasCrossMatches = crossMatches.isNotEmpty;
-                  final totalItems = groupedStandings.length + (hasCrossMatches ? 1 : 0);
+
+                  final americanoMatches = categoryMatches
+                      .where((m) => m.round == 'Americano')
+                      .toList();
+                  final deciderMatches = categoryMatches
+                      .where((m) => m.round.startsWith('Decider'))
+                      .toList();
+                  final isAmericano = tournament.tournamentType == 'americano';
+                  final hasAmericanoMatches = americanoMatches.isNotEmpty;
+                  final hasDeciderMatches = deciderMatches.isNotEmpty;
+
+                  final totalItems = groupedStandings.length +
+                      (hasCrossMatches ? 1 : 0) +
+                      (hasAmericanoMatches ? 1 : 0) +
+                      (hasDeciderMatches ? 1 : 0);
 
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: totalItems,
                     itemBuilder: (context, index) {
-                      // Last item is the Cross Group card (if cross matches exist)
-                      if (hasCrossMatches && index == totalItems - 1) {
+                      int extraStart = groupedStandings.length;
+
+                      if (hasCrossMatches && index == extraStart) {
                         final allCrossComplete = crossMatches.every(
                             (m) => m.status == 'Completed' || m.status == 'Finished');
                         return _CrossGroupCard(
@@ -210,16 +341,39 @@ class GroupStandingsView extends ConsumerWidget {
                           allMatchesCompleted: allCrossComplete,
                         );
                       }
+                      if (hasCrossMatches) extraStart++;
+
+                      if (hasAmericanoMatches && index == extraStart) {
+                        final allComplete = americanoMatches.every(
+                            (m) => m.status == 'Completed' || m.status == 'Finished');
+                        return _AmericanoMatchesCard(
+                          matches: americanoMatches,
+                          allMatchesCompleted: allComplete,
+                        );
+                      }
+                      if (hasAmericanoMatches) extraStart++;
+
+                      if (hasDeciderMatches && index == extraStart) {
+                        final allComplete = deciderMatches.every(
+                            (m) => m.status == 'Completed' || m.status == 'Finished');
+                        return _DeciderMatchesCard(
+                          matches: deciderMatches,
+                          allMatchesCompleted: allComplete,
+                        );
+                      }
 
                       final groupId = groupedStandings.keys.elementAt(index);
                       final standings = groupedStandings[groupId]!;
-                      // Only intra-group matches for each group card
-                      final groupMatches = categoryMatches
-                          .where((m) => m.round == 'Group $groupId')
-                          .toList();
+                      // For Americano, no intra-group matches — pass empty list
+                      final groupMatches = isAmericano
+                          ? <TennisMatch>[]
+                          : categoryMatches
+                              .where((m) => m.round == 'Group $groupId')
+                              .toList();
 
-                      final allGroupMatchesComplete = groupMatches.isNotEmpty &&
-                          groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
+                      final allGroupMatchesComplete = isAmericano
+                          ? americanoMatches.isNotEmpty && americanoMatches.every((m) => m.status == 'Completed' || m.status == 'Finished')
+                          : groupMatches.isNotEmpty && groupMatches.every((m) => m.status == 'Completed' || m.status == 'Finished');
 
                       return _GroupCard(
                         groupId: groupId,
@@ -227,6 +381,8 @@ class GroupStandingsView extends ConsumerWidget {
                         matches: groupMatches,
                         tournament: tournament,
                         allMatchesCompleted: allGroupMatchesComplete,
+                        currentUserId: currentUserId,
+                        advancePositions: advancePositions,
                       );
                     },
                   );
@@ -239,6 +395,60 @@ class GroupStandingsView extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _fillRandomResults(
+    BuildContext context,
+    WidgetRef ref,
+    List<TennisMatch> pending,
+    AppLocalizations loc,
+  ) async {
+    final repo = ref.read(matchRepositoryProvider);
+    for (final match in pending) {
+      final winner = Random().nextBool() ? match.player1Name : match.player2Name!;
+      await repo.updateMatchScore(match.id, _randomScore(), winner);
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.randomResultsFilled(pending.length))),
+      );
+    }
+  }
+
+  Future<void> _generateGroupDeciders(BuildContext context, WidgetRef ref) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final loc = AppLocalizations.of(context)!;
+    try {
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatingPlayoffBracket)));
+      final americanoService = ref.read(americanoServiceProvider);
+      final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournamentId);
+      final category = categories.firstWhere((c) => c.id == categoryId);
+      final deciderMatches = await americanoService.generateGroupDeciders(tournament, category);
+      await ref.read(matchRepositoryProvider).createMatches(deciderMatches);
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.groupDecidersGenerated(deciderMatches.length))));
+    } catch (e) {
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorGeneratingDeciders(e.toString()))));
+    }
+  }
+
+  Future<void> _generateAmericanoPlayoff(BuildContext context, WidgetRef ref) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final loc = AppLocalizations.of(context)!;
+    try {
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatingPlayoffBracket)));
+      final americanoService = ref.read(americanoServiceProvider);
+      final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournamentId);
+      final category = categories.firstWhere((c) => c.id == categoryId);
+      final playoffMatches = await americanoService.generatePlayoffBracket(tournament, category);
+      await ref.read(matchRepositoryProvider).createMatches(playoffMatches);
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.playoffBracketCreated(playoffMatches.length))));
+    } catch (e) {
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorGeneratingPlayoff(e.toString()))));
+    }
   }
 
   Future<void> _generatePlayoffBracket(BuildContext context, WidgetRef ref) async {
@@ -281,6 +491,8 @@ class _GroupCard extends StatelessWidget {
   final List<TennisMatch> matches;
   final Tournament tournament;
   final bool allMatchesCompleted;
+  final String? currentUserId;
+  final int advancePositions;
 
   const _GroupCard({
     required this.groupId,
@@ -288,6 +500,8 @@ class _GroupCard extends StatelessWidget {
     required this.matches,
     required this.tournament,
     required this.allMatchesCompleted,
+    this.currentUserId,
+    this.advancePositions = 1,
   });
 
   @override
@@ -391,13 +605,25 @@ class _GroupCard extends StatelessWidget {
                       final standing = entry.value;
                       final rank = entry.key + 1;
                       final isWinner = rank == 1 && allMatchesCompleted;
-                      final avatarUrl = standing.participantAvatarUrls.isNotEmpty 
-                          ? standing.participantAvatarUrls.first 
+                      final isAdvancing = rank <= advancePositions && !allMatchesCompleted;
+                      final isCurrentUser = currentUserId != null &&
+                          standing.participantUserIds.contains(currentUserId);
+                      final avatarUrl = standing.participantAvatarUrls.isNotEmpty
+                          ? standing.participantAvatarUrls.first
                           : null;
-                      
+
+                      Color? rowColor;
+                      if (isWinner) {
+                        rowColor = Colors.amber.withOpacity(0.15);
+                      } else if (isCurrentUser) {
+                        rowColor = Theme.of(context).colorScheme.primary.withOpacity(0.10);
+                      } else if (isAdvancing) {
+                        rowColor = Colors.green.withOpacity(0.08);
+                      }
+
                       return TableRow(
                         decoration: BoxDecoration(
-                          color: isWinner ? Colors.amber.withOpacity(0.15) : null,
+                          color: rowColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         children: [
@@ -425,9 +651,11 @@ class _GroupCard extends StatelessWidget {
                                     height: 24,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: rank == 1 
-                                          ? Colors.amber.withOpacity(0.3)
-                                          : Colors.grey.withOpacity(0.2),
+                                      color: isAdvancing
+                                          ? Colors.green.withOpacity(0.35)
+                                          : rank == 1
+                                              ? Colors.amber.withOpacity(0.3)
+                                              : Colors.grey.withOpacity(0.2),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Text(
@@ -441,25 +669,49 @@ class _GroupCard extends StatelessWidget {
                                   radius: 14,
                                   backgroundColor: Colors.grey.shade300,
                                   backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                                  child: avatarUrl == null 
+                                  child: avatarUrl == null
                                       ? Text(
-                                          standing.participantName.isNotEmpty 
-                                              ? standing.participantName[0].toUpperCase() 
+                                          standing.participantName.isNotEmpty
+                                              ? standing.participantName[0].toUpperCase()
                                               : '?',
                                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                                         )
                                       : null,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Expanded(
-                                  child: Text(
-                                    standing.participantName,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: isWinner || rank == 1 ? FontWeight.bold : FontWeight.normal,
-                                      color: isWinner ? Colors.amber.shade800 : null,
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          standing.participantName,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: isWinner || rank == 1 ? FontWeight.bold : FontWeight.normal,
+                                            color: isWinner ? Colors.amber.shade800 : null,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isCurrentUser) ...[
+                                        const SizedBox(width: 4),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(context)!.youSuffix2,
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ],
@@ -771,6 +1023,129 @@ class _CrossGroupCard extends StatelessWidget {
                 // Extract group letters from round 'Cross A-B'
                 final roundLabel = match.round.replaceFirst('Cross ', '');
                 return _CrossMatchTile(match: match, roundLabel: roundLabel);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AmericanoMatchesCard extends StatelessWidget {
+  final List<TennisMatch> matches;
+  final bool allMatchesCompleted;
+
+  const _AmericanoMatchesCard({
+    required this.matches,
+    required this.allMatchesCompleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.purple.withValues(alpha: 0.15),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.swap_horiz,
+                    color: allMatchesCompleted ? Colors.green : Colors.purple,
+                    size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  loc.americanoMatchesPhase,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: allMatchesCompleted ? Colors.green : Colors.purple,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${matches.where((m) => m.status == 'Completed' || m.status == 'Finished').length}/${matches.length}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: matches.map((m) => _CrossMatchTile(match: m, roundLabel: '')).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeciderMatchesCard extends StatelessWidget {
+  final List<TennisMatch> matches;
+  final bool allMatchesCompleted;
+
+  const _DeciderMatchesCard({
+    required this.matches,
+    required this.allMatchesCompleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.15),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.sports_tennis,
+                    color: allMatchesCompleted ? Colors.green : Colors.orange,
+                    size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  loc.deciderPhase,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: allMatchesCompleted ? Colors.green : Colors.orange,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${matches.where((m) => m.status == 'Completed' || m.status == 'Finished').length}/${matches.length}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: matches.map((m) {
+                final groupId = m.round.replaceFirst('Decider ', '');
+                return _CrossMatchTile(match: m, roundLabel: groupId);
               }).toList(),
             ),
           ),

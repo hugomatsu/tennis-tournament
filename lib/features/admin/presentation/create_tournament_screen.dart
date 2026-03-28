@@ -36,6 +36,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   int _pointsPerWin = 3;
   int _advanceCount = 2;
   bool _isLoading = false;
+  bool _isPrivate = false;
   final Map<int, ({TimeOfDay start, TimeOfDay end})> _weekdayTimes = {};
   Map<String, dynamic> _matchRules = {...kDefaultMatchRules};
 
@@ -306,6 +307,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         pointsPerWin: _pointsPerWin,
         advanceCount: _advanceCount,
         matchRules: _matchRules,
+        isPrivate: _isPrivate,
         defaultWeekdayTimes: _weekdayTimes.map(
           (key, range) {
             String fmt(TimeOfDay t) =>
@@ -463,7 +465,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       prefixIcon: const Icon(Icons.sports_tennis),
                       helperText: _tournamentType == 'mataMata'
                           ? l10n.mataMataDescription
-                          : l10n.openTennisDescription,
+                          : _tournamentType == 'americano'
+                              ? l10n.americanoDescription
+                              : l10n.openTennisDescription,
                       helperMaxLines: 2,
                     ),
                     items: [
@@ -474,6 +478,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       DropdownMenuItem(
                         value: 'openTennis',
                         child: Text(l10n.openTennisGroups),
+                      ),
+                      DropdownMenuItem(
+                        value: 'americano',
+                        child: Text(l10n.americanoGroups),
                       ),
                     ],
                     onChanged: (value) =>
@@ -607,6 +615,84 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       ),
                     ],
                   ],
+                  if (_tournamentType == 'americano') ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: theme.colorScheme.secondary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.americanoExplanation(_matchRules['guaranteedMatches'] as int? ?? 5),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: _maxPlayersPerGroup.toString(),
+                      decoration: InputDecoration(
+                        labelText: l10n.numberOfGroups,
+                        helperText: l10n.autoGroupsHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.group),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => _maxPlayersPerGroup = int.tryParse(v) ?? 4,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: (_matchRules['guaranteedMatches'] as int? ?? 5).toString(),
+                      decoration: InputDecoration(
+                        labelText: l10n.guaranteedMatches,
+                        helperText: l10n.guaranteedMatchesHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.repeat),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => setState(() => _matchRules['guaranteedMatches'] = int.tryParse(v) ?? 5),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: _pointsPerWin.toString(),
+                      decoration: InputDecoration(
+                        labelText: l10n.pointsPerWin,
+                        helperText: l10n.pointsPerWinHint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.emoji_events),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _matchRules['opponentSelection'] as String? ?? 'random',
+                      decoration: InputDecoration(
+                        labelText: l10n.opponentSelectionLabel,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.shuffle),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'random', child: Text(l10n.randomOpponents)),
+                        DropdownMenuItem(value: 'ranked', child: Text(l10n.rankedOpponents)),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _matchRules['opponentSelection'] = value ?? 'random';
+                      }),
+                    ),
+                  ],
                 ],
               ),
 
@@ -682,25 +768,51 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 ],
               ),
 
+              // ── Privacy ────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(_isPrivate ? l10n.tournamentPrivate : l10n.tournamentPublic),
+                  subtitle: Text(_isPrivate ? l10n.tournamentPrivateDesc : l10n.tournamentPublicDesc),
+                  value: _isPrivate,
+                  onChanged: (val) => setState(() => _isPrivate = val),
+                ),
+              ),
+
               // ── Submit ─────────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _isLoading ? null : _createTournament,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : () => context.pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Text(l10n.cancel),
+                      ),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(l10n.createTournament),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton(
+                        onPressed: _isLoading ? null : _createTournament,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : Text(l10n.createTournament),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
