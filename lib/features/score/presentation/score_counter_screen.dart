@@ -88,6 +88,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
     final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
+      useRootNavigator: false,
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -130,6 +131,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
 
     showDialog(
       context: context,
+      useRootNavigator: false,
       builder: (_) => AlertDialog(
         title: Text(loc.editPlayers),
         content: Column(
@@ -173,6 +175,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
     final loc = AppLocalizations.of(context)!;
     showDialog(
       context: context,
+      useRootNavigator: false,
       builder: (_) => AlertDialog(
         title: Text(loc.resetMatch),
         content: Text(loc.resetMatchConfirm),
@@ -204,6 +207,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
 
     showDialog(
       context: context,
+      useRootNavigator: false,
       builder: (_) => StatefulBuilder(
         builder: (ctx, setSt) => AlertDialog(
           title: Text(loc.matchSettings),
@@ -310,8 +314,9 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
     final loc = AppLocalizations.of(context)!;
     showDialog(
       context: context,
+      useRootNavigator: false,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: Text('🏆 ${loc.matchWinner}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -327,7 +332,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
             label: Text(loc.copyResult),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: '$winner — $result'));
-              Navigator.pop(context);
+              Navigator.of(dialogCtx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(loc.resultCopied)),
               );
@@ -335,14 +340,18 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
           ),
           FilledButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(dialogCtx).pop();
               ref.read(scoreControllerProvider.notifier).reset();
               setState(() {
                 _matchStarted = false;
                 _sidesSwapped = false;
+                _fullscreen = false;
                 _ctrlA.clear();
                 _ctrlB.clear();
               });
+              if (_fullscreen) {
+                SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+              }
               _startTimer();
             },
             child: Text(loc.newMatch),
@@ -356,6 +365,7 @@ class _ScoreCounterScreenState extends ConsumerState<ScoreCounterScreen> {
     final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
+      useRootNavigator: false,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
