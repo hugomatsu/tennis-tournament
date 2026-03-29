@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tennis_tournament/core/theme/tournament_type_theme.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
@@ -12,6 +13,7 @@ class LiveTournamentCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
+
     final userAsync = ref.watch(currentUserProvider);
     final ownerAsync = ref.watch(playerProvider(tournament.ownerId ?? ''));
     
@@ -159,37 +161,44 @@ class LiveTournamentCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: tournament.tournamentType == 'openTennis'
-                          ? Colors.teal.withValues(alpha: 0.15)
-                          : tournament.tournamentType == 'americano'
-                              ? Colors.orange.withValues(alpha: 0.15)
-                              : Colors.deepPurple.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      tournament.tournamentType == 'openTennis'
-                          ? loc.openTennisGroups
-                          : tournament.tournamentType == 'americano'
-                              ? loc.americanoGroups
-                              : loc.mataMataElimination,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: tournament.tournamentType == 'openTennis'
-                            ? Colors.teal
-                            : tournament.tournamentType == 'americano'
-                                ? Colors.orange
-                                : Colors.deepPurple,
-                      ),
-                    ),
-                  ),
+                  _TournamentTypeBadge(tournament: tournament, loc: loc),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TournamentTypeBadge extends StatelessWidget {
+  const _TournamentTypeBadge({required this.tournament, required this.loc});
+
+  final Tournament tournament;
+  final AppLocalizations loc;
+
+  String _label() => switch (tournament.tournamentType) {
+        'openTennis' => loc.openTennisGroups,
+        'americano' => loc.americanoGroups,
+        _ => loc.mataMataElimination,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final t = TournamentTypeTheme.of(tournament.tournamentType);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: t.background,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        _label(),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: t.color,
         ),
       ),
     );

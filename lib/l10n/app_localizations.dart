@@ -3955,6 +3955,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link with Apple'**
   String get linkWithApple;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @advance.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get advance;
+
+  /// No description provided for @stepVisao.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get stepVisao;
+
+  /// No description provided for @stepLogistica.
+  ///
+  /// In en, this message translates to:
+  /// **'Logistics'**
+  String get stepLogistica;
+
+  /// No description provided for @stepRegras.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get stepRegras;
+
+  /// No description provided for @stepRevisao.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get stepRevisao;
+
+  /// No description provided for @selectPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Period'**
+  String get selectPeriod;
+
+  /// No description provided for @reviewIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity & Mode'**
+  String get reviewIdentity;
+
+  /// No description provided for @reviewLogistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Where & When'**
+  String get reviewLogistics;
+
+  /// No description provided for @mataMataExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pure single-elimination bracket. Every loss knocks the player out — no second chances. Matches are high-stakes and direct. Perfect for crowning a champion quickly or running the final stages of a larger event.'**
+  String get mataMataExplanation;
 }
 
 class _AppLocalizationsDelegate

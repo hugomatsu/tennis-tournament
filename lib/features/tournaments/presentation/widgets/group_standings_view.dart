@@ -12,6 +12,7 @@ import 'package:tennis_tournament/features/tournaments/data/tournament_repositor
 import 'package:tennis_tournament/features/tournaments/domain/group_standing.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
 import 'package:tennis_tournament/core/sharing/widgets/share_preview_screen.dart';
+import 'package:tennis_tournament/core/theme/tournament_type_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:tennis_tournament/l10n/app_localizations.dart';
@@ -87,29 +88,21 @@ class GroupStandingsView extends ConsumerWidget {
     final advancePositions = isAmericano ? 2 : tournament.advanceCount;
 
     // Build info header widget (will be placed inside the scrollable list)
+    final typeTheme = TournamentTypeTheme.of(tournament.tournamentType);
     final infoHeader = Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
-        color: isAmericano
-            ? Colors.purple.withValues(alpha: 0.1)
-            : Colors.blue.withValues(alpha: 0.1),
+        color: typeTheme.background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isAmericano
-              ? Colors.purple.withValues(alpha: 0.3)
-              : Colors.blue.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: typeTheme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                isAmericano ? Icons.swap_horiz : Icons.group,
-                color: isAmericano ? Colors.purple : Colors.blue,
-              ),
+              Icon(typeTheme.icon, color: typeTheme.color),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -117,7 +110,7 @@ class GroupStandingsView extends ConsumerWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isAmericano ? Colors.purple : Colors.blue,
+                    color: typeTheme.color,
                   ),
                 ),
               ),

@@ -408,7 +408,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get declineJustify => 'Decline & Justify';
 
   @override
-  String get submit => 'Submit';
+  String get submit => 'Confirmar';
 
   @override
   String get responseSubmitted => 'Response submitted. Admin notified.';
@@ -2129,4 +2129,35 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get linkWithApple => 'Vincular com Apple';
+
+  @override
+  String get back => 'Voltar';
+
+  @override
+  String get advance => 'Avançar';
+
+  @override
+  String get stepVisao => 'Visão';
+
+  @override
+  String get stepLogistica => 'Logística';
+
+  @override
+  String get stepRegras => 'Regras';
+
+  @override
+  String get stepRevisao => 'Revisão';
+
+  @override
+  String get selectPeriod => 'Selecionar Período';
+
+  @override
+  String get reviewIdentity => 'Identidade & Modo';
+
+  @override
+  String get reviewLogistics => 'Onde & Quando';
+
+  @override
+  String get mataMataExplanation =>
+      'Torneio de chave eliminatória pura. Cada derrota elimina o atleta — não há segunda chance. O confronto é direto e a tensão é máxima em cada partida. Ideal para decidir um campeão rápido ou para as fases finais de um torneio maior.';
 }

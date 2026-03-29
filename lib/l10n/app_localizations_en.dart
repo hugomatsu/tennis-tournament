@@ -2120,4 +2120,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkWithApple => 'Link with Apple';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get advance => 'Next';
+
+  @override
+  String get stepVisao => 'Identity';
+
+  @override
+  String get stepLogistica => 'Logistics';
+
+  @override
+  String get stepRegras => 'Rules';
+
+  @override
+  String get stepRevisao => 'Review';
+
+  @override
+  String get selectPeriod => 'Select Period';
+
+  @override
+  String get reviewIdentity => 'Identity & Mode';
+
+  @override
+  String get reviewLogistics => 'Where & When';
+
+  @override
+  String get mataMataExplanation =>
+      'Pure single-elimination bracket. Every loss knocks the player out — no second chances. Matches are high-stakes and direct. Perfect for crowning a champion quickly or running the final stages of a larger event.';
 }

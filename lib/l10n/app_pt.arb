@@ -689,5 +689,16 @@
   "guestBannerDesc": "Crie uma conta para salvar seu progresso e participar de torneios.",
   "linkAccount": "Vincular Conta",
   "linkWithGoogle": "Vincular com Google",
-  "linkWithApple": "Vincular com Apple"
+  "linkWithApple": "Vincular com Apple",
+  "submit": "Confirmar",
+  "back": "Voltar",
+  "advance": "Avançar",
+  "stepVisao": "Visão",
+  "stepLogistica": "Logística",
+  "stepRegras": "Regras",
+  "stepRevisao": "Revisão",
+  "selectPeriod": "Selecionar Período",
+  "reviewIdentity": "Identidade & Modo",
+  "reviewLogistics": "Onde & Quando",
+  "mataMataExplanation": "Torneio de chave eliminatória pura. Cada derrota elimina o atleta — não há segunda chance. O confronto é direto e a tensão é máxima em cada partida. Ideal para decidir um campeão rápido ou para as fases finais de um torneio maior."
 }

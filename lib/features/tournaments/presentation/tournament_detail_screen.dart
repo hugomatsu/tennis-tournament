@@ -23,6 +23,7 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 import 'package:tennis_tournament/core/sharing/sharing_service.dart';
 import 'package:tennis_tournament/features/tournaments/presentation/widgets/match_rules_card.dart';
 import 'package:tennis_tournament/core/analytics/analytics_service.dart';
+import 'package:tennis_tournament/core/theme/tournament_type_theme.dart';
 import 'package:tennis_tournament/features/tutorial/domain/tutorial_keys.dart';
 import 'package:tennis_tournament/features/tutorial/presentation/tutorial_controller.dart';
 import 'package:tennis_tournament/features/tutorial/data/tutorial_repository.dart';
@@ -924,18 +925,10 @@ class _InfoTab extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: tournament.tournamentType == 'openTennis'
-                ? Colors.blue.withValues(alpha: 0.1)
-                : tournament.tournamentType == 'americano'
-                    ? Colors.purple.withValues(alpha: 0.1)
-                    : Colors.green.withValues(alpha: 0.1),
+            color: TournamentTypeTheme.of(tournament.tournamentType).background,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: tournament.tournamentType == 'openTennis'
-                  ? Colors.blue.withValues(alpha: 0.3)
-                  : tournament.tournamentType == 'americano'
-                      ? Colors.purple.withValues(alpha: 0.3)
-                      : Colors.green.withValues(alpha: 0.3),
+              color: TournamentTypeTheme.of(tournament.tournamentType).border,
             ),
           ),
           child: Column(
@@ -944,16 +937,8 @@ class _InfoTab extends ConsumerWidget {
               Row(
                 children: [
                   Icon(
-                    tournament.tournamentType == 'openTennis'
-                        ? Icons.group
-                        : tournament.tournamentType == 'americano'
-                            ? Icons.swap_horiz
-                            : Icons.emoji_events,
-                    color: tournament.tournamentType == 'openTennis'
-                        ? Colors.blue
-                        : tournament.tournamentType == 'americano'
-                            ? Colors.purple
-                            : Colors.green,
+                    TournamentTypeTheme.of(tournament.tournamentType).icon,
+                    color: TournamentTypeTheme.of(tournament.tournamentType).color,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -969,11 +954,7 @@ class _InfoTab extends ConsumerWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: tournament.tournamentType == 'openTennis'
-                                ? Colors.blue
-                                : tournament.tournamentType == 'americano'
-                                    ? Colors.purple
-                                    : Colors.green,
+                            color: TournamentTypeTheme.of(tournament.tournamentType).color,
                           ),
                         ),
                         const SizedBox(height: 4),
