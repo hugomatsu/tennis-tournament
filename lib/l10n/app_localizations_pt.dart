@@ -1941,6 +1941,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get americanoMatchesPhase => 'Fase Americana';
 
   @override
+  String playerMatchesTitle(String name) {
+    return 'Partidas de $name';
+  }
+
+  @override
+  String get noMatchesForPlayer =>
+      'Nenhuma partida encontrada para este jogador';
+
+  @override
+  String get followMatchHint =>
+      'Siga para receber notificações e ver no calendário';
+
+  @override
   String get deciderPhase => 'Decisões de Grupo';
 
   @override
@@ -2120,6 +2133,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get guestBannerDesc =>
       'Crie uma conta para salvar seu progresso e participar de torneios.';
+
+  @override
+  String get guestCannotCreateTournamentTitle => 'Conta necessária';
+
+  @override
+  String get guestCannotCreateTournamentBody =>
+      'Somente jogadores cadastrados podem criar torneios. Isso garante que os participantes consigam encontrar e entrar no torneio, e que você possa gerenciá-lo com segurança.';
 
   @override
   String get linkAccount => 'Vincular Conta';

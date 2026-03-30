@@ -316,16 +316,12 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
           Expanded(
             child: tournamentsAsync.when(
               data: (tournaments) {
-                if (tournaments.isEmpty) {
-                  return Center(child: Text(loc.noTournamentsFound));
-                }
-                
                 // Pagination logic
-                final totalPages = (tournaments.length / pageSize).ceil();
+                final totalPages = tournaments.isEmpty ? 0 : (tournaments.length / pageSize).ceil();
                 final startIndex = _currentPage * pageSize;
-                final endIndex = (startIndex + pageSize).clamp(0, tournaments.length);
-                final paginatedTournaments = tournaments.sublist(startIndex, endIndex);
-                
+                final endIndex = tournaments.isEmpty ? 0 : (startIndex + pageSize).clamp(0, tournaments.length);
+                final paginatedTournaments = tournaments.isEmpty ? <Tournament>[] : tournaments.sublist(startIndex, endIndex);
+
                 return Column(
                   children: [
                     Expanded(
@@ -333,21 +329,32 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
                         onRefresh: () async {
                           ref.invalidate(filteredTournamentsProvider(filterParams));
                         },
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: paginatedTournaments.length,
-                          itemBuilder: (context, index) {
-                            final tournament = paginatedTournaments[index];
-                            return GestureDetector(
-                              key: index == 0 ? TutorialKeys.firstTournamentCard : null,
-                              onTap: () => context.go('/tournaments/${tournament.id}'),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: LiveTournamentCard(tournament: tournament),
+                        child: tournaments.isEmpty
+                            ? ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(
+                                    height: 300,
+                                    child: Center(child: Text(loc.noTournamentsFound)),
+                                  ),
+                                ],
+                              )
+                            : ListView.builder(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.all(16),
+                                itemCount: paginatedTournaments.length,
+                                itemBuilder: (context, index) {
+                                  final tournament = paginatedTournaments[index];
+                                  return GestureDetector(
+                                    key: index == 0 ? TutorialKeys.firstTournamentCard : null,
+                                    onTap: () => context.go('/tournaments/${tournament.id}'),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 16),
+                                      child: LiveTournamentCard(tournament: tournament),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
                     ),
                     // Pagination controls
@@ -395,10 +402,43 @@ class _TournamentsScreenState extends ConsumerState<TournamentsScreen> {
       ),
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
+          final loc = AppLocalizations.of(context)!;
           final userAsync = ref.watch(currentUserProvider);
           return userAsync.when(
             data: (user) {
-              if (user == null) return const SizedBox.shrink();
+              if (user == null) {
+                return FloatingActionButton.extended(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  elevation: 1,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        icon: const Icon(Icons.lock_outline, size: 32),
+                        title: Text(loc.guestCannotCreateTournamentTitle),
+                        content: Text(loc.guestCannotCreateTournamentBody),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(loc.cancel),
+                          ),
+                          FilledButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              context.go('/profile');
+                            },
+                            icon: const Icon(Icons.person_outlined, size: 18),
+                            label: Text(loc.createAccount),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(loc.createTournament),
+                );
+              }
               
               return FutureBuilder<int>(
                 future: ref.read(tournamentRepositoryProvider).getUserTournamentCount(user.id),

@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:tennis_tournament/features/matches/data/match_repository.dart';
 import 'package:tennis_tournament/features/matches/domain/match.dart';
 import 'package:tennis_tournament/features/players/application/player_providers.dart';
+import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/tournaments/application/americano_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/open_tennis_service.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
@@ -63,7 +65,7 @@ final groupStandingsStreamProvider = StreamProvider.family<Map<String, List<Grou
 });
 
 /// Widget to display Open Tennis mode group standings and matches
-class GroupStandingsView extends ConsumerWidget {
+class GroupStandingsView extends ConsumerStatefulWidget {
   final String tournamentId;
   final String categoryId;
   final Tournament tournament;
@@ -76,7 +78,31 @@ class GroupStandingsView extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupStandingsView> createState() => _GroupStandingsViewState();
+}
+
+class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
+  String get tournamentId => widget.tournamentId;
+  String get categoryId => widget.categoryId;
+  Tournament get tournament => widget.tournament;
+
+  void _showPlayerMatchesSheet(BuildContext context, String playerName, List<TennisMatch> allMatches) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _PlayerMatchesSheet(
+        playerName: playerName,
+        matches: allMatches,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final standingsAsync = ref.watch(groupStandingsStreamProvider((tournamentId, categoryId)));
     final matchesStream = ref.watch(matchRepositoryProvider).watchMatchesForTournament(tournamentId);
@@ -381,6 +407,7 @@ class GroupStandingsView extends ConsumerWidget {
                     allMatchesCompleted: allGroupMatchesComplete,
                     currentUserId: currentUserId,
                     advancePositions: advancePositions,
+                    onPlayerTap: (name) => _showPlayerMatchesSheet(context, name, americanoMatches),
                   ),
                 );
               },
@@ -471,6 +498,7 @@ class _GroupCard extends StatelessWidget {
   final bool allMatchesCompleted;
   final String? currentUserId;
   final int advancePositions;
+  final void Function(String)? onPlayerTap;
 
   const _GroupCard({
     required this.groupId,
@@ -480,6 +508,7 @@ class _GroupCard extends StatelessWidget {
     required this.allMatchesCompleted,
     this.currentUserId,
     this.advancePositions = 1,
+    this.onPlayerTap,
   });
 
   @override
@@ -592,11 +621,11 @@ class _GroupCard extends StatelessWidget {
 
                       Color? rowColor;
                       if (isWinner) {
-                        rowColor = Colors.amber.withOpacity(0.15);
+                        rowColor = Colors.amber.withValues(alpha: 0.15);
                       } else if (isCurrentUser) {
-                        rowColor = Theme.of(context).colorScheme.primary.withOpacity(0.10);
+                        rowColor = Theme.of(context).colorScheme.primary.withValues(alpha: 0.10);
                       } else if (isAdvancing) {
-                        rowColor = Colors.green.withOpacity(0.08);
+                        rowColor = Colors.green.withValues(alpha: 0.08);
                       }
 
                       return TableRow(
@@ -605,94 +634,96 @@ class _GroupCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Row(
-                              children: [
-                                // Rank badge (always shows number)
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: isWinner
-                                        ? Colors.amber.withValues(alpha: 0.5)
-                                        : isAdvancing
-                                            ? Colors.green.withOpacity(0.35)
-                                            : rank == 1
-                                                ? Colors.amber.withOpacity(0.3)
-                                                : Colors.grey.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    '$rank',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: isWinner ? Colors.amber.shade900 : null,
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => onPlayerTap?.call(standing.participantName),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: isWinner
+                                          ? Colors.amber.withValues(alpha: 0.5)
+                                          : isAdvancing
+                                              ? Colors.green.withValues(alpha: 0.35)
+                                              : rank == 1
+                                                  ? Colors.amber.withValues(alpha: 0.3)
+                                                  : Colors.grey.withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      '$rank',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: isWinner ? Colors.amber.shade900 : null,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Player avatar with golden border for winner
-                                Container(
-                                  decoration: isWinner
-                                      ? BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.amber.shade400, width: 2),
-                                        )
-                                      : null,
-                                  child: CircleAvatar(
-                                    radius: 14,
-                                    backgroundColor: Colors.grey.shade300,
-                                    backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                                    child: avatarUrl == null
-                                        ? Text(
-                                            standing.participantName.isNotEmpty
-                                                ? standing.participantName[0].toUpperCase()
-                                                : '?',
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    decoration: isWinner
+                                        ? BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.amber.shade400, width: 2),
                                           )
                                         : null,
+                                    child: CircleAvatar(
+                                      radius: 14,
+                                      backgroundColor: Colors.grey.shade300,
+                                      backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                                      child: avatarUrl == null
+                                          ? Text(
+                                              standing.participantName.isNotEmpty
+                                                  ? standing.participantName[0].toUpperCase()
+                                                  : '?',
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                            )
+                                          : null,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          standing.participantName,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: isWinner || rank == 1 ? FontWeight.bold : FontWeight.normal,
-                                            color: isWinner ? Colors.amber.shade800 : null,
-                                          ),
-                                        ),
-                                      ),
-                                      if (isCurrentUser) ...[
-                                        const SizedBox(width: 4),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
                                           child: Text(
-                                            AppLocalizations.of(context)!.youSuffix2,
+                                            standing.participantName,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context).colorScheme.primary,
+                                              fontSize: 13,
+                                              fontWeight: isWinner || rank == 1 ? FontWeight.bold : FontWeight.normal,
+                                              color: isWinner ? Colors.amber.shade800 : null,
                                             ),
                                           ),
                                         ),
+                                        if (isCurrentUser) ...[
+                                          const SizedBox(width: 4),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              AppLocalizations.of(context)!.youSuffix2,
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context).colorScheme.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                           Padding(
@@ -727,7 +758,7 @@ class _GroupCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Matches
           if (matches.isNotEmpty) ...[
             const Divider(),
@@ -736,10 +767,7 @@ class _GroupCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    loc.matches,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text(loc.matches, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ...matches.map((match) => _MatchTile(match: match, groupId: groupId)),
                 ],
@@ -1157,9 +1185,9 @@ class _CrossMatchTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: hasWinner ? Colors.amber.withOpacity(0.05) : Colors.transparent,
+          color: hasWinner ? Colors.amber.withValues(alpha: 0.05) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.withOpacity(0.15)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -1473,7 +1501,7 @@ class _MatchTile extends StatelessWidget {
                                 ? (match.player2Name ?? '?')[0].toUpperCase() 
                                 : '?',
                             style: TextStyle(
-                              fontSize: 11, 
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: isP2Winner ? Colors.amber.shade800 : Colors.grey.shade600,
                             ),
@@ -1486,6 +1514,247 @@ class _MatchTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Player Matches Sheet
+// ---------------------------------------------------------------------------
+
+class _PlayerMatchesSheet extends ConsumerWidget {
+  final String playerName;
+  final List<TennisMatch> matches;
+
+  const _PlayerMatchesSheet({
+    required this.playerName,
+    required this.matches,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final currentUser = ref.watch(currentUserProvider).value;
+
+    final playerMatches = matches
+        .where((m) => m.player1Name == playerName || m.player2Name == playerName)
+        .toList()
+      ..sort((a, b) => a.time.compareTo(b.time));
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.92,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            // Handle + header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Column(
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                        child: Text(
+                          playerName.isNotEmpty ? playerName[0].toUpperCase() : '?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              playerName,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              loc.playerMatchesTitle(playerName),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                ],
+              ),
+            ),
+            // Matches list
+            Expanded(
+              child: playerMatches.isEmpty
+                  ? Center(child: Text(loc.noMatchesForPlayer, style: TextStyle(color: Colors.grey.shade500)))
+                  : ListView.separated(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      itemCount: playerMatches.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final match = playerMatches[index];
+                        final isFollowing = currentUser != null &&
+                            currentUser.followedMatchIds.contains(match.id);
+                        final opponent = match.player1Name == playerName
+                            ? (match.player2Name ?? 'TBD')
+                            : match.player1Name;
+                        final isCompleted = match.status == 'Completed' || match.status == 'Finished';
+                        final dateStr = DateFormat.MMMd(locale).format(match.time);
+                        final timeStr = DateFormat.Hm(locale).format(match.time);
+
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            context.push('/matches/${match.id}');
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              children: [
+                                // Date/time column
+                                SizedBox(
+                                  width: 48,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        dateStr,
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        timeStr,
+                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // Match info
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'vs $opponent',
+                                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          if (isCompleted && match.winner != null)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: match.winner == playerName
+                                                    ? Colors.green.withValues(alpha: 0.15)
+                                                    : Colors.red.withValues(alpha: 0.10),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                match.winner == playerName ? 'W' : 'L',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: match.winner == playerName
+                                                      ? Colors.green.shade700
+                                                      : Colors.red.shade700,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.sports_tennis, size: 12, color: Colors.grey.shade500),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            match.court.isNotEmpty ? match.court : match.round,
+                                            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                                          ),
+                                          if (isCompleted && match.score != null) ...[
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              match.score!,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade600,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Follow button (only for upcoming matches)
+                                if (!isCompleted && currentUser != null)
+                                  IconButton(
+                                    icon: Icon(
+                                      isFollowing ? Icons.bookmark : Icons.bookmark_border,
+                                      color: isFollowing
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Colors.grey.shade400,
+                                    ),
+                                    tooltip: isFollowing ? loc.following : loc.follow,
+                                    onPressed: () async {
+                                      final newList = isFollowing
+                                          ? currentUser.followedMatchIds.where((id) => id != match.id).toList()
+                                          : [...currentUser.followedMatchIds, match.id];
+                                      await ref.read(playerRepositoryProvider).updateUser(
+                                        currentUser.copyWith(followedMatchIds: newList),
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            // Hint
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 4, 16, MediaQuery.of(context).padding.bottom + 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.info_outline, size: 13, color: Colors.grey.shade400),
+                  const SizedBox(width: 6),
+                  Text(
+                    loc.followMatchHint,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

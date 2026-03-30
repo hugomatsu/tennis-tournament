@@ -1933,6 +1933,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get americanoMatchesPhase => 'Americano Phase';
 
   @override
+  String playerMatchesTitle(String name) {
+    return 'Matches of $name';
+  }
+
+  @override
+  String get noMatchesForPlayer => 'No matches found for this player';
+
+  @override
+  String get followMatchHint =>
+      'Follow to receive notifications and see in calendar';
+
+  @override
   String get deciderPhase => 'Group Deciders';
 
   @override
@@ -2111,6 +2123,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guestBannerDesc =>
       'Create an account to save your progress and join tournaments.';
+
+  @override
+  String get guestCannotCreateTournamentTitle => 'Account required';
+
+  @override
+  String get guestCannotCreateTournamentBody =>
+      'Only registered players can create tournaments. This ensures participants can find and join your tournament, and that you can manage it securely.';
 
   @override
   String get linkAccount => 'Link Account';

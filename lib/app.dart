@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tennis_tournament/l10n/app_localizations.dart';
@@ -305,11 +306,15 @@ class TennisApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        // Web: keep narrow centered column. Native: fill the screen so iPads
+        // don't show empty side gutters (phones are <480px so unaffected).
+        final maxWidth = kIsWeb ? 624.0 : (screenWidth > 600 ? screenWidth : 480.0);
         return ColoredBox(
           color: isDark ? const Color(0xFF0D0D0D) : const Color(0xFFD6D6D6),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: BoxConstraints(maxWidth: maxWidth),
               child: child!,
             ),
           ),

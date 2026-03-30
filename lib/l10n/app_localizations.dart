@@ -3626,6 +3626,24 @@ abstract class AppLocalizations {
   /// **'Americano Phase'**
   String get americanoMatchesPhase;
 
+  /// No description provided for @playerMatchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches of {name}'**
+  String playerMatchesTitle(String name);
+
+  /// No description provided for @noMatchesForPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches found for this player'**
+  String get noMatchesForPlayer;
+
+  /// No description provided for @followMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow to receive notifications and see in calendar'**
+  String get followMatchHint;
+
   /// No description provided for @deciderPhase.
   ///
   /// In en, this message translates to:
@@ -3937,6 +3955,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create an account to save your progress and join tournaments.'**
   String get guestBannerDesc;
+
+  /// No description provided for @guestCannotCreateTournamentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account required'**
+  String get guestCannotCreateTournamentTitle;
+
+  /// No description provided for @guestCannotCreateTournamentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only registered players can create tournaments. This ensures participants can find and join your tournament, and that you can manage it securely.'**
+  String get guestCannotCreateTournamentBody;
 
   /// No description provided for @linkAccount.
   ///
