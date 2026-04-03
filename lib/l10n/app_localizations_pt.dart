@@ -795,6 +795,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addParticipants => 'Adicionar Participantes';
 
   @override
+  String get participantNamesHint =>
+      'Um nome por linha, ex:\nHugo Matsumoto\nArthur Fukushima\nRoberto Carlos';
+
+  @override
+  String participantsAddedCount(int count) {
+    return '$count participante(s) adicionado(s)';
+  }
+
+  @override
   String get selectCategoriesColon => 'Selecionar Categorias:';
 
   @override

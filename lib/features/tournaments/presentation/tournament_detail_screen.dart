@@ -1308,13 +1308,17 @@ class _InfoTab extends ConsumerWidget {
                     data: (categories) {
                       if (categories.isEmpty) return Text(loc.noCategoriesFound);
 
+                      final sortedCategories = [...categories]
+                        ..sort((a, b) => a.name.compareTo(b.name));
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: categories.map((category) {
+                        children: sortedCategories.map((category) {
                           final categoryParticipants = participants
                               .where((p) => p.categoryId == category.id)
-                              .toList();
-                          
+                              .toList()
+                            ..sort((a, b) => a.name.compareTo(b.name));
+
                           if (categoryParticipants.isEmpty) return const SizedBox.shrink();
 
                           return Padding(
@@ -1325,35 +1329,59 @@ class _InfoTab extends ConsumerWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Text(
-                                    category.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                      fontSize: 12,
-                                    ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        category.name,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          '${categoryParticipants.length}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                ...categoryParticipants.asMap().entries.map((entry) {
-                                  final participant = entry.value;
-                                  
-                                  // Simplified participant display for list
+                                ...categoryParticipants.map((participant) {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Row(
                                       children: [
-                                         CircleAvatar(
-                                            radius: 14,
-                                            backgroundImage: participant.avatarUrls.isNotEmpty && participant.avatarUrls.first != null ? NetworkImage(participant.avatarUrls.first!) : null,
-                                              child: participant.avatarUrls.isEmpty ? Text(participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?', 
-                                              style: const TextStyle(fontSize: 10)) : null,
-                                         ),
-                                         const SizedBox(width: 12),
-                                         Text(participant.name),
+                                        CircleAvatar(
+                                          radius: 14,
+                                          backgroundImage: participant.avatarUrls.isNotEmpty && participant.avatarUrls.first != null
+                                              ? NetworkImage(participant.avatarUrls.first!)
+                                              : null,
+                                          child: participant.avatarUrls.isEmpty
+                                              ? Text(
+                                                  participant.name.isNotEmpty ? participant.name[0].toUpperCase() : '?',
+                                                  style: const TextStyle(fontSize: 10),
+                                                )
+                                              : null,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(participant.name),
                                       ],
                                     ),
                                   );

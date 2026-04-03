@@ -607,7 +607,7 @@ class OpenTennisService implements SchedulingService {
     while (added < countNeeded && attempts < maxAttempts) {
       for (int c = 1; c <= numberOfCourts; c++) {
         final candidate = _MatchSlot(current, 'Court $c');
-        if (!_isSlotOccupied(candidate, existingMatches, durationMinutes)) {
+        if (!_isSlotOccupied(candidate, existingMatches, durationMinutes, totalCourts: numberOfCourts)) {
           slots.add(candidate);
           added++;
         }
@@ -622,20 +622,23 @@ class OpenTennisService implements SchedulingService {
     return slots;
   }
 
-  bool _isSlotOccupied(_MatchSlot slot, List<TennisMatch> existingMatches, int durationMinutes) {
+  bool _isSlotOccupied(
+    _MatchSlot slot,
+    List<TennisMatch> existingMatches,
+    int durationMinutes, {
+    int totalCourts = 1,
+  }) {
     final slotStart = slot.time;
     final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
-
+    int overlappingCount = 0;
     for (var match in existingMatches) {
-      if (match.court == slot.court) {
-        final matchStart = match.time;
-        final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
-
-        if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
-          return true;
-        }
+      final matchStart = match.time;
+      final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
+      if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
+        if (match.court == slot.court) return true;
+        overlappingCount++;
       }
     }
-    return false;
+    return overlappingCount >= totalCourts;
   }
 }

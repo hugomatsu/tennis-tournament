@@ -471,50 +471,78 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
     super.dispose();
   }
 
+  /// Strips leading/trailing junk characters, collapses inner whitespace,
+  /// and title-cases each word. Returns empty string if nothing valid remains.
+  String _formatName(String raw) {
+    // Strip leading/trailing special characters and whitespace
+    final stripped = raw.replaceAll(RegExp(r'^[\s\-*><+=]+|[\s\-*><+=]+$'), '');
+    // Collapse any inner whitespace runs to a single space
+    final normalized = stripped.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (normalized.isEmpty) return '';
+    // Title case: first letter of every word uppercased, rest lowercased
+    return normalized
+        .split(' ')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
+
+  List<String> _parseNames(String input) {
+    return input
+        .split('\n')
+        .map(_formatName)
+        .where((n) => n.isNotEmpty)
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(tournamentRepositoryProvider).getCategories(widget.tournamentId);
     final loc = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: Text(loc.addParticipant),
+      title: Text(loc.addParticipants),
       content: FutureBuilder(
         future: categoriesAsync,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
           final categories = snapshot.data!;
           if (categories.isEmpty) return Text(loc.noCategoriesFound);
-          
+
           if (_selectedCategoryId == null && categories.isNotEmpty) {
             _selectedCategoryId = categories.first.id;
           }
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: loc.name,
-                  hintText: 'e.g. Hugo or Hugo & Arthur',
+          return SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: loc.name,
+                    hintText: loc.participantNamesHint,
+                    alignLabelWithHint: true,
+                    border: const OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  minLines: 4,
+                  maxLines: 10,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.words,
                 ),
-                autofocus: true,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedCategoryId,
-                decoration: InputDecoration(labelText: loc.category),
-                items: categories.map((c) => DropdownMenuItem(
-                  value: c.id,
-                  child: Text(c.name),
-                )).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value;
-                  });
-                },
-              ),
-            ],
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategoryId,
+                  decoration: InputDecoration(labelText: loc.category),
+                  items: categories.map((c) => DropdownMenuItem(
+                    value: c.id,
+                    child: Text(c.name),
+                  )).toList(),
+                  onChanged: (value) => setState(() => _selectedCategoryId = value),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -532,28 +560,35 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
   }
 
   Future<void> _submit() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty || _selectedCategoryId == null) return;
+    if (_selectedCategoryId == null) return;
 
-    final participant = Participant(
-      id: _uuid.v4(),
-      name: name,
-      userIds: [], // Manual entry, no user IDs
-      categoryId: _selectedCategoryId!,
-      status: 'approved', // Auto-approve manual entries
-      joinedAt: DateTime.now(),
-      avatarUrls: [],
-    );
+    final names = _parseNames(_nameController.text);
+    if (names.isEmpty) return;
 
-    await ref.read(tournamentRepositoryProvider).addParticipant(
-          widget.tournamentId,
-          participant,
-        );
-    
+    final repo = ref.read(tournamentRepositoryProvider);
+    for (final name in names) {
+      await repo.addParticipant(
+        widget.tournamentId,
+        Participant(
+          id: _uuid.v4(),
+          name: name,
+          userIds: [],
+          categoryId: _selectedCategoryId!,
+          status: 'approved',
+          joinedAt: DateTime.now(),
+          avatarUrls: [],
+        ),
+      );
+    }
+
     ref.invalidate(participantsProvider(widget.tournamentId));
-    
+
     if (mounted) {
+      final loc = AppLocalizations.of(context)!;
       Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.participantsAddedCount(names.length))),
+      );
     }
   }
 }

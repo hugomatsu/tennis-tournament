@@ -795,6 +795,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addParticipants => 'Add Participants';
 
   @override
+  String get participantNamesHint =>
+      'One name per line, e.g.:\nHugo Matsumoto\nArthur Fukushima\nRoberto Carlos';
+
+  @override
+  String participantsAddedCount(int count) {
+    return '$count participant(s) added';
+  }
+
+  @override
   String get selectCategoriesColon => 'Select Categories:';
 
   @override

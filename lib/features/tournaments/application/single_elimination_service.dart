@@ -111,7 +111,7 @@ class SingleEliminationService implements SchedulingService {
     } 
     
     // Filter out rules-based slots that are already occupied
-    slots = slots.where((slot) => !_isSlotOccupied(slot, existingMatches, matchDuration)).toList();
+    slots = slots.where((slot) => !_isSlotOccupied(slot, existingMatches, matchDuration, totalCourts: numberOfCourts)).toList();
     
     // If no slots generated (or no rules), or we ran out due to conflicts, fallback
     if (slots.isEmpty || slots.length < bracketSize) { // basic check, we might need more
@@ -385,23 +385,31 @@ class SingleEliminationService implements SchedulingService {
     }
   }
 
-  // Helper to check overlap
-  bool _isSlotOccupied(_MatchSlot slot, List<TennisMatch> existingMatches, int durationMinutes) {
+  // Helper to check overlap.
+  // A slot is occupied if:
+  //   (a) the specific court has a match overlapping this time window, OR
+  //   (b) ALL courts are already used at this time window (capacity full across categories)
+  bool _isSlotOccupied(
+    _MatchSlot slot,
+    List<TennisMatch> existingMatches,
+    int durationMinutes, {
+    int totalCourts = 1,
+  }) {
     final slotStart = slot.time;
     final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
-    
+
+    int overlappingCount = 0;
     for (var match in existingMatches) {
-      if (match.court == slot.court) {
-        final matchStart = match.time;
-        final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
-        
-        // Check overlap: (StartA < EndB) and (EndA > StartB)
-        if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
-          return true;
-        }
+      final matchStart = match.time;
+      final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
+      if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
+        // Same court — direct conflict
+        if (match.court == slot.court) return true;
+        overlappingCount++;
       }
     }
-    return false;
+    // All courts are full at this time window
+    return overlappingCount >= totalCourts;
   }
 
   List<_MatchSlot> _generateValidFallbackSlots(
@@ -422,7 +430,7 @@ class SingleEliminationService implements SchedulingService {
     while (added < countNeeded && attempts < maxAttempts) {
        for (int c = 1; c <= numberOfCourts; c++) {
           final candidate = _MatchSlot(current, 'Court $c');
-          if (!_isSlotOccupied(candidate, existingMatches, durationMinutes)) {
+          if (!_isSlotOccupied(candidate, existingMatches, durationMinutes, totalCourts: numberOfCourts)) {
             slots.add(candidate);
             added++;
           }

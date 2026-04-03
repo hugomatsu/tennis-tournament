@@ -45,21 +45,23 @@ class BracketView extends ConsumerWidget {
           return Center(child: Text(AppLocalizations.of(context)!.noCategoriesCreateFirst));
         }
 
+        final sortedCategories = [...categories]..sort((a, b) => a.name.compareTo(b.name));
+
         return DefaultTabController(
-          length: categories.length,
+          length: sortedCategories.length,
           child: Column(
             children: [
               Container(
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: TabBar(
                   isScrollable: true,
-                  tabs: categories.map((c) => Tab(text: c.name)).toList(),
+                  tabs: sortedCategories.map((c) => Tab(text: c.name)).toList(),
                 ),
               ),
               Expanded(
                 child: TabBarView(
                   physics: const NeverScrollableScrollPhysics(),
-                  children: categories.map((c) {
+                  children: sortedCategories.map((c) {
                     // For Open Tennis and Americano modes, show group standings view
                     if (tournament.tournamentType == 'openTennis' || tournament.tournamentType == 'americano') {
                       return _OpenTennisTabContent(

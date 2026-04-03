@@ -1616,6 +1616,18 @@ abstract class AppLocalizations {
   /// **'Add Participants'**
   String get addParticipants;
 
+  /// No description provided for @participantNamesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One name per line, e.g.:\nHugo Matsumoto\nArthur Fukushima\nRoberto Carlos'**
+  String get participantNamesHint;
+
+  /// No description provided for @participantsAddedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} participant(s) added'**
+  String participantsAddedCount(int count);
+
   /// No description provided for @selectCategoriesColon.
   ///
   /// In en, this message translates to:

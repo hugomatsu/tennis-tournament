@@ -51,12 +51,14 @@ final groupStandingsStreamProvider = StreamProvider.family<Map<String, List<Grou
           grouped[s.groupId]!.add(s);
         }
 
-        // Sort each group by points (descending), then by wins
+        // Sort each group by points (descending), then wins, then name (alpha)
         for (final group in grouped.values) {
           group.sort((a, b) {
             final pointsCompare = b.points.compareTo(a.points);
             if (pointsCompare != 0) return pointsCompare;
-            return b.wins.compareTo(a.wins);
+            final winsCompare = b.wins.compareTo(a.wins);
+            if (winsCompare != 0) return winsCompare;
+            return a.participantName.compareTo(b.participantName);
           });
         }
 
@@ -324,9 +326,12 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
             final hasAmericanoMatches = americanoMatches.isNotEmpty;
             final hasDeciderMatches = deciderMatches.isNotEmpty;
 
+            // Sort group keys alphabetically (A, B, C …)
+            final sortedGroupKeys = groupedStandings.keys.toList()..sort();
+
             // 2 fixed items (info + progress) + groups + optional match sections
             final fixedCount = 2;
-            final groupCount = groupedStandings.length;
+            final groupCount = sortedGroupKeys.length;
             final extraCount = (hasCrossMatches ? 1 : 0) +
                 (hasAmericanoMatches ? 1 : 0) +
                 (hasDeciderMatches ? 1 : 0);
@@ -384,7 +389,7 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
                   );
                 }
 
-                final groupId = groupedStandings.keys.elementAt(listIndex);
+                final groupId = sortedGroupKeys[listIndex];
                 final standings = groupedStandings[groupId]!;
                 // For Americano, no intra-group matches — pass empty list
                 final groupMatches = isAmericanoMode
