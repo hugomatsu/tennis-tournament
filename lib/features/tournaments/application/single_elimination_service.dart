@@ -47,6 +47,7 @@ class SingleEliminationService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
 
@@ -73,6 +74,8 @@ class SingleEliminationService implements SchedulingService {
     } catch (_) {
       // If fails, process without conflict checks (fallback)
     }
+    // Merge in-memory matches from previously generated categories (sequential scheduling)
+    existingMatches = [...existingMatches, ...additionalOccupiedMatches];
 
     // Parse start date
     DateTime startDate = DateTime.now().add(const Duration(days: 1));

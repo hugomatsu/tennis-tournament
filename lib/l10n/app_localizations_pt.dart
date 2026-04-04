@@ -2189,4 +2189,38 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get mataMataExplanation =>
       'Torneio de chave eliminatória pura. Cada derrota elimina o atleta — não há segunda chance. O confronto é direto e a tensão é máxima em cada partida. Ideal para decidir um campeão rápido ou para as fases finais de um torneio maior.';
+
+  @override
+  String get categoryPriorityTitle => 'Prioridade de Categoria';
+
+  @override
+  String get categoryPrioritySubtitle =>
+      'Defina a ordem de agendamento das categorias. A primeira categoria recebe os melhores horários.';
+
+  @override
+  String get categoryPriorityAlphabetical => 'Alfabética (A → Z)';
+
+  @override
+  String get categoryPriorityAlphabeticalDesc =>
+      'Categorias agendadas em ordem A → Z';
+
+  @override
+  String get categoryPriorityInverted => 'Invertida (Z → A)';
+
+  @override
+  String get categoryPriorityInvertedDesc =>
+      'Categorias agendadas em ordem Z → A';
+
+  @override
+  String get categoryPriorityMixed => 'Mista (Intercalada)';
+
+  @override
+  String get categoryPriorityMixedDesc =>
+      'Jogos intercalados entre categorias de forma rotativa';
+
+  @override
+  String get processingBracket => 'Gerando chave…';
+
+  @override
+  String get processingBracketSubtitle => 'Aguarde um momento';
 }

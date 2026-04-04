@@ -37,8 +37,9 @@ class AmericanoService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
-    return generateCrossGroupRounds(tournament, category, participants, shuffle: shuffle);
+    return generateCrossGroupRounds(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
   }
 
   /// Phase 1: Generate guaranteed cross-group matches for all players.
@@ -48,6 +49,7 @@ class AmericanoService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
 
@@ -67,6 +69,7 @@ class AmericanoService implements SchedulingService {
       existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
       existingMatches = existingMatches.where((m) => m.categoryId != category.id).toList();
     } catch (_) {}
+    existingMatches = [...existingMatches, ...additionalOccupiedMatches];
 
     final players = List<Participant>.from(participants);
     if (shuffle) players.shuffle();

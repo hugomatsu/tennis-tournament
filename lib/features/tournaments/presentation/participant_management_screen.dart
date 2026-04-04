@@ -464,6 +464,7 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
   String? _selectedCategoryId;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -508,8 +509,10 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
           final categories = snapshot.data!;
           if (categories.isEmpty) return Text(loc.noCategoriesFound);
 
-          if (_selectedCategoryId == null && categories.isNotEmpty) {
-            _selectedCategoryId = categories.first.id;
+          final sortedCategories = [...categories]..sort((a, b) => a.name.compareTo(b.name));
+
+          if (_selectedCategoryId == null && sortedCategories.isNotEmpty) {
+            _selectedCategoryId = sortedCategories.first.id;
           }
 
           return SizedBox(
@@ -535,11 +538,11 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
                 DropdownButtonFormField<String>(
                   value: _selectedCategoryId,
                   decoration: InputDecoration(labelText: loc.category),
-                  items: categories.map((c) => DropdownMenuItem(
+                  items: sortedCategories.map((c) => DropdownMenuItem(
                     value: c.id,
                     child: Text(c.name),
                   )).toList(),
-                  onChanged: (value) => setState(() => _selectedCategoryId = value),
+                  onChanged: _isLoading ? null : (value) => setState(() => _selectedCategoryId = value),
                 ),
               ],
             ),
@@ -548,12 +551,18 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
           child: Text(loc.cancel),
         ),
         ElevatedButton(
-          onPressed: _submit,
-          child: Text(loc.add),
+          onPressed: _isLoading ? null : _submit,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(loc.add),
         ),
       ],
     );
@@ -565,30 +574,35 @@ class _AddParticipantDialogState extends ConsumerState<_AddParticipantDialog> {
     final names = _parseNames(_nameController.text);
     if (names.isEmpty) return;
 
-    final repo = ref.read(tournamentRepositoryProvider);
-    for (final name in names) {
-      await repo.addParticipant(
-        widget.tournamentId,
-        Participant(
-          id: _uuid.v4(),
-          name: name,
-          userIds: [],
-          categoryId: _selectedCategoryId!,
-          status: 'approved',
-          joinedAt: DateTime.now(),
-          avatarUrls: [],
-        ),
-      );
-    }
+    setState(() => _isLoading = true);
+    try {
+      final repo = ref.read(tournamentRepositoryProvider);
+      for (final name in names) {
+        await repo.addParticipant(
+          widget.tournamentId,
+          Participant(
+            id: _uuid.v4(),
+            name: name,
+            userIds: [],
+            categoryId: _selectedCategoryId!,
+            status: 'approved',
+            joinedAt: DateTime.now(),
+            avatarUrls: [],
+          ),
+        );
+      }
 
-    ref.invalidate(participantsProvider(widget.tournamentId));
+      ref.invalidate(participantsProvider(widget.tournamentId));
 
-    if (mounted) {
-      final loc = AppLocalizations.of(context)!;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.participantsAddedCount(names.length))),
-      );
+      if (mounted) {
+        final loc = AppLocalizations.of(context)!;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.participantsAddedCount(names.length))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 }

@@ -709,5 +709,16 @@
   "selectPeriod": "Selecionar Período",
   "reviewIdentity": "Identidade & Modo",
   "reviewLogistics": "Onde & Quando",
-  "mataMataExplanation": "Torneio de chave eliminatória pura. Cada derrota elimina o atleta — não há segunda chance. O confronto é direto e a tensão é máxima em cada partida. Ideal para decidir um campeão rápido ou para as fases finais de um torneio maior."
+  "mataMataExplanation": "Torneio de chave eliminatória pura. Cada derrota elimina o atleta — não há segunda chance. O confronto é direto e a tensão é máxima em cada partida. Ideal para decidir um campeão rápido ou para as fases finais de um torneio maior.",
+
+  "categoryPriorityTitle": "Prioridade de Categoria",
+  "categoryPrioritySubtitle": "Defina a ordem de agendamento das categorias. A primeira categoria recebe os melhores horários.",
+  "categoryPriorityAlphabetical": "Alfabética (A → Z)",
+  "categoryPriorityAlphabeticalDesc": "Categorias agendadas em ordem A → Z",
+  "categoryPriorityInverted": "Invertida (Z → A)",
+  "categoryPriorityInvertedDesc": "Categorias agendadas em ordem Z → A",
+  "categoryPriorityMixed": "Mista (Intercalada)",
+  "categoryPriorityMixedDesc": "Jogos intercalados entre categorias de forma rotativa",
+  "processingBracket": "Gerando chave…",
+  "processingBracketSubtitle": "Aguarde um momento"
 }

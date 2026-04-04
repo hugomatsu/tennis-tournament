@@ -2179,4 +2179,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mataMataExplanation =>
       'Pure single-elimination bracket. Every loss knocks the player out — no second chances. Matches are high-stakes and direct. Perfect for crowning a champion quickly or running the final stages of a larger event.';
+
+  @override
+  String get categoryPriorityTitle => 'Category Priority';
+
+  @override
+  String get categoryPrioritySubtitle =>
+      'Set the order in which categories are scheduled. The first category takes the best time slots.';
+
+  @override
+  String get categoryPriorityAlphabetical => 'Alphabetical (A → Z)';
+
+  @override
+  String get categoryPriorityAlphabeticalDesc =>
+      'Categories scheduled in A → Z name order';
+
+  @override
+  String get categoryPriorityInverted => 'Inverted (Z → A)';
+
+  @override
+  String get categoryPriorityInvertedDesc =>
+      'Categories scheduled in Z → A name order';
+
+  @override
+  String get categoryPriorityMixed => 'Mixed (Interleaved)';
+
+  @override
+  String get categoryPriorityMixedDesc =>
+      'Matches are interleaved round-robin across categories';
+
+  @override
+  String get processingBracket => 'Generating bracket…';
+
+  @override
+  String get processingBracketSubtitle => 'Please wait';
 }

@@ -35,12 +35,13 @@ class OpenTennisService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     final matchFormat = tournament.matchRules['matchFormat'] as String? ?? 'roundRobin';
     if (matchFormat == 'crossGroup') {
-      return generateCrossGroupMatches(tournament, category, participants, shuffle: shuffle);
+      return generateCrossGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
     }
-    return generateGroupMatches(tournament, category, participants, shuffle: shuffle);
+    return generateGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
   }
 
   /// Generate round-robin group stage matches
@@ -49,6 +50,7 @@ class OpenTennisService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
 
@@ -67,6 +69,7 @@ class OpenTennisService implements SchedulingService {
       existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
       existingMatches = existingMatches.where((m) => m.categoryId != category.id).toList();
     } catch (_) {}
+    existingMatches = [...existingMatches, ...additionalOccupiedMatches];
 
     // Shuffle if requested
     final players = List<Participant>.from(participants);
@@ -171,6 +174,7 @@ class OpenTennisService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
 
@@ -187,6 +191,7 @@ class OpenTennisService implements SchedulingService {
       existingMatches = await _ref.read(matchRepositoryProvider).getMatchesForTournament(tournament.id);
       existingMatches = existingMatches.where((m) => m.categoryId != category.id).toList();
     } catch (_) {}
+    existingMatches = [...existingMatches, ...additionalOccupiedMatches];
 
     final players = List<Participant>.from(participants);
     if (shuffle) players.shuffle();

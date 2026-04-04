@@ -130,79 +130,167 @@ class TournamentDetailScreen extends ConsumerWidget {
                                     context.go('/tournaments/${tournament.id}/schedule-settings');
                                     break;
                                   case 'generate_bracket':
-                                     // Inline generation logic
-                                      final scaffoldMessenger = ScaffoldMessenger.of(context);
-                                      final participants = await ref.read(tournamentRepositoryProvider).getParticipants(tournament.id);
-                                      final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournament.id);
+                                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+                                    final participants = await ref.read(tournamentRepositoryProvider).getParticipants(tournament.id);
+                                    final categories = await ref.read(tournamentRepositoryProvider).getCategories(tournament.id);
 
-                                      if (categories.isEmpty) {
-                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.noCategoriesFound)));
-                                        return;
-                                      }
-                                      final approvedParticipants = participants.where((p) => p.status == 'approved').toList();
+                                    if (categories.isEmpty) {
+                                      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.noCategoriesFound)));
+                                      return;
+                                    }
+                                    final approvedParticipants = participants.where((p) => p.status == 'approved').toList();
 
-                                      if (!context.mounted) return;
-                                      final method = await showDialog<String>(
-                                        context: context,
-                                        builder: (context) => SimpleDialog(
-                                          title: Text(loc.generationMethod),
+                                    if (!context.mounted) return;
+
+                                    // Step 1: Choose generation method (automatic / manual)
+                                    final method = await showDialog<String>(
+                                      context: context,
+                                      builder: (context) => SimpleDialog(
+                                        title: Text(loc.generationMethod),
+                                        children: [
+                                          SimpleDialogOption(onPressed: () => Navigator.pop(context, 'automatic'), child: ListTile(leading: const Icon(Icons.auto_fix_high), title: Text(loc.automatic))),
+                                          SimpleDialogOption(onPressed: () => Navigator.pop(context, 'manual'), child: ListTile(leading: const Icon(Icons.drag_handle), title: Text(loc.manual))),
+                                        ],
+                                      ),
+                                    );
+                                    if (method == null || !context.mounted) return;
+
+                                    // Step 2: Choose category priority order
+                                    final priority = await showDialog<String>(
+                                      context: context,
+                                      builder: (ctx) => SimpleDialog(
+                                        title: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'automatic'), child: ListTile(leading: const Icon(Icons.auto_fix_high), title: Text(loc.automatic))),
-                                            SimpleDialogOption(onPressed: () => Navigator.pop(context, 'manual'), child: ListTile(leading: const Icon(Icons.drag_handle), title: Text(loc.manual))),
+                                            Text(loc.categoryPriorityTitle),
+                                            const SizedBox(height: 4),
+                                            Text(loc.categoryPrioritySubtitle, style: Theme.of(ctx).textTheme.bodySmall),
                                           ],
                                         ),
-                                      );
-                                      if (method == null) return;
-                                      
-                                      // Logic from previous implementation
-                                      final allMatches = <TennisMatch>[];
-                                      int generatedCount = 0;
-                                      try {
-                                        for (final category in categories) {
-                                          var categoryParticipants = approvedParticipants.where((p) => p.categoryId == category.id).toList();
-                                          if (categoryParticipants.length < 2) continue;
+                                        children: [
+                                          SimpleDialogOption(
+                                            onPressed: () => Navigator.pop(ctx, 'alphabetical'),
+                                            child: ListTile(
+                                              leading: const Icon(Icons.sort_by_alpha),
+                                              title: Text(loc.categoryPriorityAlphabetical),
+                                              subtitle: Text(loc.categoryPriorityAlphabeticalDesc),
+                                            ),
+                                          ),
+                                          SimpleDialogOption(
+                                            onPressed: () => Navigator.pop(ctx, 'inverted'),
+                                            child: ListTile(
+                                              leading: const Icon(Icons.sort),
+                                              title: Text(loc.categoryPriorityInverted),
+                                              subtitle: Text(loc.categoryPriorityInvertedDesc),
+                                            ),
+                                          ),
+                                          SimpleDialogOption(
+                                            onPressed: () => Navigator.pop(ctx, 'mixed'),
+                                            child: ListTile(
+                                              leading: const Icon(Icons.shuffle),
+                                              title: Text(loc.categoryPriorityMixed),
+                                              subtitle: Text(loc.categoryPriorityMixedDesc),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (priority == null || !context.mounted) return;
 
-                                          if (method == 'manual') {
-                                             if (!context.mounted) return;
-                                             // Note: _ManualBracketOrderingDialog needs to be accessible. 
-                                             // It wasn't shown in the file view but assumed to be in the file or imported.
-                                             // Wait, previous file view did NOT show _ManualBracketOrderingDialog class definition?
-                                             // Ah, lines 800+ were not shown. I assume it's there.
-                                             // If not, I'll need to check. But since I'm just moving code, it should be fine.
-                                             // However, `_ManualBracketOrderingDialog` was used in line 227.
-                                             // I need to make sure I don't break it.
-                                            final reordered = await showDialog<List<Participant>>(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (context) => _ManualBracketOrderingDialog( 
-                                                categoryName: category.name,
-                                                participants: categoryParticipants,
-                                              ),
-                                            );
-                                            if (reordered == null) return;
-                                            categoryParticipants = reordered;
-                                          }
-
-                                          final matches = await ref.read(schedulingServiceForTournamentProvider(tournament.tournamentType)).generateBracket(
-                                            tournament, 
-                                            category,
-                                            categoryParticipants,
-                                            shuffle: method == 'automatic',
-                                          );
-                                          allMatches.addAll(matches);
-                                          generatedCount += matches.length;
-                                        }
-
-                                        if (allMatches.isEmpty) {
-                                          scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.notEnoughParticipants)));
-                                          return;
-                                        }
-                                        await ref.read(matchRepositoryProvider).createMatches(allMatches);
-                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatedMatches(generatedCount))));
-                                        ref.read(analyticsServiceProvider).logGenerateBracket(generationMethod: method);
-                                      } catch (e) {
-                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
+                                    // Sort categories by chosen priority
+                                    final sortedCategories = [...categories];
+                                    if (priority == 'alphabetical') {
+                                      sortedCategories.sort((a, b) => a.name.compareTo(b.name));
+                                    } else if (priority == 'inverted') {
+                                      sortedCategories.sort((a, b) => b.name.compareTo(a.name));
+                                    } else {
+                                      // mixed: interleave by index (A, Z, B, Y, …)
+                                      final az = ([...categories]..sort((a, b) => a.name.compareTo(b.name)));
+                                      final interleaved = <TournamentCategory>[];
+                                      int lo = 0, hi = az.length - 1;
+                                      bool fromLo = true;
+                                      while (lo <= hi) {
+                                        interleaved.add(fromLo ? az[lo++] : az[hi--]);
+                                        fromLo = !fromLo;
                                       }
+                                      sortedCategories
+                                        ..clear()
+                                        ..addAll(interleaved);
+                                    }
+
+                                    // Step 3: Show blocking processing overlay while generating
+                                    final overlayEntry = OverlayEntry(
+                                      builder: (_) => Material(
+                                        color: Colors.black54,
+                                        child: Center(
+                                          child: Card(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const CircularProgressIndicator(),
+                                                  const SizedBox(height: 20),
+                                                  Text(loc.processingBracket, style: Theme.of(context).textTheme.titleMedium),
+                                                  const SizedBox(height: 4),
+                                                  Text(loc.processingBracketSubtitle, style: Theme.of(context).textTheme.bodySmall),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    Overlay.of(context).insert(overlayEntry);
+
+                                    // Step 4: Generate sequentially, passing accumulated matches to prevent conflicts
+                                    final allMatches = <TennisMatch>[];
+                                    int generatedCount = 0;
+                                    try {
+                                      for (final category in sortedCategories) {
+                                        var categoryParticipants = approvedParticipants.where((p) => p.categoryId == category.id).toList();
+                                        if (categoryParticipants.length < 2) continue;
+
+                                        if (method == 'manual') {
+                                          overlayEntry.remove();
+                                          if (!context.mounted) return;
+                                          final reordered = await showDialog<List<Participant>>(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (context) => _ManualBracketOrderingDialog(
+                                              categoryName: category.name,
+                                              participants: categoryParticipants,
+                                            ),
+                                          );
+                                          if (reordered == null) return;
+                                          categoryParticipants = reordered;
+                                          if (context.mounted) Overlay.of(context).insert(overlayEntry);
+                                        }
+
+                                        final matches = await ref.read(schedulingServiceForTournamentProvider(tournament.tournamentType)).generateBracket(
+                                          tournament,
+                                          category,
+                                          categoryParticipants,
+                                          shuffle: method == 'automatic',
+                                          additionalOccupiedMatches: allMatches,
+                                        );
+                                        allMatches.addAll(matches);
+                                        generatedCount += matches.length;
+                                      }
+
+                                      if (allMatches.isEmpty) {
+                                        scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.notEnoughParticipants)));
+                                        return;
+                                      }
+                                      await ref.read(matchRepositoryProvider).createMatches(allMatches);
+                                      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.generatedMatches(generatedCount))));
+                                      ref.read(analyticsServiceProvider).logGenerateBracket(generationMethod: method);
+                                    } catch (e) {
+                                      scaffoldMessenger.showSnackBar(SnackBar(content: Text(loc.errorOccurred(e.toString()))));
+                                    } finally {
+                                      overlayEntry.remove();
+                                    }
                                     break;
                                   case 'delete_bracket':
                                      final confirm = await showDialog<bool>(
@@ -575,10 +663,11 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
         width: double.maxFinite,
         child: categoriesAsync.when(
           data: (categories) {
+            final sortedCategories = [...categories]..sort((a, b) => a.name.compareTo(b.name));
             return ListView(
               shrinkWrap: true,
               children: [
-                ...categories.map((category) => ListTile(
+                ...sortedCategories.map((category) => ListTile(
                   title: Text(category.name),
                   subtitle: Text('${category.type} - ${category.description}'),
                   trailing: IconButton(

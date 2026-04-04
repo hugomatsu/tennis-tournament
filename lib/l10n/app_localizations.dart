@@ -4057,6 +4057,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pure single-elimination bracket. Every loss knocks the player out — no second chances. Matches are high-stakes and direct. Perfect for crowning a champion quickly or running the final stages of a larger event.'**
   String get mataMataExplanation;
+
+  /// No description provided for @categoryPriorityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Priority'**
+  String get categoryPriorityTitle;
+
+  /// No description provided for @categoryPrioritySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the order in which categories are scheduled. The first category takes the best time slots.'**
+  String get categoryPrioritySubtitle;
+
+  /// No description provided for @categoryPriorityAlphabetical.
+  ///
+  /// In en, this message translates to:
+  /// **'Alphabetical (A → Z)'**
+  String get categoryPriorityAlphabetical;
+
+  /// No description provided for @categoryPriorityAlphabeticalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories scheduled in A → Z name order'**
+  String get categoryPriorityAlphabeticalDesc;
+
+  /// No description provided for @categoryPriorityInverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Inverted (Z → A)'**
+  String get categoryPriorityInverted;
+
+  /// No description provided for @categoryPriorityInvertedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories scheduled in Z → A name order'**
+  String get categoryPriorityInvertedDesc;
+
+  /// No description provided for @categoryPriorityMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed (Interleaved)'**
+  String get categoryPriorityMixed;
+
+  /// No description provided for @categoryPriorityMixedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches are interleaved round-robin across categories'**
+  String get categoryPriorityMixedDesc;
+
+  /// No description provided for @processingBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating bracket…'**
+  String get processingBracket;
+
+  /// No description provided for @processingBracketSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait'**
+  String get processingBracketSubtitle;
 }
 
 class _AppLocalizationsDelegate

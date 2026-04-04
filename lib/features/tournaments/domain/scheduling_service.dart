@@ -9,5 +9,6 @@ abstract class SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    List<TennisMatch> additionalOccupiedMatches = const [],
   });
 }
