@@ -10,6 +10,9 @@ import 'package:tennis_tournament/l10n/app_localizations.dart';
 class MatchListCalendar extends ConsumerWidget {
   final List<TennisMatch> matches;
   final Widget? emptyState;
+  /// Optional fallback map of categoryId → categoryName for matches that
+  /// predate the categoryName field being added to the model.
+  final Map<String, String> categoryNames;
 
   const MatchListCalendar({
     super.key,
@@ -19,6 +22,7 @@ class MatchListCalendar extends ConsumerWidget {
     this.selectedIds = const {},
     this.onToggleSelection,
     this.onLongPressMatch,
+    this.categoryNames = const {},
   });
 
   final bool selectionMode;
@@ -35,9 +39,9 @@ class MatchListCalendar extends ConsumerWidget {
     }
 
     // Group matches by date
-    final groupedMatches = <DateTime, List<TennisMatch>>{};
+    final groupedMatches = <DateTime?, List<TennisMatch>>{};
     for (final match in matches) {
-      final date = DateTime(match.time.year, match.time.month, match.time.day);
+      final date = match.time != null ? DateTime(match.time!.year, match.time!.month, match.time!.day) : null;
       if (!groupedMatches.containsKey(date)) {
         groupedMatches[date] = [];
       }
@@ -45,13 +49,23 @@ class MatchListCalendar extends ConsumerWidget {
     }
 
     // Sort dates
-    final sortedDates = groupedMatches.keys.toList()..sort();
+    final sortedDates = groupedMatches.keys.toList()..sort((a, b) {
+      if (a == null && b == null) return 0;
+      if (a == null) return -1;
+      if (b == null) return 1;
+      return a.compareTo(b);
+    });
 
     return ListView.builder(
       itemCount: sortedDates.length,
       itemBuilder: (context, index) {
         final date = sortedDates[index];
-        final dayMatches = groupedMatches[date]!..sort((a, b) => a.time.compareTo(b.time));
+        final dayMatches = groupedMatches[date]!..sort((a, b) {
+          if (a.time == null && b.time == null) return 0;
+          if (a.time == null) return -1;
+          if (b.time == null) return 1;
+          return a.time!.compareTo(b.time!);
+        });
 
         return StickyHeader(
           header: Container(
@@ -60,7 +74,9 @@ class MatchListCalendar extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             alignment: Alignment.centerLeft,
             child: Text(
-              DateFormat('EEEE, d \'de\' MMMM \'de\' y', Localizations.localeOf(context).toString()).format(date),
+              date != null
+                  ? DateFormat('EEEE, d \'de\' MMMM \'de\' y', Localizations.localeOf(context).toString()).format(date)
+                  : loc.timeTBD,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -73,6 +89,7 @@ class MatchListCalendar extends ConsumerWidget {
               isSelected: selectedIds.contains(match.id),
               onToggle: onToggleSelection != null ? () => onToggleSelection!(match.id) : null,
               onLongPress: onLongPressMatch != null ? () => onLongPressMatch!(match.id) : null,
+              categoryNames: categoryNames,
             )).toList(),
           ),
         );
@@ -81,12 +98,21 @@ class MatchListCalendar extends ConsumerWidget {
   }
 }
 
+String _cardLabel(TennisMatch match, Map<String, String> categoryNames) {
+  final categoryName = match.categoryName?.isNotEmpty == true
+      ? match.categoryName!
+      : categoryNames[match.categoryId] ?? '';
+  if (categoryName.isEmpty) return match.tournamentName;
+  return '${match.tournamentName} — $categoryName';
+}
+
 class MatchCard extends ConsumerWidget {
   final TennisMatch match;
   final bool selectionMode;
   final bool isSelected;
   final VoidCallback? onToggle;
   final VoidCallback? onLongPress;
+  final Map<String, String> categoryNames;
 
   const MatchCard({
     super.key,
@@ -95,6 +121,7 @@ class MatchCard extends ConsumerWidget {
     this.isSelected = false,
     this.onToggle,
     this.onLongPress,
+    this.categoryNames = const {},
   });
 
   @override
@@ -119,12 +146,12 @@ class MatchCard extends ConsumerWidget {
         },
         onLongPress: onLongPress,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
               if (selectionMode)
                 Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
+                  padding: const EdgeInsets.only(right: 8.0),
                   child: Checkbox(
                     value: isSelected,
                     onChanged: (_) => onToggle?.call(),
@@ -132,45 +159,33 @@ class MatchCard extends ConsumerWidget {
                 ),
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Top row: tournament name + category on left, status on right
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                             Text(
-                               match.tournamentName,
-                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                 color: Colors.grey[600],
-                                 fontWeight: FontWeight.bold,
-                               ),
-                             ),
-                             const SizedBox(height: 4),
-                             if (match.status == 'Finished' || match.status == 'Completed' && match.score != null)
-                               Text(
-                                 match.score!,
-                                 style: TextStyle(
-                                   fontSize: 18,
-                                   fontWeight: FontWeight.bold,
-                                   color: Theme.of(context).colorScheme.tertiary,
-                                 ),
-                               )
-                             else
-                               Text(
-                                DateFormat('HH:mm').format(match.time),
-                                style: TextStyle(
-                                  fontSize: 18,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _cardLabel(match, categoryNames),
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.grey[600],
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         StatusChip(status: match.status),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
+                    // Players row with score/time in center
                     Row(
                       children: [
                         Expanded(
@@ -182,14 +197,8 @@ class MatchCard extends ConsumerWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            'VS',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[400],
-                            ),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: _MatchCenterLabel(match: match),
                         ),
                         Expanded(
                           child: PlayerInfo(
@@ -202,20 +211,6 @@ class MatchCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            match.court.isNotEmpty ? match.court : AppLocalizations.of(context)!.locationTBD,
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -223,6 +218,38 @@ class MatchCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MatchCenterLabel extends StatelessWidget {
+  final TennisMatch match;
+  const _MatchCenterLabel({required this.match});
+
+  @override
+  Widget build(BuildContext context) {
+    final isFinished = match.status == 'Finished' || match.status == 'Completed';
+    if (isFinished && match.score != null && match.score!.isNotEmpty) {
+      return Text(
+        match.score!,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+        textAlign: TextAlign.center,
+      );
+    }
+    return Text(
+      match.time != null
+          ? DateFormat('HH:mm').format(match.time!)
+          : AppLocalizations.of(context)!.timeTBD,
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      textAlign: TextAlign.center,
     );
   }
 }

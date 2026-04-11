@@ -10,8 +10,7 @@ class FirestoreTournamentRepository implements TournamentRepository {
   @override
   Future<List<Tournament>> getLiveTournaments({String? category}) async {
     try {
-      Query query = _firestore.collection('tournaments')
-          .where('isPrivate', isNotEqualTo: true);
+      Query query = _firestore.collection('tournaments');
 
       if (category != null && category != 'All') {
         query = query.where('category', isEqualTo: category);
@@ -141,12 +140,37 @@ class FirestoreTournamentRepository implements TournamentRepository {
 
   @override
   Future<void> deleteTournament(String tournamentId) async {
-    final ref = _firestore.collection('tournaments').doc(tournamentId);
-    
-    // Naively delete subcollections? Firestore doesn't support recursive delete from client easily.
-    // For now we just delete the document, or we'd rely on a Cloud Function.
-    // Let's at least delete what we can or just the main doc.
-    await ref.delete();
+    final tournamentRef = _firestore.collection('tournaments').doc(tournamentId);
+
+    // Helper: batch-delete all docs in a snapshot (Firestore batches cap at 500 ops)
+    Future<void> batchDelete(List<QueryDocumentSnapshot> docs) async {
+      if (docs.isEmpty) return;
+      const batchSize = 400;
+      for (int i = 0; i < docs.length; i += batchSize) {
+        final batch = _firestore.batch();
+        final chunk = docs.sublist(i, (i + batchSize).clamp(0, docs.length));
+        for (final doc in chunk) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
+      }
+    }
+
+    // 1. Delete top-level matches collection (tournamentId field)
+    final matchesSnap = await _firestore
+        .collection('matches')
+        .where('tournamentId', isEqualTo: tournamentId)
+        .get();
+    await batchDelete(matchesSnap.docs);
+
+    // 2. Delete subcollections: participants, categories, standings
+    for (final sub in ['participants', 'categories', 'standings']) {
+      final snap = await tournamentRef.collection(sub).get();
+      await batchDelete(snap.docs);
+    }
+
+    // 3. Delete the tournament document itself
+    await tournamentRef.delete();
   }
 
   @override

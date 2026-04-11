@@ -30,6 +30,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get locationTBD => 'Local a definir';
 
   @override
+  String get timeTBD => 'Horário a definir';
+
+  @override
   String get youSuffix => ' (Você)';
 
   @override
@@ -1606,7 +1609,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scoringFormat => 'Pontuação';
 
   @override
-  String get setsToWin => 'Sets para vencer';
+  String get setsToWin => 'Sets';
 
   @override
   String get gamesPerSet => 'Games por set';
@@ -1828,6 +1831,25 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get markAsWalkover => 'Marcar como W.O.';
+
+  @override
+  String tiebreakSectionTitle(int s1, int s2) {
+    return 'Tiebreak (empate $s1×$s2)';
+  }
+
+  @override
+  String get initialServerQuestion => 'Quem inicia o saque?';
+
+  @override
+  String servingNow(String name) {
+    return 'Sacando: $name';
+  }
+
+  @override
+  String get set => 'Set';
+
+  @override
+  String get variablePointsShort => 'Var.';
 
   @override
   String variableScoringTable(int p1, int p2, int p3, int p4) {
@@ -2216,11 +2238,37 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryPriorityMixedDesc =>
-      'Jogos intercalados entre categorias de forma rotativa';
+      'Distribui os jogadores de forma homogênea entre as categorias.';
+
+  @override
+  String get autoScheduleDates => 'Atribuir Data e Hora automaticamente';
 
   @override
   String get processingBracket => 'Gerando chave…';
 
   @override
   String get processingBracketSubtitle => 'Aguarde um momento';
+
+  @override
+  String get filterAll => 'Todos';
+
+  @override
+  String get filterUpcoming => 'Próximos';
+
+  @override
+  String get filterCompleted => 'Concluídos';
+
+  @override
+  String get filterByCategory => 'Categoria';
+
+  @override
+  String get exportCsv => 'Exportar CSV';
+
+  @override
+  String get exportCsvSuccess => 'CSV exportado com sucesso';
+
+  @override
+  String exportCsvError(String error) {
+    return 'Erro ao exportar CSV: $error';
+  }
 }

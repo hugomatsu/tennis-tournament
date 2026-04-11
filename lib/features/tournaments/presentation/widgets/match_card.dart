@@ -125,7 +125,9 @@ class MatchCard extends ConsumerWidget {
             Positioned(
               right: 8,
               child: Tooltip(
-                message: '${match.time.month}/${match.time.day} ${match.time.hour}:${match.time.minute.toString().padLeft(2, '0')}',
+                message: match.time != null 
+                    ? '${match.time!.month}/${match.time!.day} ${match.time!.hour}:${match.time!.minute.toString().padLeft(2, '0')}' 
+                    : 'Time TBD',
                 child: Icon(
                   Icons.access_time,
                   size: 16,

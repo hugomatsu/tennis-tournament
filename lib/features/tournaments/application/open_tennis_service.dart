@@ -30,18 +30,47 @@ class OpenTennisService implements SchedulingService {
   OpenTennisService(this._ref);
 
   @override
+  Future<List<TennisMatch>> assignSlotsToMatches(
+    Tournament tournament,
+    List<TennisMatch> matchesToSchedule,
+    DateTime startDate, {
+    List<TennisMatch> additionalOccupiedMatches = const [],
+  }) async {
+    final rules = tournament.matchRules;
+    final duration = rules['matchDurationMinutes'] as int? ?? 90;
+    final numberOfCourts = rules['numberOfCourts'] as int? ?? 1;
+
+    final slots = _generateSlots(
+      startDate,
+      numberOfCourts,
+      duration,
+      matchesToSchedule.length,
+      additionalOccupiedMatches,
+    );
+
+    for (int i = 0; i < matchesToSchedule.length; i++) {
+        matchesToSchedule[i] = matchesToSchedule[i].copyWith(
+          time: i < slots.length ? slots[i].time : null,
+          court: i < slots.length ? slots[i].court : '',
+        );
+    }
+    return matchesToSchedule;
+  }
+
+  @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
     TournamentCategory category,
     List<Participant> participants, {
-    bool shuffle = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
+    bool scheduleDatesAndTimes = true,
+    bool shuffle = false,
   }) async {
     final matchFormat = tournament.matchRules['matchFormat'] as String? ?? 'roundRobin';
     if (matchFormat == 'crossGroup') {
-      return generateCrossGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
+      return generateCrossGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches, scheduleDatesAndTimes: scheduleDatesAndTimes);
     }
-    return generateGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
+    return generateGroupMatches(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches, scheduleDatesAndTimes: scheduleDatesAndTimes);
   }
 
   /// Generate round-robin group stage matches
@@ -50,6 +79,7 @@ class OpenTennisService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    bool scheduleDatesAndTimes = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
@@ -139,6 +169,7 @@ class OpenTennisService implements SchedulingService {
             id: _uuid.v4(),
             tournamentId: tournament.id,
             categoryId: category.id,
+            categoryName: category.name,
             tournamentName: tournament.name,
             player1Id: p1.id,
             player1Name: p1.name,
@@ -149,9 +180,9 @@ class OpenTennisService implements SchedulingService {
             player2UserIds: p2.userIds,
             player2AvatarUrls: p2.avatarUrls,
             opponentName: p2.name,
-            time: matchTime,
-            court: courtName,
-            round: 'Group $groupId', // Group stage identifier
+            time: scheduleDatesAndTimes ? matchTime : null,
+            court: scheduleDatesAndTimes ? courtName : null,
+            round: 'Group $groupId',
             status: 'Preparing',
             matchIndex: matches.length,
             durationMinutes: matchDuration,
@@ -174,6 +205,7 @@ class OpenTennisService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    bool scheduleDatesAndTimes = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
@@ -301,6 +333,7 @@ class OpenTennisService implements SchedulingService {
         id: _uuid.v4(),
         tournamentId: tournament.id,
         categoryId: category.id,
+        categoryName: category.name,
         tournamentName: tournament.name,
         player1Id: p1.id,
         player1Name: p1.name,
@@ -311,8 +344,8 @@ class OpenTennisService implements SchedulingService {
         player2UserIds: p2.userIds,
         player2AvatarUrls: p2.avatarUrls,
         opponentName: p2.name,
-        time: matchTime,
-        court: courtName,
+        time: scheduleDatesAndTimes ? matchTime : null,
+        court: scheduleDatesAndTimes ? courtName : null,
         round: p1Group,
         status: 'Preparing',
         matchIndex: matches.length,
@@ -627,6 +660,36 @@ class OpenTennisService implements SchedulingService {
     return slots;
   }
 
+  List<_MatchSlot> _generateSlots(
+    DateTime startDate,
+    int numberOfCourts,
+    int durationMinutes,
+    int countNeeded,
+    List<TennisMatch> existingMatches,
+  ) {
+    final slots = <_MatchSlot>[];
+    DateTime current = startDate;
+    int added = 0;
+    int attempts = 0;
+    const maxAttempts = 5000;
+
+    while (added < countNeeded && attempts < maxAttempts) {
+      for (int c = 1; c <= numberOfCourts; c++) {
+        final candidate = _MatchSlot(current, 'Court $c');
+        if (!_isSlotOccupied(candidate, existingMatches, durationMinutes, totalCourts: numberOfCourts)) {
+          slots.add(candidate);
+          added++;
+        }
+      }
+      current = current.add(Duration(minutes: durationMinutes));
+      attempts++;
+      if (current.hour >= 20) {
+        current = DateTime(current.year, current.month, current.day + 1, 9, 0);
+      }
+    }
+    return slots;
+  }
+
   bool _isSlotOccupied(
     _MatchSlot slot,
     List<TennisMatch> existingMatches,
@@ -636,8 +699,9 @@ class OpenTennisService implements SchedulingService {
     final slotStart = slot.time;
     final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
     int overlappingCount = 0;
-    for (var match in existingMatches) {
-      final matchStart = match.time;
+    for (final match in existingMatches) {
+      if (match.time == null) continue;
+      final matchStart = match.time!;
       final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
       if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
         if (match.court == slot.court) return true;

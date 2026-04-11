@@ -30,6 +30,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationTBD => 'Location TBD';
 
   @override
+  String get timeTBD => 'Time TBD';
+
+  @override
   String get youSuffix => ' (You)';
 
   @override
@@ -1600,7 +1603,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scoringFormat => 'Scoring';
 
   @override
-  String get setsToWin => 'Sets to win';
+  String get setsToWin => 'Sets';
 
   @override
   String get gamesPerSet => 'Games per set';
@@ -1821,6 +1824,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get markAsWalkover => 'Mark as W.O.';
+
+  @override
+  String tiebreakSectionTitle(int s1, int s2) {
+    return 'Tiebreak (tie $s1×$s2)';
+  }
+
+  @override
+  String get initialServerQuestion => 'Who serves first?';
+
+  @override
+  String servingNow(String name) {
+    return 'Serving: $name';
+  }
+
+  @override
+  String get set => 'Set';
+
+  @override
+  String get variablePointsShort => 'Var.';
 
   @override
   String variableScoringTable(int p1, int p2, int p3, int p4) {
@@ -2209,8 +2231,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Matches are interleaved round-robin across categories';
 
   @override
+  String get autoScheduleDates => 'Automatically assign Date and Time';
+
+  @override
   String get processingBracket => 'Generating bracket…';
 
   @override
   String get processingBracketSubtitle => 'Please wait';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterUpcoming => 'Upcoming';
+
+  @override
+  String get filterCompleted => 'Completed';
+
+  @override
+  String get filterByCategory => 'Category';
+
+  @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get exportCsvSuccess => 'CSV exported successfully';
+
+  @override
+  String exportCsvError(String error) {
+    return 'Error exporting CSV: $error';
+  }
 }

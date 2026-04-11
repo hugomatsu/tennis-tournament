@@ -11,8 +11,8 @@ abstract class TennisMatch with _$TennisMatch {
     required String tournamentId,
     required String categoryId,
     required String tournamentName,
-    required DateTime time,
-    required String court,
+    DateTime? time,
+    String? court,
     required String round,
     required String status, // 'Preparing', 'Scheduled', 'Confirmed', 'Started', 'Finished'
     @Default(90) int durationMinutes,
@@ -29,6 +29,7 @@ abstract class TennisMatch with _$TennisMatch {
     String? score,
     String? winner,
     @Default('normal') String resultType, // 'normal' or 'walkover'
+    String? categoryName, // Display name of the category
     String? nextMatchId, // ID of the match where the winner goes
     @Default(0) int matchIndex, // For sorting in bracket
     @Default(0) int player1Cheers,

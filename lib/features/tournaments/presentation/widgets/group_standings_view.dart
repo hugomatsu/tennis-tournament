@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,7 @@ import 'package:tennis_tournament/features/players/application/player_providers.
 import 'package:tennis_tournament/features/players/data/player_repository.dart';
 import 'package:tennis_tournament/features/tournaments/application/americano_service.dart';
 import 'package:tennis_tournament/features/tournaments/application/open_tennis_service.dart';
+import 'package:tennis_tournament/features/tournaments/application/tournament_providers.dart';
 import 'package:tennis_tournament/features/tournaments/data/tournament_repository.dart';
 import 'package:tennis_tournament/features/tournaments/domain/group_standing.dart';
 import 'package:tennis_tournament/features/tournaments/domain/tournament.dart';
@@ -88,6 +91,62 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
   String get categoryId => widget.categoryId;
   Tournament get tournament => widget.tournament;
 
+  Future<void> _exportStandingsCsv(
+    BuildContext context,
+    Map<String, List<GroupStanding>> groupedStandings,
+    String categoryName,
+  ) async {
+    final loc = AppLocalizations.of(context)!;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    try {
+      final buf = StringBuffer();
+      buf.writeln('Group,Rank,Player,Played,Wins,Losses,Points,Sets Won,Sets Lost,Games Won,Games Lost');
+
+      final sortedGroups = groupedStandings.keys.toList()..sort();
+      for (final groupId in sortedGroups) {
+        final standings = groupedStandings[groupId]!;
+        for (int i = 0; i < standings.length; i++) {
+          final s = standings[i];
+          buf.writeln([
+            groupId,
+            i + 1,
+            s.participantName,
+            s.matchesPlayed,
+            s.wins,
+            s.losses,
+            s.points,
+            s.setsWon,
+            s.setsLost,
+            s.gamesWon,
+            s.gamesLost,
+          ].join(','));
+        }
+      }
+
+      final bytes = Uint8List.fromList(buf.toString().codeUnits);
+      final safeName = '${tournament.name}_${categoryName}_standings'
+          .replaceAll(RegExp(r'[^\w]'), '_');
+      await FileSaver.instance.saveFile(
+        name: safeName,
+        bytes: bytes,
+        fileExtension: 'csv',
+        mimeType: MimeType.custom,
+        customMimeType: 'text/csv',
+      );
+      if (context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(loc.exportCsvSuccess)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(loc.exportCsvError(e.toString()))),
+        );
+      }
+    }
+  }
+
   void _showPlayerMatchesSheet(BuildContext context, String playerName, List<TennisMatch> allMatches) {
     showModalBottomSheet(
       context: context,
@@ -115,75 +174,90 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
     final isAmericano = tournament.tournamentType == 'americano';
     final advancePositions = isAmericano ? 2 : tournament.advanceCount;
 
+    final categoriesAsync = ref.watch(tournamentCategoriesProvider(tournamentId));
+    final categoryName = categoriesAsync.asData?.value
+        .where((c) => c.id == categoryId)
+        .firstOrNull
+        ?.name ?? '';
+
     // Build info header widget (will be placed inside the scrollable list)
     final typeTheme = TournamentTypeTheme.of(tournament.tournamentType);
-    final infoHeader = Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      decoration: BoxDecoration(
-        color: typeTheme.background,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: typeTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(typeTheme.icon, color: typeTheme.color),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  isAmericano ? loc.americanoMode : loc.openTennisMode,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: typeTheme.color,
+
+    Widget buildInfoHeader(Map<String, List<GroupStanding>>? groupedStandings) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        decoration: BoxDecoration(
+          color: typeTheme.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: typeTheme.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(typeTheme.icon, color: typeTheme.color),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isAmericano ? loc.americanoMode : loc.openTennisMode,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: typeTheme.color,
+                    ),
                   ),
                 ),
-              ),
-              if (isAdmin)
-                StreamBuilder<List<TennisMatch>>(
-                  stream: matchesStream,
-                  builder: (context, snap) {
-                    final pending = (snap.data ?? [])
-                        .where((m) =>
-                            m.categoryId == categoryId &&
-                            m.status != 'Completed' &&
-                            m.status != 'Finished' &&
-                            m.player1Name.isNotEmpty &&
-                            (m.player2Name?.isNotEmpty ?? false))
-                        .toList();
-                    if (pending.isEmpty) return const SizedBox.shrink();
-                    return IconButton(
-                      icon: const Icon(Icons.casino_outlined),
-                      tooltip: loc.fillRandomResults,
-                      color: isAmericano ? Colors.purple : Colors.blue,
-                      onPressed: () => _fillRandomResults(context, ref, pending, loc),
-                    );
-                  },
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if ((tournament.matchRules['scoringMode'] as String? ?? 'flat') == 'variable')
-            Text(
-              loc.variableScoringTable(
-                (tournament.matchRules['pointsWin2_0'] as int?) ?? 4,
-                (tournament.matchRules['pointsWin2_1'] as int?) ?? 3,
-                (tournament.matchRules['pointsWinWO'] as int?) ?? 2,
-                (tournament.matchRules['pointsLoss1_2'] as int?) ?? 1,
-              ),
-              style: const TextStyle(fontSize: 13),
-            )
-          else
-            Text(
-              loc.pointsPerWinLabel(tournament.pointsPerWin),
-              style: const TextStyle(fontSize: 14),
+                if (isAdmin && groupedStandings != null && groupedStandings.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.download),
+                    tooltip: loc.exportCsv,
+                    onPressed: () => _exportStandingsCsv(context, groupedStandings, categoryName),
+                  ),
+                if (isAdmin)
+                  StreamBuilder<List<TennisMatch>>(
+                    stream: matchesStream,
+                    builder: (context, snap) {
+                      final pending = (snap.data ?? [])
+                          .where((m) =>
+                              m.categoryId == categoryId &&
+                              m.status != 'Completed' &&
+                              m.status != 'Finished' &&
+                              m.player1Name.isNotEmpty &&
+                              (m.player2Name?.isNotEmpty ?? false))
+                          .toList();
+                      if (pending.isEmpty) return const SizedBox.shrink();
+                      return IconButton(
+                        icon: const Icon(Icons.casino_outlined),
+                        tooltip: loc.fillRandomResults,
+                        color: isAmericano ? Colors.purple : Colors.blue,
+                        onPressed: () => _fillRandomResults(context, ref, pending, loc),
+                      );
+                    },
+                  ),
+              ],
             ),
-        ],
-      ),
-    );
+            const SizedBox(height: 8),
+            if ((tournament.matchRules['scoringMode'] as String? ?? 'flat') == 'variable')
+              Text(
+                loc.variableScoringTable(
+                  (tournament.matchRules['pointsWin2_0'] as int?) ?? 4,
+                  (tournament.matchRules['pointsWin2_1'] as int?) ?? 3,
+                  (tournament.matchRules['pointsWinWO'] as int?) ?? 2,
+                  (tournament.matchRules['pointsLoss1_2'] as int?) ?? 1,
+                ),
+                style: const TextStyle(fontSize: 13),
+              )
+            else
+              Text(
+                loc.pointsPerWinLabel(tournament.pointsPerWin),
+                style: const TextStyle(fontSize: 14),
+              ),
+          ],
+        ),
+      );
+    }
 
     // Build progress widget (will be placed inside the scrollable list)
     final progressWidget = StreamBuilder<List<TennisMatch>>(
@@ -292,7 +366,7 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
         if (groupedStandings.isEmpty) {
           return ListView(
             children: [
-              infoHeader,
+              buildInfoHeader(null),
               progressWidget,
               Padding(
                 padding: const EdgeInsets.all(32),
@@ -342,7 +416,7 @@ class _GroupStandingsViewState extends ConsumerState<GroupStandingsView> {
               itemCount: totalItems,
               itemBuilder: (context, index) {
                 // Item 0: info header
-                if (index == 0) return infoHeader;
+                if (index == 0) return buildInfoHeader(groupedStandings);
                 // Item 1: progress widget
                 if (index == 1) return progressWidget;
 
@@ -1545,7 +1619,12 @@ class _PlayerMatchesSheet extends ConsumerWidget {
     final playerMatches = matches
         .where((m) => m.player1Name == playerName || m.player2Name == playerName)
         .toList()
-      ..sort((a, b) => a.time.compareTo(b.time));
+      ..sort((a, b) {
+        if (a.time == null && b.time == null) return 0;
+        if (a.time == null) return 1;
+        if (b.time == null) return -1;
+        return a.time!.compareTo(b.time!);
+      });
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -1624,8 +1703,8 @@ class _PlayerMatchesSheet extends ConsumerWidget {
                             ? (match.player2Name ?? 'TBD')
                             : match.player1Name;
                         final isCompleted = match.status == 'Completed' || match.status == 'Finished';
-                        final dateStr = DateFormat.MMMd(locale).format(match.time);
-                        final timeStr = DateFormat.Hm(locale).format(match.time);
+                        final dateStr = match.time != null ? DateFormat.MMMd(locale).format(match.time!) : loc.timeTBD;
+                        final timeStr = match.time != null ? DateFormat.Hm(locale).format(match.time!) : '';
 
                         return InkWell(
                           onTap: () {
@@ -1697,7 +1776,7 @@ class _PlayerMatchesSheet extends ConsumerWidget {
                                           Icon(Icons.sports_tennis, size: 12, color: Colors.grey.shade500),
                                           const SizedBox(width: 4),
                                           Text(
-                                            match.court.isNotEmpty ? match.court : match.round,
+                                            match.court?.isNotEmpty == true ? match.court! : match.round,
                                             style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                                           ),
                                           if (isCompleted && match.score != null) ...[

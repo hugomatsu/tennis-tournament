@@ -42,12 +42,46 @@ class SingleEliminationService implements SchedulingService {
   SingleEliminationService(this._ref);
 
   @override
+  Future<List<TennisMatch>> assignSlotsToMatches(
+    Tournament tournament,
+    List<TennisMatch> matchesToSchedule,
+    DateTime startDate, {
+    List<TennisMatch> additionalOccupiedMatches = const [],
+  }) async {
+    final rules = tournament.scheduleRules;
+    final matchRules = tournament.matchRules;
+    final duration = matchRules['matchDurationMinutes'] as int? ?? 90;
+
+    // SingleElimination uses a different _generateSlots signature:
+    // List<_MatchSlot> _generateSlots(List<DailySchedule> rules, int matchDurationMinutes)
+    
+    final slots = _generateSlots(
+      rules,
+      duration,
+    );
+    
+    // We also need to filter out slots that are occupied
+    // But since this is a basic override, let's just use what slots we have.
+    // We can do a rudimentary sweep for occupied.
+    final availableSlots = slots.where((slot) => !_isSlotOccupied(slot, additionalOccupiedMatches, duration)).toList();
+
+    for (int i = 0; i < matchesToSchedule.length; i++) {
+        matchesToSchedule[i] = matchesToSchedule[i].copyWith(
+          time: i < availableSlots.length ? availableSlots[i].time : null,
+          court: i < availableSlots.length ? availableSlots[i].court : '',
+        );
+    }
+    return matchesToSchedule;
+  }
+
+  @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
     TournamentCategory category,
     List<Participant> participants, {
-    bool shuffle = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
+    bool scheduleDatesAndTimes = true,
+    bool shuffle = false,
   }) async {
     if (participants.length < 2) return [];
 
@@ -231,6 +265,7 @@ class SingleEliminationService implements SchedulingService {
           id: matchId,
           tournamentId: tournament.id,
           categoryId: category.id,
+          categoryName: category.name,
           tournamentName: tournament.name,
           player1Id: player1Id,
           player1Name: player1Name,
@@ -241,8 +276,8 @@ class SingleEliminationService implements SchedulingService {
           player2UserIds: p2UserIds,
           player2AvatarUrls: p2Avatars,
           opponentName: opponentName,
-          time: matchTime,
-          court: courtName,
+          time: scheduleDatesAndTimes ? matchTime : null,
+          court: scheduleDatesAndTimes ? courtName : null,
           round: r.toString(),
           status: status,
           score: score,
@@ -402,8 +437,9 @@ class SingleEliminationService implements SchedulingService {
     final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
 
     int overlappingCount = 0;
-    for (var match in existingMatches) {
-      final matchStart = match.time;
+    for (final match in existingMatches) {
+      if (match.time == null) continue;
+      final matchStart = match.time!;
       final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
       if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
         // Same court — direct conflict

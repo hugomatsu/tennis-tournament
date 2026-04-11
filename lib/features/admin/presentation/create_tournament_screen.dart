@@ -162,6 +162,29 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
 
   // ── Schedule helpers ─────────────────────────────────────────────────────
 
+  List<DailySchedule> _buildScheduleRules() {
+    if (_weekdayTimes.isEmpty || _startDate == null || _endDate == null) return [];
+
+    String fmt(TimeOfDay t) =>
+        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+    final rules = <DailySchedule>[];
+    DateTime day = _startDate!;
+    while (!day.isAfter(_endDate!)) {
+      final range = _weekdayTimes[day.weekday]; // weekday: 1=Mon..7=Sun
+      if (range != null) {
+        rules.add(DailySchedule(
+          date: '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}',
+          startTime: fmt(range.start),
+          endTime: fmt(range.end),
+          courtCount: _courtCount,
+        ));
+      }
+      day = day.add(const Duration(days: 1));
+    }
+    return rules;
+  }
+
   Widget _buildWeekdayRow(BuildContext context, int weekday, String label) {
     final isSelected = _weekdayTimes.containsKey(weekday);
     final range = _weekdayTimes[weekday];
@@ -336,6 +359,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
             return MapEntry(key.toString(), '${fmt(range.start)}-${fmt(range.end)}');
           },
         ),
+        scheduleRules: _buildScheduleRules(),
       );
 
       await tournamentRepo.createTournament(tournament);
@@ -700,17 +724,18 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   onChanged: (v) => _maxPlayersPerGroup = int.tryParse(v) ?? 4,
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: _pointsPerWin.toString(),
-                  decoration: InputDecoration(
-                    labelText: l10n.pointsPerWin,
-                    helperText: l10n.pointsPerWinHint,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.emoji_events),
+                if ((_matchRules['scoringMode'] as String? ?? 'flat') == 'flat')
+                  TextFormField(
+                    initialValue: _pointsPerWin.toString(),
+                    decoration: InputDecoration(
+                      labelText: l10n.pointsPerWin,
+                      helperText: l10n.pointsPerWinHint,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.emoji_events),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
                   ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
-                ),
                 const SizedBox(height: 12),
                 TextFormField(
                   initialValue: _advanceCount.toString(),
@@ -837,18 +862,20 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                   keyboardType: TextInputType.number,
                   onChanged: (v) => setState(() => _matchRules['guaranteedMatches'] = int.tryParse(v) ?? 5),
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: _pointsPerWin.toString(),
-                  decoration: InputDecoration(
-                    labelText: l10n.pointsPerWin,
-                    helperText: l10n.pointsPerWinHint,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.emoji_events),
+                if ((_matchRules['scoringMode'] as String? ?? 'flat') == 'flat') ...[
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    initialValue: _pointsPerWin.toString(),
+                    decoration: InputDecoration(
+                      labelText: l10n.pointsPerWin,
+                      helperText: l10n.pointsPerWinHint,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.emoji_events),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
                   ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) => _pointsPerWin = int.tryParse(v) ?? 3,
-                ),
+                ],
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),

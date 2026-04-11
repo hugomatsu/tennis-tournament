@@ -72,16 +72,20 @@ class NextMatchCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.access_time, size: 18, color: Colors.grey[400]),
+                Icon(Icons.calendar_today, size: 16, color: colorScheme.secondary),
                 const SizedBox(width: 8),
-                Text(DateFormat('MMM d, h:mm a').format(match.time)),
-                const Spacer(),
+                Text(match!.time != null ? DateFormat('MMM d, h:mm a').format(match!.time!) : 'TBA'),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
                 Icon(Icons.location_on_outlined, size: 18, color: Colors.grey[400]),
                 const SizedBox(width: 8),
-                Text(match.court),
+                Text(match!.court ?? 'TBA'),
               ],
             ),
           ],

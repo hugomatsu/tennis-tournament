@@ -356,10 +356,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ],
             ),
             const SizedBox(height: 32),
-            Text(DateFormat('EEE, MMM d').format(match.time),
+            Text(match.time != null ? DateFormat('EEE, MMM d').format(match.time!) : loc.timeTBD,
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
-            Text(DateFormat('h:mm a').format(match.time),
+            Text(match.time != null ? DateFormat('h:mm a').format(match.time!) : loc.timeTBD,
                 style: const TextStyle(fontSize: 16, color: Colors.white70)),
             const SizedBox(height: 24),
             const Row(
@@ -472,86 +472,32 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   }
 
   Future<void> _showAddResultsDialog(TennisMatch match) async {
-    final loc = AppLocalizations.of(context)!;
-    final scoreCtrl = TextEditingController(text: match.score ?? '');
-    String? selectedWinner = match.winner;
-    bool isWalkover = match.resultType == 'walkover';
+    final tournament = await ref.read(tournamentRepositoryProvider).getTournament(match.tournamentId);
+    final setsToPlay = (tournament?.matchRules['setsToWin'] as int?) ?? 2;
+    if (!mounted) return;
 
     await showDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text(loc.addResults),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SwitchListTile(
-                title: Text(loc.markAsWalkover),
-                value: isWalkover,
-                contentPadding: EdgeInsets.zero,
-                onChanged: (val) => setDialogState(() {
-                  isWalkover = val;
-                  if (val) {
-                    scoreCtrl.text = 'W.O.';
-                  } else {
-                    scoreCtrl.text = '';
-                  }
-                }),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: scoreCtrl,
-                enabled: !isWalkover,
-                decoration: InputDecoration(
-                  labelText: loc.score,
-                  hintText: '6-4, 7-5',
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: selectedWinner,
-                decoration: InputDecoration(labelText: loc.winner),
-                hint: Text(loc.selectWinner),
-                items: [
-                  DropdownMenuItem(value: match.player1Name, child: Text(match.player1Name)),
-                  if (match.player2Name != null)
-                    DropdownMenuItem(value: match.player2Name, child: Text(match.player2Name!)),
-                ],
-                onChanged: (val) => setDialogState(() => selectedWinner = val),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(loc.cancel),
-            ),
-            FilledButton(
-              onPressed: selectedWinner == null
-                  ? null
-                  : () async {
-                      Navigator.pop(context);
-                      await ref.read(matchRepositoryProvider).updateMatchScore(
-                        match.id,
-                        scoreCtrl.text,
-                        selectedWinner!,
-                        resultType: isWalkover ? 'walkover' : 'normal',
-                      );
-                      ref.read(analyticsServiceProvider).logSubmitMatchScore(
-                        matchId: match.id,
-                        tournamentName: match.tournamentName,
-                      );
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(loc.resultsAdded)),
-                        );
-                      }
-                    },
-              child: Text(loc.submit),
-            ),
-          ],
-        ),
+      builder: (context) => _StructuredScoreDialog(
+        match: match,
+        setsToPlay: setsToPlay,
+        onSubmit: (score, winner, resultType) async {
+          await ref.read(matchRepositoryProvider).updateMatchScore(
+            match.id,
+            score,
+            winner,
+            resultType: resultType,
+          );
+          ref.read(analyticsServiceProvider).logSubmitMatchScore(
+            matchId: match.id,
+            tournamentName: match.tournamentName,
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(AppLocalizations.of(context)!.resultsAdded)),
+            );
+          }
+        },
       ),
     );
   }
@@ -647,7 +593,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     if (!_isEditing) return const SizedBox.shrink();
     final loc = AppLocalizations.of(context)!;
     final displayDt = _pendingDateTime ?? match.time;
-    final dtLabel = DateFormat('EEE, MMM d • h:mm a').format(displayDt);
+    final dtLabel = displayDt != null ? DateFormat('EEE, MMM d • h:mm a').format(displayDt) : loc.timeTBD;
 
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -668,14 +614,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,
-                  initialDate: displayDt,
+                  initialDate: displayDt ?? DateTime.now(),
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2030),
                 );
                 if (picked == null || !mounted) return;
                 final pickedTime = await showTimePicker(
                   context: context,
-                  initialTime: TimeOfDay.fromDateTime(displayDt),
+                  initialTime: displayDt != null ? TimeOfDay.fromDateTime(displayDt) : TimeOfDay.now(),
                 );
                 if (pickedTime == null || !mounted) return;
                 setState(() {
@@ -731,7 +677,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           children: [
              ListTile(
                leading: const Icon(Icons.calendar_today),
-               title: Text(dateFormat.format(match.time)),
+               title: Text(match.time != null ? dateFormat.format(match.time!) : loc.timeTBD),
                subtitle: Text('${_getLocalizedStatus(match.status, loc)} • ${loc.round} ${match.round}'),
              ),
               if (match.locationId != null)
@@ -1283,6 +1229,374 @@ class _PlayerCard extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Structured Score Entry Dialog ──────────────────────────────────────────
+
+class _StructuredScoreDialog extends StatefulWidget {
+  final TennisMatch match;
+  final int setsToPlay; // e.g. 2 means "best of 2 — tiebreak decides"
+  final Future<void> Function(String score, String winner, String resultType) onSubmit;
+
+  const _StructuredScoreDialog({
+    required this.match,
+    required this.setsToPlay,
+    required this.onSubmit,
+  });
+
+  @override
+  State<_StructuredScoreDialog> createState() => _StructuredScoreDialogState();
+}
+
+class _StructuredScoreDialogState extends State<_StructuredScoreDialog> {
+  bool _isWalkover = false;
+  String? _selectedWinner;
+  bool _isSubmitting = false;
+
+  // Set scores: each entry is [p1Games, p2Games]
+  late List<List<int>> _sets;
+  // Tiebreak score: [p1Points, p2Points]
+  List<int> _tiebreakScore = [0, 0];
+  // Who serves first in the tiebreak: 0 = p1, 1 = p2, null = unset
+  int? _tiebreakFirstServer;
+
+  String get _p1Name => widget.match.player1Name;
+  String get _p2Name => widget.match.player2Name ?? 'TBD';
+
+  @override
+  void initState() {
+    super.initState();
+    _sets = [for (int i = 0; i < widget.setsToPlay; i++) [0, 0]];
+  }
+
+  // Returns true if we're in tiebreak state:
+  // Each player has won the same number of sets and all defined sets are done.
+  bool get _isTiebreak {
+    final p1Sets = _sets.where((s) => s[0] > s[1]).length;
+    final p2Sets = _sets.where((s) => s[1] > s[0]).length;
+    return p1Sets == widget.setsToPlay - 1 && p2Sets == widget.setsToPlay - 1;
+  }
+
+  int get _p1SetsWon => _sets.where((s) => s[0] > s[1]).length;
+  int get _p2SetsWon => _sets.where((s) => s[1] > s[0]).length;
+
+  // Current server in tiebreak rotation: first server gets 1 serve, then alternates 2 each
+  int get _currentTiebreakServer {
+    if (_tiebreakFirstServer == null) return -1;
+    // Points 0: server=first; 1,2: other; 3,4: first; 5,6: other; ...
+    final total = _tiebreakScore[0] + _tiebreakScore[1];
+    if (total == 0) return _tiebreakFirstServer!;
+    // After first serve, groups of 2
+    final adjusted = total - 1; // 0-based after first point
+    final group = adjusted ~/ 2;
+    return (group % 2 == 0)
+        ? (1 - _tiebreakFirstServer!)
+        : _tiebreakFirstServer!;
+  }
+
+  String _buildScore() {
+    if (_isWalkover) return 'W.O.';
+    final parts = <String>[];
+    for (int i = 0; i < widget.setsToPlay; i++) {
+      parts.add('${_sets[i][0]}-${_sets[i][1]}');
+    }
+    if (_isTiebreak) {
+      parts.add('${_tiebreakScore[0]}-${_tiebreakScore[1]}');
+    }
+    return parts.join(', ');
+  }
+
+  String? _deriveWinner() {
+    if (_isWalkover) return _selectedWinner;
+    if (_isTiebreak) {
+      if (_tiebreakScore[0] > _tiebreakScore[1]) return _p1Name;
+      if (_tiebreakScore[1] > _tiebreakScore[0]) return _p2Name;
+      return null;
+    }
+    if (_p1SetsWon > _p2SetsWon) return _p1Name;
+    if (_p2SetsWon > _p1SetsWon) return _p2Name;
+    return null;
+  }
+
+  bool get _canSubmit {
+    if (_isWalkover) return _selectedWinner != null;
+    if (_isTiebreak) {
+      return _tiebreakScore[0] != _tiebreakScore[1];
+    }
+    return _p1SetsWon != _p2SetsWon;
+  }
+
+  Future<void> _submit() async {
+    final winner = _deriveWinner();
+    if (winner == null) return;
+    setState(() => _isSubmitting = true);
+    try {
+      await widget.onSubmit(_buildScore(), winner, _isWalkover ? 'walkover' : 'normal');
+      if (mounted) Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      title: Text(loc.addResults),
+      contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              title: Text(loc.markAsWalkover),
+              value: _isWalkover,
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              onChanged: (val) => setState(() {
+                _isWalkover = val;
+                _selectedWinner = null;
+              }),
+            ),
+            if (_isWalkover) ...[
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedWinner,
+                decoration: InputDecoration(labelText: loc.winner),
+                hint: Text(loc.selectWinner),
+                items: [
+                  DropdownMenuItem(value: _p1Name, child: Text(_p1Name)),
+                  DropdownMenuItem(value: _p2Name, child: Text(_p2Name)),
+                ],
+                onChanged: (val) => setState(() => _selectedWinner = val),
+              ),
+            ] else ...[
+              const SizedBox(height: 12),
+              // Sets header row
+              Row(
+                children: [
+                  const SizedBox(width: 56),
+                  Expanded(child: Text(_p1Name, style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center)),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_p2Name, style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // One row per set
+              for (int i = 0; i < widget.setsToPlay; i++) ...[
+                _SetRow(
+                  label: '${loc.set} ${i + 1}',
+                  p1Score: _sets[i][0],
+                  p2Score: _sets[i][1],
+                  onP1Changed: (v) => setState(() => _sets[i][0] = v),
+                  onP2Changed: (v) => setState(() => _sets[i][1] = v),
+                ),
+                const SizedBox(height: 6),
+              ],
+              // Tiebreak section — shown when sets are tied
+              if (_isTiebreak) ...[
+                const Divider(),
+                Text(
+                  loc.tiebreakSectionTitle(_p1SetsWon, _p2SetsWon),
+                  style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+                ),
+                const SizedBox(height: 8),
+                // Choose who serves first
+                if (_tiebreakFirstServer == null) ...[
+                  Text(loc.initialServerQuestion, style: theme.textTheme.bodySmall),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => setState(() {
+                            _tiebreakFirstServer = 0;
+                          }),
+                          child: Text(_p1Name, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => setState(() {
+                            _tiebreakFirstServer = 1;
+                          }),
+                          child: Text(_p2Name, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Show current server
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      loc.servingNow(_currentTiebreakServer == 0 ? _p1Name : _p2Name),
+                      style: TextStyle(color: theme.colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _SetRow(
+                    label: '10',
+                    p1Score: _tiebreakScore[0],
+                    p2Score: _tiebreakScore[1],
+                    onP1Changed: (v) => setState(() => _tiebreakScore[0] = v),
+                    onP2Changed: (v) => setState(() => _tiebreakScore[1] = v),
+                    minVal: 0,
+                    maxVal: 20,
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _tiebreakFirstServer = null;
+                      _tiebreakScore = [0, 0];
+                    }),
+                    child: Text(loc.initialServerQuestion, style: theme.textTheme.labelSmall),
+                  ),
+                ],
+              ],
+              // Score preview
+              if (_deriveWinner() != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.emoji_events, size: 16, color: theme.colorScheme.tertiary),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${_deriveWinner()!}  •  ${_buildScore()}',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onTertiaryContainer),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(loc.cancel),
+        ),
+        FilledButton(
+          onPressed: (_canSubmit && !_isSubmitting) ? _submit : null,
+          child: _isSubmitting
+              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(loc.submit),
+        ),
+      ],
+    );
+  }
+}
+
+class _SetRow extends StatelessWidget {
+  final String label;
+  final int p1Score;
+  final int p2Score;
+  final ValueChanged<int> onP1Changed;
+  final ValueChanged<int> onP2Changed;
+  final int minVal;
+  final int maxVal;
+
+  const _SetRow({
+    required this.label,
+    required this.p1Score,
+    required this.p2Score,
+    required this.onP1Changed,
+    required this.onP2Changed,
+    this.minVal = 0,
+    this.maxVal = 7,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 56,
+          child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+        ),
+        Expanded(child: _ScoreSpinner(value: p1Score, onChanged: onP1Changed, min: minVal, max: maxVal)),
+        const SizedBox(width: 8),
+        Expanded(child: _ScoreSpinner(value: p2Score, onChanged: onP2Changed, min: minVal, max: maxVal)),
+      ],
+    );
+  }
+}
+
+class _ScoreSpinner extends StatelessWidget {
+  final int value;
+  final ValueChanged<int> onChanged;
+  final int min;
+  final int max;
+
+  const _ScoreSpinner({
+    required this.value,
+    required this.onChanged,
+    this.min = 0,
+    this.max = 7,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap: value > min ? () => onChanged(value - 1) : null,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: value > min ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.remove, size: 16, color: value > min ? theme.colorScheme.onPrimaryContainer : theme.disabledColor),
+          ),
+        ),
+        const SizedBox(width: 4),
+        SizedBox(
+          width: 28,
+          child: Text(
+            '$value',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(width: 4),
+        InkWell(
+          onTap: value < max ? () => onChanged(value + 1) : null,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: value < max ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.add, size: 16, color: value < max ? theme.colorScheme.onPrimaryContainer : theme.disabledColor),
+          ),
+        ),
+      ],
     );
   }
 }

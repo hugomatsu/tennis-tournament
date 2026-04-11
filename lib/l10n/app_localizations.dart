@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Location TBD'**
   String get locationTBD;
 
+  /// No description provided for @timeTBD.
+  ///
+  /// In en, this message translates to:
+  /// **'Time TBD'**
+  String get timeTBD;
+
   /// No description provided for @youSuffix.
   ///
   /// In en, this message translates to:
@@ -3047,7 +3053,7 @@ abstract class AppLocalizations {
   /// No description provided for @setsToWin.
   ///
   /// In en, this message translates to:
-  /// **'Sets to win'**
+  /// **'Sets'**
   String get setsToWin;
 
   /// No description provided for @gamesPerSet.
@@ -3439,6 +3445,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark as W.O.'**
   String get markAsWalkover;
+
+  /// No description provided for @tiebreakSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiebreak (tie {s1}×{s2})'**
+  String tiebreakSectionTitle(int s1, int s2);
+
+  /// No description provided for @initialServerQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Who serves first?'**
+  String get initialServerQuestion;
+
+  /// No description provided for @servingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Serving: {name}'**
+  String servingNow(String name);
+
+  /// No description provided for @set.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get set;
+
+  /// No description provided for @variablePointsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Var.'**
+  String get variablePointsShort;
 
   /// No description provided for @variableScoringTable.
   ///
@@ -4106,6 +4142,12 @@ abstract class AppLocalizations {
   /// **'Matches are interleaved round-robin across categories'**
   String get categoryPriorityMixedDesc;
 
+  /// No description provided for @autoScheduleDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically assign Date and Time'**
+  String get autoScheduleDates;
+
   /// No description provided for @processingBracket.
   ///
   /// In en, this message translates to:
@@ -4117,6 +4159,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please wait'**
   String get processingBracketSubtitle;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get filterUpcoming;
+
+  /// No description provided for @filterCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get filterCompleted;
+
+  /// No description provided for @filterByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get filterByCategory;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsv;
+
+  /// No description provided for @exportCsvSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV exported successfully'**
+  String get exportCsvSuccess;
+
+  /// No description provided for @exportCsvError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error exporting CSV: {error}'**
+  String exportCsvError(String error);
 }
 
 class _AppLocalizationsDelegate

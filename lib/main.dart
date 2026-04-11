@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -23,6 +24,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Use path-based URLs on web (no #-hash prefix) so deep links like
+  // /t/<id> are handled correctly by GoRouter without the hash fragment.
+  if (kIsWeb) usePathUrlStrategy();
 
   // Add Portuguese locale for timeago
   timeago.setLocaleMessages('pt', timeago.PtBrMessages());

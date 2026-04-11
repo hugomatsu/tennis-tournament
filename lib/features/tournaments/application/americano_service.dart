@@ -32,14 +32,43 @@ class AmericanoService implements SchedulingService {
   AmericanoService(this._ref);
 
   @override
+  Future<List<TennisMatch>> assignSlotsToMatches(
+    Tournament tournament,
+    List<TennisMatch> matchesToSchedule,
+    DateTime startDate, {
+    List<TennisMatch> additionalOccupiedMatches = const [],
+  }) async {
+    final rules = tournament.matchRules;
+    final duration = rules['matchDurationMinutes'] as int? ?? 90;
+    final numberOfCourts = rules['numberOfCourts'] as int? ?? 1;
+
+    final slots = _generateSlots(
+      startDate,
+      numberOfCourts,
+      duration,
+      matchesToSchedule.length,
+      additionalOccupiedMatches,
+    );
+
+    for (int i = 0; i < matchesToSchedule.length; i++) {
+        matchesToSchedule[i] = matchesToSchedule[i].copyWith(
+          time: i < slots.length ? slots[i].time : null,
+          court: i < slots.length ? slots[i].court : '',
+        );
+    }
+    return matchesToSchedule;
+  }
+
+  @override
   Future<List<TennisMatch>> generateBracket(
     Tournament tournament,
     TournamentCategory category,
     List<Participant> participants, {
-    bool shuffle = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
+    bool scheduleDatesAndTimes = true,
+    bool shuffle = false,
   }) async {
-    return generateCrossGroupRounds(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches);
+    return generateCrossGroupRounds(tournament, category, participants, shuffle: shuffle, additionalOccupiedMatches: additionalOccupiedMatches, scheduleDatesAndTimes: scheduleDatesAndTimes);
   }
 
   /// Phase 1: Generate guaranteed cross-group matches for all players.
@@ -49,6 +78,7 @@ class AmericanoService implements SchedulingService {
     TournamentCategory category,
     List<Participant> participants, {
     bool shuffle = true,
+    bool scheduleDatesAndTimes = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
   }) async {
     if (participants.length < 2) return [];
@@ -184,6 +214,7 @@ class AmericanoService implements SchedulingService {
         id: _uuid.v4(),
         tournamentId: tournament.id,
         categoryId: category.id,
+        categoryName: category.name,
         tournamentName: tournament.name,
         player1Id: p1.id,
         player1Name: p1.name,
@@ -194,8 +225,8 @@ class AmericanoService implements SchedulingService {
         player2UserIds: p2.userIds,
         player2AvatarUrls: p2.avatarUrls,
         opponentName: p2.name,
-        time: matchTime,
-        court: courtName,
+        time: scheduleDatesAndTimes ? matchTime : null,
+        court: scheduleDatesAndTimes ? courtName : null,
         round: 'Americano',
         status: 'Preparing',
         matchIndex: matches.length,
@@ -260,6 +291,7 @@ class AmericanoService implements SchedulingService {
         id: _uuid.v4(),
         tournamentId: tournament.id,
         categoryId: category.id,
+        categoryName: category.name,
         tournamentName: tournament.name,
         player1Id: p1s.participantId,
         player1Name: p1s.participantName,
@@ -274,7 +306,7 @@ class AmericanoService implements SchedulingService {
         court: courtName,
         round: 'Decider $groupId',
         status: 'Preparing',
-        matchIndex: i, // alphabetical index so winner propagation slots are correct
+        matchIndex: i,
         durationMinutes: matchDuration,
         locationId: tournament.locationId,
       ));
@@ -315,6 +347,7 @@ class AmericanoService implements SchedulingService {
           id: matchId,
           tournamentId: tournament.id,
           categoryId: category.id,
+          categoryName: category.name,
           tournamentName: tournament.name,
           player1Id: '',
           player1Name: 'TBD',
@@ -468,6 +501,7 @@ class AmericanoService implements SchedulingService {
           id: matchId,
           tournamentId: tournament.id,
           categoryId: category.id,
+          categoryName: category.name,
           tournamentName: tournament.name,
           player1Id: player1Id,
           player1Name: player1Name,
@@ -678,7 +712,8 @@ class AmericanoService implements SchedulingService {
     final slotEnd = slotStart.add(Duration(minutes: durationMinutes));
     int overlappingCount = 0;
     for (final match in existingMatches) {
-      final matchStart = match.time;
+      if (match.time == null) continue;
+      final matchStart = match.time!;
       final matchEnd = matchStart.add(Duration(minutes: match.durationMinutes));
       if (slotStart.isBefore(matchEnd) && slotEnd.isAfter(matchStart)) {
         if (match.court == slot.court) return true;

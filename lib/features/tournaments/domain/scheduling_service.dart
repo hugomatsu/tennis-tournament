@@ -10,5 +10,14 @@ abstract class SchedulingService {
     List<Participant> participants, {
     bool shuffle = true,
     List<TennisMatch> additionalOccupiedMatches = const [],
+    bool scheduleDatesAndTimes = false,
+  });
+
+  /// Auto-schedules dates and times for a list of matches that don't have them yet.
+  Future<List<TennisMatch>> assignSlotsToMatches(
+    Tournament tournament,
+    List<TennisMatch> matchesToSchedule,
+    DateTime startDate, {
+    List<TennisMatch> additionalOccupiedMatches = const [],
   });
 }

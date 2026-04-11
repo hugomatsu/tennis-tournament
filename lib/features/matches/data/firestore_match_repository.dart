@@ -20,43 +20,7 @@ class FirestoreMatchRepository implements MatchRepository {
 
       if (snapshot.docs.isEmpty) return null;
 
-      final doc = snapshot.docs.first;
-      final data = doc.data();
-      DateTime parsedTime;
-      final timeData = data['time'];
-      if (timeData is Timestamp) {
-        parsedTime = timeData.toDate();
-      } else if (timeData is String) {
-        parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
-      } else {
-        parsedTime = DateTime.now();
-      }
-
-      return TennisMatch(
-        id: doc.id,
-        tournamentId: data['tournamentId'] as String,
-        categoryId: data['categoryId'] as String? ?? '',
-        tournamentName: data['tournamentName'] as String,
-        player1Id: data['player1Id'] as String? ?? '',
-        player1Name: data['player1Name'] as String? ?? 'TBD',
-        player1AvatarUrls: data['player1AvatarUrls'] != null ? List<String?>.from(data['player1AvatarUrls']) : [],
-        player2Id: data['player2Id'] as String?,
-        player2Name: data['player2Name'] as String?,
-        player2AvatarUrls: data['player2AvatarUrls'] != null ? List<String?>.from(data['player2AvatarUrls']) : [],
-        opponentName: data['opponentName'] as String? ?? '',
-        time: parsedTime,
-        court: data['court'] as String,
-        round: data['round'] as String,
-        status: data['status'] as String,
-        score: data['score'] as String?,
-        winner: data['winner'] as String?,
-        nextMatchId: data['nextMatchId'] as String?,
-        matchIndex: data['matchIndex'] as int? ?? 0,
-        player1Cheers: data['player1Cheers'] as int? ?? 0,
-        player2Cheers: data['player2Cheers'] as int? ?? 0,
-        player1Confirmed: data['player1Confirmed'] as bool? ?? false,
-        player2Confirmed: data['player2Confirmed'] as bool? ?? false,
-      );
+      return _matchFromData(snapshot.docs.first.id, snapshot.docs.first.data());
     } catch (e) {
       return null;
     }
@@ -78,47 +42,7 @@ class FirestoreMatchRepository implements MatchRepository {
           .where('tournamentId', isEqualTo: tournamentId)
           .get();
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        
-        DateTime parsedTime;
-        final timeData = data['time'];
-        if (timeData is Timestamp) {
-          parsedTime = timeData.toDate();
-        } else if (timeData is String) {
-          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
-        } else {
-          parsedTime = DateTime.now();
-        }
-
-        return TennisMatch(
-          id: doc.id,
-          tournamentId: data['tournamentId'] as String,
-          categoryId: data['categoryId'] as String? ?? '',
-          tournamentName: data['tournamentName'] as String,
-          player1Id: data['player1Id'] as String? ?? '',
-          player1Name: data['player1Name'] as String? ?? 'TBD',
-          player1AvatarUrls: data['player1AvatarUrls'] != null ? List<String?>.from(data['player1AvatarUrls']) : [],
-          player2Id: data['player2Id'] as String?,
-          player2Name: data['player2Name'] as String?,
-          player2AvatarUrls: data['player2AvatarUrls'] != null ? List<String?>.from(data['player2AvatarUrls']) : [],
-          opponentName: data['opponentName'] as String? ?? '',
-          time: parsedTime,
-          court: data['court'] as String,
-          round: data['round'] as String,
-          status: data['status'] as String,
-          score: data['score'] as String?,
-          winner: data['winner'] as String?,
-          nextMatchId: data['nextMatchId'] as String?,
-          matchIndex: data['matchIndex'] as int? ?? 0,
-          player1Cheers: data['player1Cheers'] as int? ?? 0,
-          player2Cheers: data['player2Cheers'] as int? ?? 0,
-          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
-          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
-          durationMinutes: data['durationMinutes'] as int? ?? 90,
-          locationId: data['locationId'] as String?,
-        );
-      }).toList().cast<TennisMatch>();
+      return snapshot.docs.map((doc) => _matchFromData(doc.id, doc.data())).toList();
     } catch (e) {
       return [];
     }
@@ -130,49 +54,8 @@ class FirestoreMatchRepository implements MatchRepository {
         .collection('matches')
         .where('tournamentId', isEqualTo: tournamentId)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        
-        DateTime parsedTime;
-        final timeData = data['time'];
-        if (timeData is Timestamp) {
-          parsedTime = timeData.toDate();
-        } else if (timeData is String) {
-          parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
-        } else {
-          parsedTime = DateTime.now();
-        }
-
-        return TennisMatch(
-          id: doc.id,
-          tournamentId: data['tournamentId'] as String,
-          categoryId: data['categoryId'] as String? ?? '',
-          tournamentName: data['tournamentName'] as String,
-          player1Id: data['player1Id'] as String? ?? '',
-          player1Name: data['player1Name'] as String? ?? 'TBD',
-          player1AvatarUrls: data['player1AvatarUrls'] != null ? List<String?>.from(data['player1AvatarUrls']) : [],
-          player2Id: data['player2Id'] as String?,
-          player2Name: data['player2Name'] as String?,
-          player2AvatarUrls: data['player2AvatarUrls'] != null ? List<String?>.from(data['player2AvatarUrls']) : [],
-          opponentName: data['opponentName'] as String? ?? '',
-          time: parsedTime,
-          court: data['court'] as String,
-          round: data['round'] as String,
-          status: data['status'] as String,
-          score: data['score'] as String?,
-          winner: data['winner'] as String?,
-          nextMatchId: data['nextMatchId'] as String?,
-          matchIndex: data['matchIndex'] as int? ?? 0,
-          player1Cheers: data['player1Cheers'] as int? ?? 0,
-          player2Cheers: data['player2Cheers'] as int? ?? 0,
-          player1Confirmed: data['player1Confirmed'] as bool? ?? false,
-          player2Confirmed: data['player2Confirmed'] as bool? ?? false,
-          durationMinutes: data['durationMinutes'] as int? ?? 90,
-          locationId: data['locationId'] as String?,
-        );
-      }).toList().cast<TennisMatch>();
-    });
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => _matchFromData(doc.id, doc.data())).toList());
   }
 
   @override
@@ -200,7 +83,12 @@ class FirestoreMatchRepository implements MatchRepository {
 
       final matches = uniqueDocs.map((doc) => _matchFromData(doc.id, doc.data())).toList();
 
-      matches.sort((a, b) => a.time.compareTo(b.time));
+      matches.sort((a, b) {
+        if (a.time == null && b.time == null) return 0;
+        if (a.time == null) return 1;
+        if (b.time == null) return -1;
+        return a.time!.compareTo(b.time!);
+      });
       
       return matches;
     } catch (e) {
@@ -225,7 +113,12 @@ class FirestoreMatchRepository implements MatchRepository {
           match.player2UserIds.contains(user.uid) || 
           followedMatchIds.contains(match.id)
       ).toList()
-      ..sort((a, b) => a.time.compareTo(b.time));
+      ..sort((a, b) {
+        if (a.time == null && b.time == null) return 0;
+        if (a.time == null) return 1;
+        if (b.time == null) return -1;
+        return a.time!.compareTo(b.time!);
+      });
     });
   }
 
@@ -247,7 +140,7 @@ class FirestoreMatchRepository implements MatchRepository {
         'player2UserIds': match.player2UserIds,
         'player2AvatarUrls': match.player2AvatarUrls,
         'opponentName': match.opponentName,
-        'time': match.time.toIso8601String(),
+      'time': match.time?.toIso8601String(),
         'court': match.court,
         'round': match.round,
         'status': match.status,
@@ -276,7 +169,8 @@ class FirestoreMatchRepository implements MatchRepository {
       'status': match.status,
       'score': match.score,
       'winner': match.winner,
-      'time': match.time.toIso8601String(),
+      'resultType': match.resultType,
+      'time': match.time?.toIso8601String(),
       'court': match.court,
       'durationMinutes': match.durationMinutes,
       'locationId': match.locationId,
@@ -683,20 +577,19 @@ class FirestoreMatchRepository implements MatchRepository {
   }
 
   TennisMatch _matchFromData(String id, Map<String, dynamic> data) {
-    DateTime parsedTime;
+    DateTime? parsedTime;
     final timeData = data['time'];
     if (timeData is Timestamp) {
       parsedTime = timeData.toDate();
     } else if (timeData is String) {
-      parsedTime = DateTime.tryParse(timeData) ?? DateTime.now();
-    } else {
-      parsedTime = DateTime.now();
+      parsedTime = DateTime.tryParse(timeData);
     }
 
     return TennisMatch(
       id: id,
       tournamentId: data['tournamentId'] as String,
       categoryId: data['categoryId'] as String? ?? '',
+      categoryName: data['categoryName'] as String?,
       tournamentName: data['tournamentName'] as String,
       player1Id: data['player1Id'] as String? ?? '',
       player1Name: data['player1Name'] as String? ?? 'TBD',
@@ -706,23 +599,24 @@ class FirestoreMatchRepository implements MatchRepository {
       player2Name: data['player2Name'] as String?,
       player2UserIds: List<String>.from(data['player2UserIds'] ?? []),
       player2AvatarUrls: List<String?>.from(data['player2AvatarUrls'] ?? []),
-      opponentName: data['opponentName'] as String? ?? '',
+      opponentName: data['opponentName'] as String?,
       time: parsedTime,
-      court: data['court'] as String,
-      round: data['round'] as String,
-      status: data['status'] as String,
+      court: data['court'] as String?,
+      round: data['round'] as String? ?? '',
+      status: data['status'] as String? ?? 'Preparing',
       score: data['score'] as String?,
       winner: data['winner'] as String?,
       nextMatchId: data['nextMatchId'] as String?,
-      matchIndex: data['matchIndex'] as int? ?? 0,
-      player1Cheers: data['player1Cheers'] as int? ?? 0,
-      player2Cheers: data['player2Cheers'] as int? ?? 0,
+      matchIndex: (data['matchIndex'] as num?)?.toInt() ?? 0,
+      player1Cheers: (data['player1Cheers'] as num?)?.toInt() ?? 0,
+      player2Cheers: (data['player2Cheers'] as num?)?.toInt() ?? 0,
       player1Confirmed: data['player1Confirmed'] as bool? ?? false,
       player2Confirmed: data['player2Confirmed'] as bool? ?? false,
-      durationMinutes: data['durationMinutes'] as int? ?? 90,
+      durationMinutes: (data['durationMinutes'] as num?)?.toInt() ?? 90,
       locationId: data['locationId'] as String?,
       player1Justification: data['player1Justification'] as String?,
       player2Justification: data['player2Justification'] as String?,
+      resultType: data['resultType'] as String? ?? 'normal',
     );
   }
 }

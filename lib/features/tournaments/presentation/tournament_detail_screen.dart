@@ -155,48 +155,82 @@ class TournamentDetailScreen extends ConsumerWidget {
                                     );
                                     if (method == null || !context.mounted) return;
 
-                                    // Step 2: Choose category priority order
-                                    final priority = await showDialog<String>(
+                                    // Step 2: Choose category priority order and auto-schedule
+                                    String selectedPriority = 'alphabetical';
+                                    bool autoSchedule = true;
+
+                                    final dialogResult = await showDialog<Map<String, dynamic>>(
                                       context: context,
-                                      builder: (ctx) => SimpleDialog(
-                                        title: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(loc.categoryPriorityTitle),
-                                            const SizedBox(height: 4),
-                                            Text(loc.categoryPrioritySubtitle, style: Theme.of(ctx).textTheme.bodySmall),
+                                      builder: (ctx) => StatefulBuilder(
+                                        builder: (ctx, setState) => AlertDialog(
+                                          title: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(loc.categoryPriorityTitle),
+                                              const SizedBox(height: 4),
+                                              Text(loc.categoryPrioritySubtitle, style: Theme.of(ctx).textTheme.bodySmall),
+                                            ],
+                                          ),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              RadioListTile<String>(
+                                                value: 'alphabetical',
+                                                groupValue: selectedPriority,
+                                                onChanged: (val) => setState(() => selectedPriority = val!),
+                                                title: Text(loc.categoryPriorityAlphabetical),
+                                                subtitle: Text(loc.categoryPriorityAlphabeticalDesc),
+                                                secondary: const Icon(Icons.sort_by_alpha),
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              RadioListTile<String>(
+                                                value: 'inverted',
+                                                groupValue: selectedPriority,
+                                                onChanged: (val) => setState(() => selectedPriority = val!),
+                                                title: Text(loc.categoryPriorityInverted),
+                                                subtitle: Text(loc.categoryPriorityInvertedDesc),
+                                                secondary: const Icon(Icons.sort),
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              RadioListTile<String>(
+                                                value: 'mixed',
+                                                groupValue: selectedPriority,
+                                                onChanged: (val) => setState(() => selectedPriority = val!),
+                                                title: Text(loc.categoryPriorityMixed),
+                                                subtitle: Text(loc.categoryPriorityMixedDesc),
+                                                secondary: const Icon(Icons.shuffle),
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              const Divider(),
+                                              CheckboxListTile(
+                                                value: autoSchedule,
+                                                onChanged: (val) => setState(() => autoSchedule = val ?? true),
+                                                title: Text(loc.autoScheduleDates),
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, null),
+                                              child: Text(loc.cancel),
+                                            ),
+                                            FilledButton(
+                                              onPressed: () => Navigator.pop(ctx, {
+                                                'priority': selectedPriority,
+                                                'autoSchedule': autoSchedule,
+                                              }),
+                                              child: Text(loc.generateBracket),
+                                            ),
                                           ],
                                         ),
-                                        children: [
-                                          SimpleDialogOption(
-                                            onPressed: () => Navigator.pop(ctx, 'alphabetical'),
-                                            child: ListTile(
-                                              leading: const Icon(Icons.sort_by_alpha),
-                                              title: Text(loc.categoryPriorityAlphabetical),
-                                              subtitle: Text(loc.categoryPriorityAlphabeticalDesc),
-                                            ),
-                                          ),
-                                          SimpleDialogOption(
-                                            onPressed: () => Navigator.pop(ctx, 'inverted'),
-                                            child: ListTile(
-                                              leading: const Icon(Icons.sort),
-                                              title: Text(loc.categoryPriorityInverted),
-                                              subtitle: Text(loc.categoryPriorityInvertedDesc),
-                                            ),
-                                          ),
-                                          SimpleDialogOption(
-                                            onPressed: () => Navigator.pop(ctx, 'mixed'),
-                                            child: ListTile(
-                                              leading: const Icon(Icons.shuffle),
-                                              title: Text(loc.categoryPriorityMixed),
-                                              subtitle: Text(loc.categoryPriorityMixedDesc),
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     );
-                                    if (priority == null || !context.mounted) return;
+                                    if (dialogResult == null || !context.mounted) return;
+                                    
+                                    final priority = dialogResult['priority'] as String;
+                                    final shouldAutoSchedule = dialogResult['autoSchedule'] as bool;
 
                                     // Sort categories by chosen priority
                                     final sortedCategories = [...categories];
@@ -274,6 +308,7 @@ class TournamentDetailScreen extends ConsumerWidget {
                                           categoryParticipants,
                                           shuffle: method == 'automatic',
                                           additionalOccupiedMatches: allMatches,
+                                          scheduleDatesAndTimes: shouldAutoSchedule,
                                         );
                                         allMatches.addAll(matches);
                                         generatedCount += matches.length;
@@ -793,7 +828,13 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                     if (showCustom) ...[
                       TextField(
                         controller: customNameCtrl,
-                        decoration: InputDecoration(labelText: loc.categoryNameHint),
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        decoration: InputDecoration(
+                          labelText: loc.categoryNameHint,
+                          hintText: 'Ex: Categoria A\\nCategoria B',
+                        ),
+                        onChanged: (_) => setDialogState(() {}),
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
@@ -816,7 +857,7 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                 child: Text(loc.cancel),
               ),
               FilledButton(
-                onPressed: (selected.isEmpty && (!showCustom || customNameCtrl.text.isEmpty))
+                onPressed: (selected.isEmpty && (!showCustom || customNameCtrl.text.trim().isEmpty))
                     ? null
                     : () async {
                         Navigator.pop(context);
@@ -832,19 +873,35 @@ class _ManageCategoriesDialogState extends ConsumerState<_ManageCategoriesDialog
                           ));
                         }
                         // Add custom category if specified
-                        if (showCustom && customNameCtrl.text.isNotEmpty) {
-                          await repo.addCategory(TournamentCategory(
-                            id: const Uuid().v4(),
-                            tournamentId: widget.tournamentId,
-                            name: customNameCtrl.text,
-                            type: customType,
-                          ));
+                        if (showCustom && customNameCtrl.text.trim().isNotEmpty) {
+                          final names = customNameCtrl.text
+                              .split('\n')
+                              .map((e) => e.trim())
+                              .where((e) => e.isNotEmpty);
+                          for (final name in names) {
+                            await repo.addCategory(TournamentCategory(
+                              id: const Uuid().v4(),
+                              tournamentId: widget.tournamentId,
+                              name: name,
+                              type: customType,
+                            ));
+                          }
                         }
                         ref.invalidate(tournamentCategoriesProvider(widget.tournamentId));
                       },
-                child: Text(selected.isEmpty && !showCustom
-                    ? loc.add
-                    : '${loc.add} (${selected.length + (showCustom && customNameCtrl.text.isNotEmpty ? 1 : 0)})'),
+                child: Builder(
+                  builder: (context) {
+                    int customCount = 0;
+                    if (showCustom && customNameCtrl.text.trim().isNotEmpty) {
+                      customCount = customNameCtrl.text
+                          .split('\n')
+                          .where((e) => e.trim().isNotEmpty)
+                          .length;
+                    }
+                    final total = selected.length + customCount;
+                    return Text(total == 0 ? loc.add : '${loc.add} ($total)');
+                  },
+                ),
               ),
             ],
           );
@@ -1099,7 +1156,9 @@ class _InfoTab extends ConsumerWidget {
                         child: Column(
                           children: [
                             Text(
-                              '${tournament.pointsPerWin}',
+                              (tournament.matchRules['scoringMode'] as String? ?? 'flat') == 'variable'
+                                  ? loc.variablePointsShort
+                                  : '${tournament.pointsPerWin}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -1187,7 +1246,9 @@ class _InfoTab extends ConsumerWidget {
                         child: Column(
                           children: [
                             Text(
-                              '${tournament.pointsPerWin}',
+                              (tournament.matchRules['scoringMode'] as String? ?? 'flat') == 'variable'
+                                  ? loc.variablePointsShort
+                                  : '${tournament.pointsPerWin}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                             Text(loc.ptsPerWinShort, style: const TextStyle(fontSize: 12)),

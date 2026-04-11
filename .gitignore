@@ -66,3 +66,4 @@ android/app/upload-keystore.jks
 assets/env.dev
 /deploy
 /build
+scripts/service-account.json
